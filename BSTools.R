@@ -1,5 +1,120 @@
-BSTools.Densities <-
-function(plot = TRUE, rerun = TRUE)
+library("sqldf")
+library("rjags")
+library("MASS")
+library("plyr")
+
+BSTools.Plots.Densities.PlotsPerRow = 4
+
+BSTools.ToVector = function(data)
+{
+    N = length(data)
+    result = rep(0.0, N)
+    
+    for (i in 1:N)
+    {
+        result[i] = data[i]
+    }
+    
+    return (result)
+}
+
+BSTools.Density = function(data)
+{
+    dens = density(data) 
+    
+    result = data.frame(dens$x, dens$y)
+    names(result) = c("Quantity", "Density")
+  
+    
+    return (result)
+}
+
+BSTools.Analyze = function(result = BSTools.Result, qntls = c(0.05, 0.95))
+{
+    N = length(result)
+    
+    for (i in 1:N)
+    {
+        temp.df = as.data.frame(result[[i]])
+        assign(sprintf("%s%0i", "BSTools.Result.Run", i), temp.df, envir = .GlobalEnv)
+        
+        temp.stats = data.frame(V1 = numeric(4))
+        
+        for (j in 1:ncol(temp.df))
+        {
+            temp.stats[1,j] = mean (temp.df[[j]])
+            temp.stats[2,j] = sd (temp.df[[j]])
+            qnt = quantile(temp.df[[j]], qntls)
+            for (k in 1:length(qnt))
+                temp.stats[2+k, j] = qnt[[k]]
+        }
+        
+        names(temp.stats) = attributes(result[[i]])$dimnames[[2]]
+        
+        assign(sprintf("%s%0i%s", "BSTools.Result.Run", i, ".Stats"), temp.stats, envir = .GlobalEnv)
+    }
+
+    
+}
+
+BSTools.Run = function(model, initials, samples, N, M = 3, sample_each = 10, n_updates = 1)
+{
+  
+  mdl = jags.model(model, initials, n.chains = M, n.adapt = N)
+ 
+  for (i in 1:n_updates)
+  {
+    writeLines(sprintf("\r\nUpdating (%i)...", i))
+    update(mdl, N)
+  }
+  
+  writeLines(sprintf("\r\nSampling..."))
+  result = coda.samples(mdl, samples, N, sample_each)
+  
+  n = length(samples)
+  
+  
+  assign("BSTools.Result", result, envir = .GlobalEnv)
+    
+}
+
+
+BSTools.Run1 = function(model, data, samples, N, initials = NA, M = 3, sample_each = 10, n_updates = 1)
+{
+    message("\r\nStarting simulation...\r\n")
+    if(!all(is.na(initials)))
+        mdl = jags.model(
+            file = model,
+            data = data,
+            inits = initials,
+            n.chains = M,
+            n.adapt = N)
+    else
+        mdl = jags.model(
+            file = model,
+            data = data,
+            n.chains = M,
+            n.adapt = N)
+
+    if(n_updates > 0 )
+        for (i in 1:n_updates)
+        {
+            message(sprintf("\r\nUpdating (%i)...", i))
+            update(mdl, N)
+        }
+
+    message(sprintf("\r\nSampling..."))
+    result = coda.samples(mdl, samples, N, sample_each)
+
+    n = length(samples)
+
+
+    assign("BSTools.Result", result, envir = .GlobalEnv)
+
+}
+
+
+BSTools.Densities = function(plot = TRUE, rerun = TRUE)
 {
     N_runs = length(BSTools.Result)
     

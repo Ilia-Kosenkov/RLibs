@@ -1,0 +1,381 @@
+Tools.DataFrame.DF2Latex = function(frame, file, frmt='%6.2f', printHeaders=TRUE, insMathHead=TRUE)
+{
+  sink(file)
+  temp=""
+  Nc = ncol(frame)
+  Nr = nrow(frame)
+  tryCatch(
+    {
+      if(printHeaders)
+      {
+        temp=sprintf("\\begin{tabular}{|")
+        for (i in 1:Nc)
+          temp=sprintf("%sc|",temp)
+        
+        temp=sprintf("%s}\n",temp)
+        temp=sprintf("%s\t\\hline\n\t",temp)
+        
+        for(i in 1:(Nc-1))
+        {
+          if(insMathHead)
+            temp=sprintf("%s$ %s $ & ",temp, names(frame)[i])
+          else
+            temp=sprintf("%s%s & ",temp, names(frame)[i])
+        }
+        if(insMathHead)
+          temp=sprintf("%s$ %s $ \\\\",temp, names(frame)[Nc])
+        else
+          temp=sprintf("%s%s \\\\",temp, names(frame)[Nc])
+        
+        writeLines(temp)
+        temp = ""
+      }
+      writeLines("\t\\hline")
+      
+      for(i in 1:Nr)
+      {
+        temp = "\t"
+        
+        for(j in 1:(Nc-1))
+        {
+          if(length(frmt) > 1)
+            format = paste("%s ", frmt[j], " & ", sep = "")
+          else
+            format = paste("%s ", frmt[1], " & ", sep = "")
+          temp = sprintf(format, temp, frame[i,j])
+        }
+        if(length(frmt) > 1)
+          format = paste("%s ", frmt[Nc], " \\\\ ", sep = "")
+        else 
+          format = paste("%s ", frmt[1], " \\\\ ", sep = "")
+        temp = sprintf(format, temp, frame[i,Nc])
+        
+        writeLines(temp)
+      }
+      
+      writeLines("\t\\hline")
+      writeLines("\\end{tabular}")
+    },
+    finally = sink()
+  )
+}
+
+Tools.DataFrame.DF2Latex2 = function(frame, file, frmt = '%6.2f', printHeaders = TRUE, 
+                                     insMathHead = TRUE, insMathBody = FALSE, insMathBefore = FALSE, insMathAfter = FALSE,
+                                     cols = 'c', NA.symb = NA_character_,
+                                     beforeHead = NA, afterHead = NA)
+{
+    if (insMathBody)
+        mB = '$'
+    else
+        mB = ''
+    if (insMathHead)
+        mH = '$'
+    else
+        mH = ''
+    if (insMathBefore)
+        mBe = '$'
+    else
+        mBe = ''
+    if (insMathAfter)
+        mAf = '$'
+    else
+        mAf = ''
+
+    sink(file)
+    temp = ""
+    Nc = ncol(frame)
+    Nr = nrow(frame)
+    tryCatch(
+    {
+        if (printHeaders)
+        {
+            temp = sprintf("\\begin{tabular}{")
+            
+            if (length(cols) == 1)
+                for (i in 1:Nc)
+                    temp = sprintf("%s%s", temp, cols[[1]])
+            else
+                for (i in 1:Nc)
+                    temp = sprintf("%s%s", temp, cols[[i]])
+
+            temp = sprintf("%s}\n", temp)
+            temp = sprintf("%s\t\\hline\n\t", temp)
+
+            if (!all(is.na(beforeHead)))
+            {
+                for (j in 1:nrow(beforeHead))
+                {
+                    for (i in 1:ncol(beforeHead))
+                    {
+                        if (length(frmt) > 1)
+                            frmt_t = frmt[[i]]
+                        else
+                            frmt_t = frmt[[1]]
+                            
+                        expr = regexpr("[0-9]+", frmt_t, perl = TRUE)
+
+                        format = paste("%s ", mBe, "%", regmatches(frmt_t, expr), "s", mBe, ifelse(i == ncol(beforeHead), "\\\\\n\t", " & "), sep = "")
+                        temp = sprintf(format, temp, beforeHead[j,i])
+                    }
+                }
+            }
+
+            for (i in 1:(Nc))
+            {
+               
+                if (length(frmt) > 1)
+                    frmt_t = frmt[[i]]
+                else
+                    frmt_t = frmt[[1]]
+
+                expr = regexpr("[0-9]+", frmt_t, perl = TRUE)
+
+                format = paste("%s ", mH, "%", regmatches(frmt_t, expr), "s", mH, ifelse(i == ncol(frame), "\\\\\n\t", " & "), sep = "")
+                temp = sprintf(format, temp, names(frame)[i])
+             }
+          
+
+            if (!all(is.na(afterHead)))
+            {
+                for (j in 1:nrow(afterHead))
+                {
+                    for (i in 1:ncol(afterHead))
+                    {
+                        if (length(frmt) > 1)
+                            frmt_t = frmt[[i]]
+                        else
+                            frmt_t = frmt[[1]]
+
+                        expr = regexpr("[0-9]+", frmt_t, perl = TRUE)
+
+                        format = paste("%s ", mAf, "%", regmatches(frmt_t, expr), "s", mAf, ifelse(i == ncol(afterHead), "\\\\\n\t", " & "), sep = "")
+                        temp = sprintf(format, temp, afterHead[j, i])
+                    }
+                }
+            }
+            #writeLines(temp)
+            #temp = ""
+       }
+
+        writeLines(paste(temp, ifelse(nchar(temp) > 0, "", "\t"), "\\hline", sep = ""))
+
+        for (i in 1:Nr)
+        {
+            temp = "\t"
+
+            for (j in 1:(Nc - 1))
+            {
+                if (length(frmt) > 1)
+                    frmt_t = frmt[[j]]
+                else
+                    frmt_t = frmt[[1]]
+                if (is.na(frame[i, j]))
+                {
+                    expr = regexpr("[0-9]+", frmt_t, perl = TRUE)
+                    
+                    format = paste("%s ", mB,"%", regmatches(frmt_t, expr), "s", mB, " & ", sep = "")
+                }
+                else
+                    format = paste("%s ", mB, frmt_t, mB, " & ", sep = "")
+
+                temp = sprintf(format, temp, ifelse(is.na(frame[i, j]), NA.symb, frame[i,j]))
+            }
+            
+            if (length(frmt) > 1)
+                frmt_t = frmt[[Nc]]
+            else
+                frmt_t = frmt[[1]]
+            if (is.na(frame[i, Nc]))
+            {
+                expr = regexpr("[0-9]+", frmt_t, perl = TRUE)
+                format = paste("%s ", mB,"%", regmatches(frmt_t, expr), "s", mB, " \\\\ ", sep = "")
+            }
+            else
+                format = paste("%s ", mB, frmt_t, mB,  " \\\\ ", sep = "")
+
+           
+            temp = sprintf(format, temp, ifelse(is.na(frame[i, Nc]), NA.symb, frame[i, Nc]))
+
+            writeLines(temp)
+        }
+
+        writeLines("\t\\hline")
+        writeLines("\\end{tabular}")
+    },
+    finally = sink())
+}
+
+Tools.String.IndexOfChar = function(string, charPattern)
+{
+  require(stringr)
+  
+  n = str_length(string)
+  
+  for (i in 1:n)
+  {
+    if (substr(string, i,i) == substr(charPattern, 1, 1))
+      return(i)
+  }
+  return (-1)
+}
+
+Tools.DataFrame.Print = function(frame, file, frmt='%8.2f', printHeaders=TRUE, append=FALSE)
+{
+  temp = ''
+  Nc = ncol(frame)
+  Nr = nrow(frame)
+  
+  tryCatch(
+    {
+      sink(file, append = append)
+  
+      if(printHeaders)
+      {
+        for (i in 1:Nc)
+        {
+          if (length(frmt) > 1)
+          {
+            start = Tools.String.IndexOfChar(frmt[i], '%')+1
+            stop = Tools.String.IndexOfChar(frmt[i], '.')-1
+            if(stop < start)
+            stop = max(Tools.String.IndexOfChar(frmt[i], 's'), Tools.String.IndexOfChar(frmt[i], 'd')) - 1
+            
+            headFrmt = sprintf("%s%ss", '%s%', substr(frmt[i], start, stop))
+           
+          }
+          else
+          {
+            start = Tools.String.IndexOfChar(frmt[1], '%')+1
+            stop = Tools.String.IndexOfChar(frmt[1], '.')-1
+            if(stop < start)
+              stop = Tools.String.IndexOfChar(frmt[i], 's')-1
+            
+            headFrmt = sprintf("%s%ss", '%s%', substr(frmt[1], start, stop))
+            
+          }
+          temp = sprintf(headFrmt, temp, names(frame)[i])
+        }
+           writeLines(temp)
+          temp =''
+        
+      }
+        for(j in 1:Nr)
+        {
+          for (i in 1:Nc)
+          {
+            if (length(frmt) > 1)
+            {
+              bodyFrmt = sprintf("%s%s", '%s', frmt[i])
+            }
+            else
+            {
+              bodyFrmt = sprintf("%s%s", '%s', frmt[1])
+            }
+            
+            temp = sprintf(bodyFrmt, temp, frame[j, i])
+          }
+          writeLines(temp)
+          temp = ''
+        }
+      
+     
+    },
+  
+    finally = sink()
+  )
+    
+}
+
+Tools.Interpolate = function(x, args, vals)
+{
+  for (i in 1:(length(args)-1))
+  {
+    if ((x >= args[i]) & (x <= args[i+1]))
+    {
+      return(vals[i] + (vals[i+1] - vals[i]) * (x-args[i])/(args[i+1] - args[i]))
+    }
+  }
+  
+  return (NA)
+}
+
+Tools.AverageAndScatter = function(x, dx, limits = c(0.16, 0.84), nRuns = 1000, nUpd = 5, nSample = 10000) 
+{
+    require(rjags)
+    
+    n = min(length(x), length(dx))
+    x = x[1:n]
+    dx = dx[1:n]
+    jagsModel = "
+    model
+    {
+        mean ~ dunif(lower, upper)
+        
+        for(i in 1:length(obsX))
+        {
+            obsX[i] ~ dnorm(mean, 1.0/ (obsdX[i]^2))
+        }
+    }
+    "
+
+    meanEst = mean(x)
+    size = max(x + dx) - min(x-dx)
+    lower = meanEst - size
+    upper = meanEst + size
+
+    initials = list("lower" = lower, "upper" = upper, "obsX" = x, "obsdX" = dx)
+
+    logConnection = textConnection(NULL, open = "w")
+
+    modelText = textConnection(jagsModel)
+    
+    sink(logConnection)
+
+    model = jags.model(modelText, initials, n.chains = 1, n.adapt = nRuns)
+    for (i in 1:ifelse(nUpd < 1, 1, nUpd))
+    {
+        update(model, nRuns, quiet = TRUE)
+    }
+
+    result = coda.samples(model, "mean", nSample, thin = 10)[[1]]
+
+    mean = mean(result)
+    sigmas = quantile(result, limits)
+    close.connection(modelText)
+    sink()
+    
+    return (list("Mean" = mean, "Limits" = sigmas))
+}
+
+Tools.GetContour = function(x, y, prob)
+{
+    require(MASS)
+    dens = kde2d(x, y)
+
+    Z = sort(dens$z)
+    dx = diff(dens$x[1:2])
+    dy = diff(dens$y[1:2])
+
+    CZ = cumsum(Z) * dx * dy
+
+    levels = sapply(prob, function(x)
+    {
+        approx(CZ, Z, xout = 1 - x)$y
+    })
+
+    return(contourLines(dens, levels = levels))
+}
+
+Tools.GetSigma = function(x)
+{
+    return(mean(x$Mean - x$Limits[[1]], x$Limits[[2]] - x$Mean))
+}
+
+Tools.Assign = function(var, env = .GlobalEnv)
+{
+    name = deparse(substitute(var))
+    
+    assign(name, var, envir = env)
+}
+
