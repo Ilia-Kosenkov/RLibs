@@ -48,9 +48,6 @@ Parallel.TryInit = function(workers =
 
 }
 
-Parallel.BackendExists = function()
-    return (exists(".Cluster") && ("cluster" %in% class(.Cluster)))
-
 Parallel.TryDispose = function() {
     if (!exists(".Cluster")) {
         message("Cluster is not initialized.")
@@ -81,4 +78,30 @@ Parallel.TryDispose = function() {
     rm(".Cluster", envir = .GlobalEnv)
 
     return (TRUE)
+}
+
+Parallel.BackendExists = function()
+    return(exists(".Cluster") && ("cluster" %in% class(.Cluster)))
+
+Parallel.Lapply = function(x, fun, ..., export = c()) {
+   
+    if (!Parallel.BackendExists())
+        stop("No parallel backend detected.")
+
+    else {
+        globals = ls(envir = .GlobalEnv)
+        export = c(export, globals[grepl("Parallel", globals)])
+        
+        clusterExport(.Cluster, export)
+        return(foreach(
+            locX = x,
+        #.verbose = TRUE,
+        .final = function(lst) { names(lst) = x; return(lst) },
+        .multicombine = TRUE,
+        .export = export)
+        %dopar% fun(locX, ...))
+
+
+    }
+
 }
