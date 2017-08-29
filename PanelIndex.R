@@ -1,18 +1,19 @@
 panelIndex = 1
 panels = c('a', 'b', 'c', 'd', 'e', 'f', 'g')
 
-PanelIndex = function()
+PanelIndex = function(advance = TRUE, cex = 1.0)
 {
     panel = panels[[panelIndex]]
-    pi = panelIndex + 1
-    assign("panelIndex", ifelse(pi > length(panels), 1, pi), envir = .GlobalEnv)
-
-    legend("topleft", legend = panel, bty = 'n', cex = ifelse(exists("pi.cex"), pi.cex,par()$cex))
+    if (advance) {
+        pi = panelIndex + 1
+        assign("panelIndex", ifelse(pi > length(panels), 1, pi), envir = .GlobalEnv)
+    }
+    legend("topleft", legend = panel, bty = 'n', cex = cex)
 }
 
 SetPanelIndex = function(index) 
 {
-    panelIndex = ifelse(index > length(panels), 1, index)
+    assign("panelIndex", ifelse(index > length(panels), 1, index), envir = .GlobalEnv)
 }
 
 GetRightAxisPos = function() 
