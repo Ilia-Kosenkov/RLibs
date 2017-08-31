@@ -320,3 +320,10 @@ BSTools.Densities = function(plot = TRUE, rerun = TRUE)
         }
     }
 }
+
+BSTools.RNGs = function(n) {
+    require(rjags)
+    load.module("lecuyer")
+
+    return(parallel.seeds("lecuyer::RngStream", n))
+}
