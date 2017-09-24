@@ -16,6 +16,9 @@ Const.g = 9.80665e2
 Const.R_gas = 8.314459848e7
 
 
+# Unit conversions
+Const.Jy2CGC = 1e-23
+
 # Alias
 Const.SB_sigm = Const.Sigm_SB
 Const.Th_sigm = Const.Sigm_Th
