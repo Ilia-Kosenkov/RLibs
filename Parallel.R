@@ -50,7 +50,8 @@ Cluster$methods("initialize" = function(nProcs) {
 Cluster$methods("getClusterDesc" = function() .self$ClusterDesc)
 Cluster$methods("getIsRegistered" = function() .self$IsRegistered)
 Cluster$methods("getClusterSize" = function() length(.self$ClusterDesc))
-Cluster$methods("getID" = function() length(.self$ID))
+Cluster$methods("getID" = function() .self$ID)
+Cluster$methods("getIsDisposed" = function() .self$IsDisposed)
 
 Cluster$methods("Register" = function(backend = "SNOW")
 {
@@ -65,6 +66,7 @@ Cluster$methods("Register" = function(backend = "SNOW")
 Cluster$methods("Dispose" = function()
 {
     stopCluster(ClusterDesc)
+    IsRegistered <<- FALSE
     IsDisposed <<- TRUE
     message(sprintf("Cluster %s (%d nodes) was disposed.", .self$ID, .self$getClusterSize()))
 })

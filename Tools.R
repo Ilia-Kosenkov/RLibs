@@ -350,20 +350,29 @@ Tools.AverageAndScatter = function(x, dx, limits = c(0.16, 0.84), nRuns = 1000, 
 
 Tools.GetContour = function(x, y, prob)
 {
+    # Depends on MASS package
     require(MASS)
+    # Calculates 2D density
     dens = kde2d(x, y)
 
+    # Aranges values in ascending order
     Z = sort(dens$z)
+    # Bin size in x and y directions
     dx = diff(dens$x[1:2])
     dy = diff(dens$y[1:2])
 
+    # Returns all cumulative sums:
+    # z1; z1+z2; ...; z1+z2+z3+...zN
+    # Times 2D bin size
     CZ = cumsum(Z) * dx * dy
 
+    # For each prob gives Z
     levels = sapply(prob, function(x)
     {
         approx(CZ, Z, xout = 1 - x)$y
     })
 
+    # Generates contoru lnes at appropriate levels
     return(contourLines(dens, levels = levels))
 }
 
