@@ -23,210 +23,236 @@ AssignDefaultConstants()
 # A class that describes axis
 AxisDesc = setRefClass("AxisDesc",
     fields = list(
-        Label = "character",        # Label of the axis
-        NTicks = "integer",         # Number of ticks
-        Breaks = "numeric",         # Custom ticks
-        TickLabels = "character",   # Custom ticks' labels
-        TransformFunc = "function", # 
-        Index = "integer",
-        LimX = "numeric",
-        LimY = "numeric",
-        LabelSize = "numeric",
-        NamesSize = "numeric",
-        DecimalDigits = "integer",
-        ForceScientific = "logical",
-        IsTeX = "logical"
+        Label = "character",         # Label of the axis
+        NTicks = "integer",          # Number of ticks
+        Breaks = "numeric",          # Custom ticks
+        TickLabels = "character",    # Custom ticks' labels
+        TransformFunc = "function",  # Transformation function. Can be used e.g. for automatic log scale
+        Index = "integer",           # The side of the axis
+        Range = "numeric",           # Axis range
+        LabelsSize = "numeric",      # Size of labels
+        NamesSize = "numeric",       # Size of names
+        DecimalDigits = "integer",   # How many decimal digits to show
+        ForceScientific = "logical", # Force scientific notation
+        IsTeX = "logical"            # Use tikz compatible notation
     ))
 
-
-ExpRep = function(x) {
-    # Parses floating point number into its decimal base and power to be used in string representation
-    # Args:
-    #   x: Input float numbers (vector possible)
-    #
-    # Returns : list with two fields; 
-    #           "Base" stores the normalized representation of the number (-10, -1] U {0} U [1, 10);
-    #           "Power" stores the power, such as "Base" * 10^"Power" gives x.
-    #           
-
-    sign = sign(x)
-    x = abs(x)
-
-    power = floor(log10(x))
-    base = 10 ^ (log10(x) - power)
-
-    result = list("Base" = sign * base, "Power" = power)
-
-
-    result$Power[is.nan(result$Base)] = 0
-    result$Base[is.nan(result$Base)] = 0
-
-    return(result)
-
-}
-
-BasicLabelsDrawer = function(
-    x,
-    forceScientific = FALSE,
-    forceNormal = FALSE,
-    powerLimit = 3,
-    forceDigits = NA,
-    tex = TRUE)
-{
-    # Transformation method that returns expression - type representations of labels
-    # in form of X0.00 x 10^+-X0
-    # Args:
-    #   x               : A vector of floats to be converted to string-to-expression representations
-    #   forceScientific : Optional flag that forces all numbers to be converted to scientific representation. 
-    #                     Otherwise, Numbers between 0.0001 and 9999 are left as they are, without power multiplier
-    #   forceNormal     : Forces decimal representation (equivalent of %f). Has the highest priority
-    #   powerLimit      : Limits the power for which non-scientific representation is used
-    #   forceDigits     : Manually limits the amout of decimal digits displayed after the decimal point.
-    #                     Works only for %f - like representation
-    #
-    # Returns: An expression vector that can be used to plot this numbers
-
-
-    # Retrieves Base x 10^Power representrations of input x numbers
-    str = ExpRep(x)
-    res = c()
-
-    # Processes each input value
-    for (i in 1:length(str$Base))
-        # NAs are handled explicitly
-            if (is.na(str$Base[i]))
-            {
-                res = c(res, parse(text = 'NA'))
-            }
-            else
-                {
-                # If exp representation is forced (flag) or if Power is outside of certain limits,
-                # use full scientific representation Base x 10^Power
-                if (!forceNormal & (forceScientific | (str$Power[i] < -powerLimit || str$Power[i] > powerLimit))) {
-                    size = ifelse(is.na(forceDigits), 2, forceDigits)
-                    if (tex) {
-                        template = sprintf("%%.%df$\\\\times$10$^{%%.0f}$", size)
-                        res = c(res, sprintf(template, str$Base[i], str$Power[i]))
-                    }
-                    else {
-                        template = sprintf("'%%.%df'%%%%*%%%%10^'%%.0f'", size)
-                        res = c(res, parse(text = sprintf(template, str$Base[i], str$Power[i])))
-                    }
-                }
-                # otherwise, print plain number in form X0.00
-                else
-                 {
-                    if (abs(str$Power[[i]] >= 0))
-                    {
-                        if (str$Power[[i]] > 2)
-                            size = ''
-                        else
-                            size = sprintf("%d", 2 - str$Power[[i]])
-                    }
-                    else
-                    {
-                        size = sprintf('%d', 1 + abs(str$Power[[i]]))
-                    }
-
-                    if (!is.na(forceDigits)) 
-                        size = forceDigits
-                     
-                    format = sprintf("%%.%sf", size)
-                    if (tex)
-                        res = c(res, sprintf(format, str$Base[i] * 10 ^ str$Power[i]))
-                    else
-                        res = c(res, parse(text = sprintf(format, str$Base[i] * 10 ^ str$Power[i])))
-                }
-            }
-    return(res)
-}
-
-Pretty = function(x, n)
-{
-
-    base = pretty(x, n)
-    m = length(base)
-    if (m - n > 3)
-        if (m %% 2 == 0)
-            return(0.5 * (base[1:(m / 2) * 2] + base[1:(m / 2) * 2 - 1]))
-        else
-            return(base[1:((m + 1) / 2) * 2 - 1])
-    else return (base)
-
-}
-
-AxisPlotter = function(
-    params,
-    ind,
-    xlim,
-    ylim,
-    labs.size = 0.85,
-    names.size = 1,
-    decimalDigits = NA,
-    forceScientific = FALSE,
-    tex = FALSE)
-{
-
-    # An auxilary function to add axes
-    # Args :
-    #   params     : An *.axis.* argument passed to function
-    #   ind        : An axis index. Ranges from 1 to 4, 1 correspond to bottom x-axis, clockwise.
-    #   xlim       : Limits of x-type axes
-    #   ylim       : Limits of y-type axes
-    #   labs.size  : Relative size of tick labels
-    #   names.size : Relative size of axis labels
-    #
-
-    # Orientation of axis, 1 - x, 0 - y
-    orient = ind %% 2
-
-    # A mapping from axis index to par()$usr limits
-    par_ind = c(3, 1, 4, 2)
-
-    # Picks up limit that should be used in braks computation
-    lim = xlim * orient + (1 - orient) * ylim
-    # If axis parameter is not empty (NAs)
-    if (!all(is.na(params)))
+AxisDesc$methods("initialize"
+    = function(label, index = 1L, range = c(0,1), nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),
+        transformFunc = function(x) x,
+        labelsSize = 0.85, namesSize = 1, decimalDigits = as.numeric(NA), forceScientific = FALSE, isTeX = FALSE)
     {
+        # AxisDesc constructor
+        # Params :
+        #   label           : Label of the axis
+        #   nTicks          : Number of ticks
+        #   breaks          : Custom ticks
+        #   tickLabels      : Custom ticks' labels
+        #   transformFunc   : Transformation function. Can be used e.g. for automatic log scale
+        #   index           : The side of the axis
+        #   tange           : Axis range
+        #   labelsSize      : Size of labels
+        #   namesSize       : Size of names
+        #   decimalDigits   : How many decimal digits to show
+        #   forceScientific : Force scientific notation
+        #   isTeX           : Use tikz compatible notation
+
+        if (is.na(nTicks) && is.na(breaks))
+            stop("[nTicks] and [breaks] cannot be NA at the same time.")
+
+        Label <<- as.character(label)
+        NTicks <<- as.integer(nTicks)
+        Index <<- as.integer(index)
+        Range <<- as.numeric(range)
+        Breaks <<- as.numeric(breaks)
+        TickLabels <<- as.character(tickLabels)
+        TransformFunc <<- as.function(transformFunc)
+        LabelsSize <<- as.numeric(labelsSize)
+        NamesSize <<- as.numeric(namesSize)
+        DecimalDigits <<- as.integer(decimalDigits)
+        ForceScientific <<- as.logical(forceScientific)
+        IsTeX <<- as.logical(isTeX)
+
+    })
+
+AxisDesc$methods("ExpRep" =
+    function(x)
+    {
+        # Parses floating point number into its decimal base and power to be used in string representation
+        # Args:
+        #   x: Input float numbers (vector possible)
+        #
+        # Returns : list with two fields; 
+        #           "Base" stores the normalized representation of the number (-10, -1] U {0} U [1, 10);
+        #           "Power" stores the power, such as "Base" * 10^"Power" gives x.
+        #           
+
+        sign = sign(x)
+        x = abs(x)
+
+        power = floor(log10(x))
+        base = 10 ^ (log10(x) - power)
+
+        result = list("Base" = sign * base, "Power" = power)
+
+
+        result$Power[is.nan(result$Base)] = 0
+        result$Base[is.nan(result$Base)] = 0
+
+        return(result)
+    })
+
+AxisDesc$methods("Pretty" =
+    function(x, n)
+    {
+        base = pretty(x, n)
+        m = length(base)
+        if (m - n > 3)
+            if (m %% 2 == 0)
+                return(0.5 * (base[1:(m / 2) * 2] + base[1:(m / 2) * 2 - 1]))
+            else
+                return(base[1:((m + 1) / 2) * 2 - 1])
+        else return (base)
+    })
+
+AxisDesc$methods("LabelsDrawer"
+    = function(
+        x,
+        powerLimit = 3)
+    {
+        # Transformation method that returns expression - type representations of labels
+        # in form of X0.00 x 10^+-X0
+        # Args:
+        #   x               : A vector of floats to be converted to string-to-expression representations
+        #   forceScientific : Optional flag that forces all numbers to be converted to scientific representation. 
+        #                     Otherwise, Numbers between 0.0001 and 9999 are left as they are, without power multiplier
+        #   forceNormal     : Forces decimal representation (equivalent of %f). Has the highest priority
+        #   powerLimit      : Limits the power for which non-scientific representation is used
+        #   forceDigits     : Manually limits the amout of decimal digits displayed after the decimal point.
+        #                     Works only for %f - like representation
+        #
+        # Returns: An expression vector that can be used to plot this numbers
+
+
+        # Retrieves Base x 10^Power representrations of input x numbers
+        str = .self$ExpRep(x)
+        res = c()
+
+        # Processes each input value
+        for (i in 1:length(str$Base))
+            # NAs are handled explicitly
+                if (is.na(str$Base[i]))
+                {
+                    if (IsTeX)
+                        res = c(res, "")
+                    else
+                        res = c(res, parse(text = ''))
+                }
+                else
+                    {
+                    # If exp representation is forced (flag) or if Power is outside of certain limits,
+                    # use full scientific representation Base x 10^Power
+                    if (ForceScientific | (str$Power[i] < -powerLimit || str$Power[i] > powerLimit)) {
+                        size = ifelse(is.na(DecimalDigits), 2, DecimalDigits)
+                        if (IsTeX) {
+                            template = sprintf("%%.%df$\\\\times$10$^{%%.0f}$", size)
+                            res = c(res, sprintf(template, str$Base[i], str$Power[i]))
+                        }
+                        else {
+                            template = sprintf("'%%.%df'%%%%*%%%%10^'%%.0f'", size)
+                            res = c(res, parse(text = sprintf(template, str$Base[i], str$Power[i])))
+                        }
+                    }
+                    # otherwise, print plain number in form X0.00
+                    else
+                     {
+                        if (abs(str$Power[[i]] >= 0))
+                        {
+                            if (str$Power[[i]] > 2)
+                                size = ''
+                            else
+                                size = sprintf("%d", 2 - str$Power[[i]])
+                        }
+                        else
+                        {
+                            size = sprintf('%d', 1 + abs(str$Power[[i]]))
+                        }
+
+                        if (!is.na(DecimalDigits)) 
+                            size = DecimalDigits
+                        else
+                            size = 2
+                     
+                        format = sprintf("%%.%sf", size)
+                        if (IsTeX)
+                            res = c(res, sprintf(format, str$Base[i] * 10 ^ str$Power[i]))
+                        else
+                            res = c(res, parse(text = paste("'", sprintf(format, str$Base[i] * 10 ^ str$Power[i]), "'", sep = "")))
+                    }
+                }
+        return(res)
+    })
+
+AxisDesc$methods("Plot"
+    = function()      
+    {
+
+        # An auxilary function to add axes
+        # Args :
+        #   params     : An *.axis.* argument passed to function
+        #   ind        : An axis index. Ranges from 1 to 4, 1 correspond to bottom x-axis, clockwise.
+        #   xlim       : Limits of x-type axes
+        #   ylim       : Limits of y-type axes
+        #   labs.size  : Relative size of tick labels
+        #   names.size : Relative size of axis labels
+        #
+
+        # Orientation of axis, 1 - x, 0 - y
+        orient = Index %% 2
+
+        # A mapping from axis index to par()$usr limits
+        par_ind = c(3, 1, 4, 2)
+
+        # Picks up limit that should be used in braks computation
+        #lim = xlim * orient + (1 - orient) * ylim
+        
         # "Breaks" & "Labels" case
-        if (all(c("Breaks", "Labels") %in% names(params))) {
+        if (!is.na(Breaks) && (length(Breaks) == length(TickLabels))) {
             # Picks breaks inside limits and obtain string-to-expression representation
-            breaks = params$Breaks
-            selInds = breaks >= lim[1] & breaks <= lim[2]
+            breaks = Breaks
+            selInds = breaks >= Range[1] & breaks <= Range[2]
             breaks = breaks[selInds]
-            labels = params$Labels[selInds]       
+            labels = TickLabels       
         }
         # Otherwise, uses pretty() to get breaks and then labels
-        else
-            {
+        else {
             # If "N" is supplied
-            if ("N" %in% names(params))
-                N = params$N
+            if (!is.na(NTicks))
+                N = NTicks
             else
                 N = .Plot.X.Axis.N.Ticks * orient + (1 - orient) * .Plot.Y.Axis.N.Ticks
 
-            breaks = Pretty(lim, N)
+            breaks = .self$Pretty(Range, N)
 
-            breaks = breaks[breaks >= lim[1] & breaks <= lim[2]]
+            breaks = breaks[breaks >= Range[1] & breaks <= Range[2]]
 
             # If transformation function is present
-            if ("F" %in% names(params))
-                labels = params$F(breaks)
+            if (length(TickLabels) == 0)
+                labels = TransformFunc(breaks)
             else
                 labels = breaks
 
-            labels = BasicLabelsDrawer(labels, forceScientific = forceScientific, forceDigits = decimalDigits, tex = tex)
+            labels = .self$LabelsDrawer(labels)
 
         }
 
 
         # Adds axis with ticks, but no label and tick labels. Ticks inside
-        Axis(side = ind, at = breaks, labels = NA, tcl = 0.3)
-
+        Axis(side = Index, at = breaks, labels = NA, tcl = 0.3)
         # If axis is y-oriented
-        if (orient == 0)
-        {
-            ind_2 = (ind) / 2
+        if (orient == 0) {
+
+            ind_2 = (Index) / 2
 
             # Size of plot in inch
             L = par()$pin[[1]]
@@ -240,19 +266,15 @@ AxisPlotter = function(
             posTick = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.Y.Axis.Tick.Offset.Inch
             posLab = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.Y.Axis.Lab.Offset.Inch
 
-               #print(c(posLab, sz[[ind_2]], f, .Plot.Y.Axis.Lab.Offset.Inch))
-
             # Puts tick labels
-            text(y = breaks, x = posTick, labels = labels, xpd = TRUE, pos = ind, cex = labs.size)
+            text(y = breaks, x = posTick, labels = labels, xpd = TRUE, pos = Index, cex = LabelsSize)
             # Puts axis label
-            text(y = mean(ylim), x = posLab,
-                    labels = parse(text = ifelse("Lab" %in% names(params), params$Lab, '')),
-                    xpd = TRUE, adj = c(0.5, 0.5), cex = names.size, srt = -90 + 180 * (ind / 2))
+            text(y = mean(Range), x = posLab,
+                    labels = if(IsTeX) Label else parse(text = Label),
+                    xpd = TRUE, adj = c(0.5, 0.5), cex = NamesSize, srt = -90 + 180 * (Index / 2))
         }
-        else
-            {
-
-            ind_2 = (ind + 1) / 2
+        else {
+            ind_2 = (Index + 1) / 2
 
             # Size of plot in inch
             L = par()$pin[[2]]
@@ -267,16 +289,16 @@ AxisPlotter = function(
             posLab = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.X.Axis.Lab.Offset.Inch
 
             # Puts tick labels
-            text(x = breaks, y = posTick, labels = labels, xpd = TRUE, pos = ind, cex = labs.size)
+            text(x = breaks, y = posTick, labels = labels, xpd = TRUE, pos = Index, cex = LabelsSize)
             # Puts axis label
-            text(x = mean(xlim), y = posLab,
-                    labels = parse(text = ifelse("Lab" %in% names(params), params$Lab, '')),
-                    xpd = TRUE, adj = c(0.5, 1 - (ind - 1) / 2), cex = names.size)
+            text(x = mean(Range), y = posLab,
+                    labels = if(IsTeX) Label else parse(text = Label),
+                    xpd = TRUE, adj = c(0.5, 1 - (Index - 1) / 2), cex = NamesSize)
         }
-    }
-}
+        
+    })
 
-PlotSelection = function(
+PlotAPI = function(
     frame,
     x.cols,
     y.cols,
@@ -294,10 +316,10 @@ PlotSelection = function(
     ylim = NA,
     xlog = FALSE,
     ylog = FALSE,
-    x.axis.1 = list("Lab" = "'x'"),
-    y.axis.1 = list("Lab" = "'y'"),
-    x.axis.2 = NA,
-    y.axis.2 = NA,
+    x.axis.1 = AxisDesc$new(label = "x"), #list("Lab" = "'x'"),
+    y.axis.1 = NULL,
+    x.axis.2 = NULL,
+    y.axis.2 = NULL,
     selected.by.ind = FALSE,
     selectionCol = NA,
     tex = FALSE
@@ -516,48 +538,114 @@ PlotSelection = function(
             Plot(selected[[i]], i)
     }
 
-    
+    # Assigns plot offsets according to current device properties
+    AssignDefaultConstants()
                                       
     # Calls axis plot function for each possible axis
-    if(!all(is.na(x.axis.1)))
-        AxisPlotter(x.axis.1, 1, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
-            forceScientific = ifelse(length(x.axis.1$ForceSc) == 0, FALSE, x.axis.1$ForceSc),
-        decimalDigits = ifelse(length(x.axis.1$DecDgt) == 0, NA, x.axis.1$DecDgt), tex = tex)
-    if (!all(is.na(y.axis.1)))
-        AxisPlotter(y.axis.1, 2, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
-            forceScientific = ifelse(length(y.axis.1$ForceSc) == 0, FALSE, y.axis.1$ForceSc),
-            decimalDigits = ifelse(length(y.axis.1$DecDgt) == 0, NA, y.axis.1$DecDgt), tex = tex)
-    if (!all(is.na(x.axis.2)))
-        AxisPlotter(x.axis.2, 3, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
-            forceScientific = ifelse(length(x.axis.2$ForceSc) == 0, FALSE, x.axis.2$ForceSc),
-            decimalDigits = ifelse(length(x.axis.2$DecDgt) == 0, NA, x.axis.2$DecDgt), tex = tex)
-    if (!all(is.na(y.axis.2)))
-        AxisPlotter(y.axis.2, 4, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
-            forceScientific = ifelse(length(y.axis.2$ForceSc) == 0, FALSE, y.axis.2$ForceSc),
-            decimalDigits = ifelse(length(y.axis.2$DecDgt) == 0, NA, y.axis.2$DecDgt), tex = tex)
+    if (!is.null(x.axis.1)) {
+        x.axis.1$Index = 1L
+        x.axis.1$Range = xlim
+        x.axis.1$LabelsSize = labs.size
+        x.axis.1$NamesSize = names.size
+        x.axis.1$IsTeX = tex
+        x.axis.1$Plot()
+    }
+    if (!is.null(x.axis.2)) {
+        x.axis.2$Index = 3L
+        x.axis.2$Range = xlim
+        x.axis.2$LabelsSize = labs.size
+        x.axis.2$NamesSize = names.size
+        x.axis.2$IsTeX = tex
+        x.axis.2$Plot()
+    }
+    if (!is.null(y.axis.1)) {
+        y.axis.1$Index = 2L
+        y.axis.1$Range = ylim
+        y.axis.1$LabelsSize = labs.size
+        y.axis.1$NamesSize = names.size
+        y.axis.1$IsTeX = tex
+        y.axis.1$Plot()
+    }
+    if (!is.null(y.axis.2)) {
+        y.axis.2$Index = 4L
+        y.axis.2$Range = ylim
+        y.axis.2$LabelsSize = labs.size
+        y.axis.2$NamesSize = names.size
+        y.axis.2$IsTeX = tex
+        y.axis.2$Plot()
+    }
+    #if(!all(is.na(x.axis.1)))
+
+        #AxisPlotter(x.axis.1, 1, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
+            #forceScientific = ifelse(length(x.axis.1$ForceSc) == 0, FALSE, x.axis.1$ForceSc),
+        #decimalDigits = ifelse(length(x.axis.1$DecDgt) == 0, NA, x.axis.1$DecDgt), tex = tex)
+    #if (!all(is.na(y.axis.1)))
+        #AxisPlotter(y.axis.1, 2, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
+            #forceScientific = ifelse(length(y.axis.1$ForceSc) == 0, FALSE, y.axis.1$ForceSc),
+            #decimalDigits = ifelse(length(y.axis.1$DecDgt) == 0, NA, y.axis.1$DecDgt), tex = tex)
+    #if (!all(is.na(x.axis.2)))
+        #AxisPlotter(x.axis.2, 3, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
+            #forceScientific = ifelse(length(x.axis.2$ForceSc) == 0, FALSE, x.axis.2$ForceSc),
+            #decimalDigits = ifelse(length(x.axis.2$DecDgt) == 0, NA, x.axis.2$DecDgt), tex = tex)
+    #if (!all(is.na(y.axis.2)))
+        #AxisPlotter(y.axis.2, 4, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
+            #forceScientific = ifelse(length(y.axis.2$ForceSc) == 0, FALSE, y.axis.2$ForceSc),
+            #decimalDigits = ifelse(length(y.axis.2$DecDgt) == 0, NA, y.axis.2$DecDgt), tex = tex)
 }
 
 Tex2Pdf = function(source) {
+    # Transforms TeX output of tikzDevice into .pdf
+    # using texify command. 
+    # Output file is fle with the same name as source, 
+    # except extention is changed to .pdf
+    # Params :
+    #   source : path to .tex file
     require(stringr)
+    # Saves current workdir
     wd = getwd()
-    ind = max(unlist(stringr::str_locate_all(source, c("\\\\", "/"))), na.rm = TRUE)
-    file = stringr::str_sub(source, ind + 1)
-    dir = stringr::str_sub(source, 1, ind)
+    # Finds last directory separator. Returns -Inf if none present and throws warning, hence suppressWarnings
+    suppressWarnings(ind <- max(unlist(stringr::str_locate_all(source, c("\\\\", "/"))), na.rm = TRUE))
 
-    tryCatch({
-        setwd(dir)
+    # If separator is found
+    if (ind > 0) {
+        # Filename
+        file = stringr::str_sub(source, ind + 1)
+        # Path to directory
+        dir = stringr::str_sub(source, 1, ind)
 
-        system(sprintf("texify %s --pdf --clean --quiet", file))
-    }, finally = setwd(wd))
+        tryCatch({
+            # Sets workdir
+            setwd(dir)
+            # Executes texify
+            system(sprintf("texify %s --pdf --clean --quiet", file))
+        },
+        # Switches workdir back
+        finally = setwd(wd))
+    }
+    # If no separator (plain file name in work dir)
+    else
+        # Simply executes texify
+        system(sprintf("texify %s --pdf --clean --quiet", source))
+    
 }
 
 
-#z = data.frame(x = rnorm(100), y = runif(100))
+##z = data.frame(x = rnorm(100), y = runif(100))
 
-#tikz("C:/Users/iliak/OneDrive/GOOGLEDRIVE/Development/R Libs/Debug/test.tex", width = 7, height = 5, standAlone = TRUE, engine = "pdftex")
-#AssignDefaultConstants()
-#PlotSelection(z, "x", "y", x.axis.1 = list("Lab" = "italic(phi)", "N" = 10), tex = TRUE)
+##tikz("C:/Users/iliak/OneDrive/GOOGLEDRIVE/Development/R Libs/Debug/test.tex", width = 7, height = 5, standAlone = TRUE, engine = "pdftex")
+##AssignDefaultConstants()
+##PlotSelection(z, "x", "y", x.axis.1 = list("Lab" = "italic(phi)", "N" = 10), tex = TRUE)
+
+##dev.off()
+
+##Tex2Pdf("./Debug/test.tex")
+
+
+#dt = data.frame(x = rnorm(100), y = runif(100))
+#tikz("test3.tex", width =7, height = 5, standAlone = TRUE)
+#PlotAPI(dt, "x", "y",
+    #x.axis.1 = AxisDesc$new(label = "$\\phi$"),
+    #y.axis.1 = AxisDesc$new(label = "$\\theta$"), tex = TRUE)
 
 #dev.off()
-
-#Tex2Pdf("./Debug/test.tex")
+#Tex2Pdf("test3.tex")
