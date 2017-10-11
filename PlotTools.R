@@ -34,13 +34,15 @@ AxisDesc = setRefClass("AxisDesc",
         NamesSize = "numeric",       # Size of names
         DecimalDigits = "integer",   # How many decimal digits to show
         ForceScientific = "logical", # Force scientific notation
-        IsTeX = "logical"            # Use tikz compatible notation
+        IsTeX = "logical",           # Use tikz compatible notation
+        TickSize = "numeric"         # Size of axis ticks
     ))
 
 AxisDesc$methods("initialize"
     = function(label, index = 1L, range = c(0,1), nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),
         transformFunc = function(x) x,
-        labelsSize = 0.85, namesSize = 1, decimalDigits = as.numeric(NA), forceScientific = FALSE, isTeX = FALSE)
+        labelsSize = 0.85, namesSize = 1, decimalDigits = as.numeric(NA), forceScientific = FALSE, isTeX = FALSE,
+        tickSize = 0.3)
     {
         # AxisDesc constructor
         # Params :
@@ -72,6 +74,7 @@ AxisDesc$methods("initialize"
         DecimalDigits <<- as.integer(decimalDigits)
         ForceScientific <<- as.logical(forceScientific)
         IsTeX <<- as.logical(isTeX)
+        TickSize <<- as.numeric(tickSize)
 
     })
 
@@ -120,18 +123,11 @@ AxisDesc$methods("LabelsDrawer"
         x,
         powerLimit = 3)
     {
-        # Transformation method that returns expression - type representations of labels
-        # in form of X0.00 x 10^+-X0
+        # Transformation method that returns axis tick labels
         # Args:
         #   x               : A vector of floats to be converted to string-to-expression representations
-        #   forceScientific : Optional flag that forces all numbers to be converted to scientific representation. 
-        #                     Otherwise, Numbers between 0.0001 and 9999 are left as they are, without power multiplier
-        #   forceNormal     : Forces decimal representation (equivalent of %f). Has the highest priority
         #   powerLimit      : Limits the power for which non-scientific representation is used
-        #   forceDigits     : Manually limits the amout of decimal digits displayed after the decimal point.
-        #                     Works only for %f - like representation
-        #
-        # Returns: An expression vector that can be used to plot this numbers
+        # Returns: a vector of axis labels
 
 
         # Retrieves Base x 10^Power representrations of input x numbers
@@ -196,16 +192,7 @@ AxisDesc$methods("LabelsDrawer"
 AxisDesc$methods("Plot"
     = function()      
     {
-
-        # An auxilary function to add axes
-        # Args :
-        #   params     : An *.axis.* argument passed to function
-        #   ind        : An axis index. Ranges from 1 to 4, 1 correspond to bottom x-axis, clockwise.
-        #   xlim       : Limits of x-type axes
-        #   ylim       : Limits of y-type axes
-        #   labs.size  : Relative size of tick labels
-        #   names.size : Relative size of axis labels
-        #
+        # Plots axis
 
         # Orientation of axis, 1 - x, 0 - y
         orient = Index %% 2
@@ -248,7 +235,8 @@ AxisDesc$methods("Plot"
 
 
         # Adds axis with ticks, but no label and tick labels. Ticks inside
-        Axis(side = Index, at = breaks, labels = NA, tcl = 0.3)
+        Axis(side = Index, at = breaks, labels = NA, tcl = TickSize)
+
         # If axis is y-oriented
         if (orient == 0) {
 
