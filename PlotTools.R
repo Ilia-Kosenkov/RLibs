@@ -35,14 +35,17 @@ AxisDesc = setRefClass("AxisDesc",
         DecimalDigits = "integer",   # How many decimal digits to show
         ForceScientific = "logical", # Force scientific notation
         IsTeX = "logical",           # Use tikz compatible notation
-        TickSize = "numeric"         # Size of axis ticks
+        TickSize = "numeric",        # Size of axis ticks
+        SmallTickStep = "numeric",   # Number of smaller ticks
+        SmallBreaks = "numeric",     # Small breaks
+        SmallTickSize = "numeric"    # Small tick size
     ))
 
 AxisDesc$methods("initialize"
     = function(label, index = 1L, range = c(0,1), nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),
         transformFunc = function(x) x,
         labelsSize = 0.85, namesSize = 1, decimalDigits = as.numeric(NA), forceScientific = FALSE, isTeX = FALSE,
-        tickSize = 0.3)
+        tickSize = 0.45, smallTickStep = as.numeric(NA), smallBreaks = as.numeric(NA), smallTickSize = 0.225)
     {
         # AxisDesc constructor
         # Params :
@@ -58,6 +61,10 @@ AxisDesc$methods("initialize"
         #   decimalDigits   : How many decimal digits to show
         #   forceScientific : Force scientific notation
         #   isTeX           : Use tikz compatible notation
+        #   tickSize        : Size of major ticks
+        #   smallTickStep   : Number of small ticks
+        #   smallBreaks     : custom small ticks
+        #   smallTickSize   : Size of small ticks
 
         if (is.na(nTicks) && is.na(breaks))
             stop("[nTicks] and [breaks] cannot be NA at the same time.")
@@ -75,8 +82,34 @@ AxisDesc$methods("initialize"
         ForceScientific <<- as.logical(forceScientific)
         IsTeX <<- as.logical(isTeX)
         TickSize <<- as.numeric(tickSize)
+        SmallTickStep <<- as.numeric(smallTickStep)
+        SmallBreaks <<- as.numeric(smallBreaks)
+        SmallTickSize <<- as.numeric(smallTickSize)
 
     })
+
+AxisDesc$methods("copy" = function() {
+    # Creates a deep copy
+    copiedInst = AxisDesc$new(label = Label,
+                             nTicks = NTicks,
+                             index = Index,
+                             range = Range,
+                             breaks = Breaks,
+                             tickLabels = TickLabels,
+                             transformFunc = TransformFunc,
+                             labelsSize = LabelsSize,
+                             namesSize = NamesSize,
+                             decimalDigits = DecimalDigits,
+                             forceScientific = ForceScientific,
+                             isTeX = IsTeX,
+                             tickSize = TickSize,
+                             nSmallTicks = NSmallTicks,
+                             smallBreaks = SmallBreals,
+                             smallTickSize = SmallTickSize
+                             )
+
+    return (copiedInst)
+})
 
 AxisDesc$methods("ExpRep" =
     function(x)
@@ -204,13 +237,14 @@ AxisDesc$methods("Plot"
         #lim = xlim * orient + (1 - orient) * ylim
         
         # "Breaks" & "Labels" case
-        if (!is.na(Breaks) && (length(Breaks) == length(TickLabels))) {
+        if (!all(is.na(Breaks)) && (length(Breaks) == length(TickLabels))) {
             # Picks breaks inside limits and obtain string-to-expression representation
             breaks = Breaks
             selInds = breaks >= Range[1] & breaks <= Range[2]
             breaks = breaks[selInds]
             labels = TickLabels       
         }
+
         # Otherwise, uses pretty() to get breaks and then labels
         else {
             # If "N" is supplied
@@ -218,7 +252,7 @@ AxisDesc$methods("Plot"
                 N = NTicks
             else
                 N = .Plot.X.Axis.N.Ticks * orient + (1 - orient) * .Plot.Y.Axis.N.Ticks
-
+            print(Range)
             breaks = .self$Pretty(Range, N)
 
             breaks = breaks[breaks >= Range[1] & breaks <= Range[2]]
@@ -232,11 +266,22 @@ AxisDesc$methods("Plot"
             labels = .self$LabelsDrawer(labels)
 
         }
-
+        if (!all(is.na(SmallBreaks))) {
+            smallBreaks = SmallBreaks
+            smallBreaks = smallBreaks[smallBreaks >= Range[1] & smallBreaks <= Range[2]]
+        }
+        else if (!is.na(SmallTickStep)) {
+            smallBreaks = seq(min(breaks), max(breaks), by = SmallTickStep)
+            smallBreaks = smallBreaks[smallBreaks >= Range[1] & smallBreaks <= Range[2]]
+        }
+        else smallBreaks = NA
+        
 
         # Adds axis with ticks, but no label and tick labels. Ticks inside
         Axis(side = Index, at = breaks, labels = NA, tcl = TickSize)
 
+        if (!all(is.na(smallBreaks)))
+            Axis(side = Index, at = smallBreaks, labels = NA, tcl = SmallTickSize)
         # If axis is y-oriented
         if (orient == 0) {
 
@@ -630,9 +675,9 @@ Tex2Pdf = function(source) {
 
 
 #dt = data.frame(x = rnorm(100), y = runif(100))
-#tikz("test3.tex", width =7, height = 5, standAlone = TRUE)
-#PlotAPI(dt, "x", "y",
-    #x.axis.1 = AxisDesc$new(label = "$\\phi$"),
+#tikz("test3.tex", width = 7, height = 5, standAlone = TRUE)
+#PlotAPI(dt, "x", "y", xlim = c(-3,3),
+    #x.axis.1 = AxisDesc$new(label = "$\\phi$", smallTickStep = 0.1),
     #y.axis.1 = AxisDesc$new(label = "$\\theta$"), tex = TRUE)
 
 #dev.off()
