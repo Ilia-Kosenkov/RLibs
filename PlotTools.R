@@ -36,16 +36,17 @@ AxisDesc = setRefClass("AxisDesc",
         ForceScientific = "logical", # Force scientific notation
         IsTeX = "logical",           # Use tikz compatible notation
         TickSize = "numeric",        # Size of axis ticks
-        SmallTickStep = "numeric",   # Number of smaller ticks
+        SmallTickStep = "numeric",   # Small tick step
         SmallBreaks = "numeric",     # Small breaks
-        SmallTickSize = "numeric"    # Small tick size
+        SmallTickSize = "numeric",   # Small tick size
+        NSmallTicks = "integer"      # Number of small ticks
     ))
 
 AxisDesc$methods("initialize"
     = function(label, index = 1L, range = c(0,1), nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),
         transformFunc = function(x) x,
         labelsSize = 0.85, namesSize = 1, decimalDigits = as.numeric(NA), forceScientific = FALSE, isTeX = FALSE,
-        tickSize = 0.45, smallTickStep = as.numeric(NA), smallBreaks = as.numeric(NA), smallTickSize = 0.225)
+        tickSize = 0.45, smallTickStep = as.numeric(NA), nSmallTicks = as.integer(NA), smallBreaks = as.numeric(NA), smallTickSize = 0.225)
     {
         # AxisDesc constructor
         # Params :
@@ -83,6 +84,7 @@ AxisDesc$methods("initialize"
         IsTeX <<- as.logical(isTeX)
         TickSize <<- as.numeric(tickSize)
         SmallTickStep <<- as.numeric(smallTickStep)
+        NSmallTicks <<- as.integer(nSmallTicks)
         SmallBreaks <<- as.numeric(smallBreaks)
         SmallTickSize <<- as.numeric(smallTickSize)
 
@@ -105,7 +107,8 @@ AxisDesc$methods("copy" = function() {
                              tickSize = TickSize,
                              nSmallTicks = NSmallTicks,
                              smallBreaks = SmallBreals,
-                             smallTickSize = SmallTickSize
+                             smallTickSize = SmallTickSize,
+                             smallTickStep = SmallTickStep
                              )
 
     return (copiedInst)
@@ -138,18 +141,44 @@ AxisDesc$methods("ExpRep" =
         return(result)
     })
 
-AxisDesc$methods("Pretty" =
-    function(x, n)
-    {
-        base = pretty(x, n)
-        m = length(base)
-        if (m - n > 3)
-            if (m %% 2 == 0)
-                return(0.5 * (base[1:(m / 2) * 2] + base[1:(m / 2) * 2 - 1]))
-            else
-                return(base[1:((m + 1) / 2) * 2 - 1])
-        else return (base)
-    })
+AxisDesc$methods("Pretty" = function(range, N = 6) {
+    # Calculates pretty set of numbers to be used in axis notation.
+    # Args:
+    #   range : Initial range, vector of two values
+    #   N     : Number of desired points in set; the actual amount of points may vary
+    # Returns: Vector of pretty, human-readable value, equally spaced within range
+
+    # Prefered steps. This means that the actual step will be coerved to the closest value using this vector.
+    # E.g., if actual step is 0.00123, then it will be coerced to 0.001; if 0.00193 - then, to 0.002.
+    # If actual step is 0.89, it will be coerced to 1.0 and so on.
+    # Prefered steps designate least significant digit.
+    steps = c(1, 2, 5, 10)
+
+    # Actual step
+    dx = diff(range) / N
+    # Rounds to obtain number of decimal digits (with a minus for dx < 1)
+    decDig = floor(log10(dx))
+
+    # This gives the most significant digit in dx
+    byStep = round(dx * 10 ^ (-decDig))
+
+    # Now, compare this digit to templated 1, 2, 5, 10
+    dists = abs(steps - byStep)
+    # Pick step which is closest to byStep
+    step = steps[which(dists == min(dists))] * 10 ^ decDig
+
+    # Generate a sequence of values using step.
+    # To prevent things that can happen if range is defined by non-pretty number
+    # (e.g., step is 0.01, but range is [1.234, 1.287], which can lead to output set being
+    # [1.234, 1.244, 1.254.., 1.284], round range with respsect to step.
+    # This procedure ensures that there is integer number of steps between from and to parameters
+    result = seq(round(range[1] / step) * step, round(range[2] / step) * step, by = step)
+    # Ensures that all values are within range
+    result = result[result >= range[1] & result <= range[2]]
+    # Returns result
+    return(result)
+
+})
 
 AxisDesc$methods("LabelsDrawer"
     = function(
@@ -252,7 +281,6 @@ AxisDesc$methods("Plot"
                 N = NTicks
             else
                 N = .Plot.X.Axis.N.Ticks * orient + (1 - orient) * .Plot.Y.Axis.N.Ticks
-            print(Range)
             breaks = .self$Pretty(Range, N)
 
             breaks = breaks[breaks >= Range[1] & breaks <= Range[2]]
@@ -266,13 +294,15 @@ AxisDesc$methods("Plot"
             labels = .self$LabelsDrawer(labels)
 
         }
-        if (!all(is.na(SmallBreaks))) {
+
+        if (!is.na(NSmallTicks)) {
+            smallBreaks = .self$Pretty(Range, NSmallTicks)
+        }
+        else if (!all(is.na(SmallBreaks))) {
             smallBreaks = SmallBreaks
-            smallBreaks = smallBreaks[smallBreaks >= Range[1] & smallBreaks <= Range[2]]
         }
         else if (!is.na(SmallTickStep)) {
-            smallBreaks = seq(min(breaks), max(breaks), by = SmallTickStep)
-            smallBreaks = smallBreaks[smallBreaks >= Range[1] & smallBreaks <= Range[2]]
+            smallBreaks = unique(c(seq(min(breaks), Range[2], by = SmallTickStep), seq(max(breaks), Range[1], by = -SmallTickStep)))
         }
         else smallBreaks = NA
         
@@ -663,6 +693,8 @@ Tex2Pdf = function(source) {
 }
 
 
+
+
 ##z = data.frame(x = rnorm(100), y = runif(100))
 
 ##tikz("C:/Users/iliak/OneDrive/GOOGLEDRIVE/Development/R Libs/Debug/test.tex", width = 7, height = 5, standAlone = TRUE, engine = "pdftex")
@@ -682,3 +714,16 @@ Tex2Pdf = function(source) {
 
 #dev.off()
 #Tex2Pdf("test3.tex")
+
+#dat = rnorm(1000, 0, 1)
+
+#xlim = range(dat)
+#par(mar = c(3, 3, 1, 3))
+#plot(dat, xaxt = 'n', yaxt = 'n', xlab = "", ylab = "", yaxs = 'r')
+#at = test(xlim, 4)
+#print(at)
+#x.ax.1 = AxisDesc$new(label = "test_1", breaks = at, tickLabels = at, smallBreaks = test(xlim, 40), range = par()$usr[3:4], index = 2)
+#x.ax.2 = AxisDesc$new(label = "test_2", nTicks = 6, smallTickStep = 0.2, index = 4, range = par()$usr[3:4], decimalDigits = 0)
+
+#x.ax.1$Plot()
+#x.ax.2$Plot()
