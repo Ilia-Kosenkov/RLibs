@@ -106,7 +106,7 @@ AxisDesc$methods("copy" = function() {
                              isTeX = IsTeX,
                              tickSize = TickSize,
                              nSmallTicks = NSmallTicks,
-                             smallBreaks = SmallBreals,
+                             smallBreaks = SmallBreaks,
                              smallTickSize = SmallTickSize,
                              smallTickStep = SmallTickStep
                              )
