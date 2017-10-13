@@ -53,6 +53,7 @@ Cluster$methods("initialize" = function(nProcs) {
     #             It is recommended to have nProcs < than amount of cores (hyperthreads).
     #             A good choice is detectCores() - 2.
 
+    sapply(.Parallel.Packages, require, character.only = TRUE)
     # Limits nProcs to [1, detecCores()] interval
     if (!is.numeric(nProcs) || nProcs < 0 || nProcs > detectCores())
         stop("Illegal number of processes requested.")
@@ -65,7 +66,7 @@ Cluster$methods("initialize" = function(nProcs) {
     IsDisposed <<- FALSE
     # Unique identifier. Dictionary is 62 symbols, 8 symbols are pulled, so probability of
     # identical IDs is about (1/62)^8 ~ 4.6e-15, providing [sample] has uniform distribution.
-    ID <<- paste("@", rawToChar(as.raw(sample(.symbs, 8))), sep = "")
+    ID <<- paste("@", rawToChar(as.raw(sample(.Parallel.symbs, 8))), sep = "")
     # Log message
     message(sprintf("Cluster %s (%d nodes) was created.", .self$ID, .self$getClusterSize()))
 })
