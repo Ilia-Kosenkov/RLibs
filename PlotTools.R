@@ -683,41 +683,56 @@ PlotAPI.SplitString = function(path, seps = c("\\\\", "/")) {
     }))
 }
 
-PlotAPI.Tex2Pdf = function(source) {
+PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
     # Transforms TeX output of tikzDevice into .pdf
     # using texify command. 
     # Output file is fle with the same name as source, 
     # except extention is changed to .pdf
     # Params :
     #   source : path to .tex file
-    require(stringr)
-    # Saves current workdir
-    wd = getwd()
-    # Finds last directory separator. Returns -Inf if none present and throws warning, hence suppressWarnings
-    suppressWarnings(ind <- max(unlist(stringr::str_locate_all(source, c("\\\\", "/"))), na.rm = TRUE))
-
-    # If separator is found
-    if (ind > 0) {
-        # Filename
-        file = stringr::str_sub(source, ind + 1)
-        # Path to directory
-        dir = stringr::str_sub(source, 1, ind)
-
-        tryCatch({
-            # Sets workdir
-            setwd(dir)
-            # Executes texify
-            #system(sprintf("texify %s --pdf --clean --quiet", file))
-            system(sprintf("pdflatex --job-name=test.pdf %s", file))
-        },
-        # Switches workdir back
-        finally = setwd(wd))
-    }
-    # If no separator (plain file name in work dir)
+    if (all(nzchar(unlist(additionalParams))))
+        params = do.call(paste, unlist(additionalParams))
     else
-        # Simply executes texify
-        system(sprintf("texify %s --pdf --clean --quiet", source))
-    
+        params = ""
+
+    if (!verbose)
+        params = paste(params, "-quiet")
+
+    # Splits strings
+    fInfo = PlotAPI.SplitString(source)
+    # Plain file names w/o directories
+    inds = sapply(fInfo, length) == 0
+    # Replaces empty strings with plain file names
+    fInfo[inds] = source[inds]
+    # Generates a list of [file, path to dir] pair
+    fileDir = lapply(fInfo, function(info) c(info[length(info)],
+                     if (length(info) > 1)
+                        do.call(paste, c(as.list(info[1:(length(info) - 1)]), sep = .Platform$file.sep))
+                     else "."))
+    # Adds only file name to each list entry
+    fileDir = suppressWarnings(lapply(fileDir, function(info)
+        c(info, stringr::str_sub(info[1], 1,
+            min(
+                abs(max(
+                        stringr::str_locate_all(info[1], "\\.")[[1]]
+                    ) - 1)[1],
+                nchar(info[1])
+            )))))
+
+    # Calls pdflatex for each specified file, then removes auxilary files 
+    lapply(fileDir, function(finfo) {
+        # Call to PDFLaTeX with additional args
+        system(sprintf("pdflatex -job-name=%s -output-directory=%s %s %s%s%s",
+            finfo[3], finfo[2], params, finfo[2], .Platform$file.sep, finfo[1]))
+        # Temporary files are generated from source filenames
+        tempFiles = paste(finfo[2], .Platform$file.sep, finfo[3], ".", c("aux", "log"), sep = "")
+        # Calls either rm (linux) or powershell "rm" (windows) to remove
+        # auxilary files
+        sapply(tempFiles, function(fl) system(sprintf("%s \"rm %s %s\"",
+            ifelse(.Platform$OS.type == "windows", "powershell", ""), ifelse(verbose, "-v", ""), fl)))
+        })
+
+    return (NULL)
 }
 
 # Backwards compatibility
@@ -726,15 +741,15 @@ PrettyAPI = PlotAPI.Pretty
 Tex2Pdf = PlotAPI.Tex2Pdf
 
 
-##z = data.frame(x = rnorm(100), y = runif(100))
+#z = data.frame(x = rnorm(100), y = runif(100))
 
-##tikz("C:/Users/iliak/OneDrive/GOOGLEDRIVE/Development/R Libs/Debug/test.tex", width = 7, height = 5, standAlone = TRUE, engine = "pdftex")
-##AssignDefaultConstants()
-##PlotSelection(z, "x", "y", x.axis.1 = list("Lab" = "italic(phi)", "N" = 10), tex = TRUE)
+#tikz("C:/Users/iliak/OneDrive/GOOGLEDRIVE/Development/R Libs/Debug/test2.tex", width = 7, height = 5, standAlone = TRUE, engine = "pdftex")
+#AssignDefaultConstants()
+#plot(z, x~y)
 
-##dev.off()
+#dev.off()
 
-##Tex2Pdf("./Debug/test.tex")
+#Tex2Pdf(c("test2.tex", "test3.tex"), verbose = F)
 
 
 #dt = data.frame(x = rnorm(100), y = runif(100))
