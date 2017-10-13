@@ -301,3 +301,12 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Visual Studio solution/project files
+*.sln
+*.rproj
+*.rxproj
+*.proj
+*.Rhistory
+*.Rdata
+*.rdata
