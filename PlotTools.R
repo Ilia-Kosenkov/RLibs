@@ -651,8 +651,38 @@ PlotAPI = function(
             #decimalDigits = ifelse(length(y.axis.2$DecDgt) == 0, NA, y.axis.2$DecDgt), tex = tex)
 }
 
-PlotAPI.SplitFilePath = function(path) {
+PlotAPI.SplitString = function(path, seps = c("\\\\", "/")) {
+    # Performs string split operation and returns substrings.
+    # Requires: <stringr>
+    # Args:
+    #   path :  String(s) to parse. Lapply is called on path
+    #   seps :  Seprator vector, regex, defaults to basic or dir separators
+    # Returns: a list of substrings per each item in path
+    if (any(!is.character(path)))
+        stop("[path] should be a collection of strings.")
 
+    if (any(is.null(as.character(unlist(seps)))) || any(is.na(as.character(unlist(seps)))) || any(!is.character(unlist(seps))))
+        stop("[seps] should be a string collection.")
+    # Required for string manipulations
+    require(stringr)
+    # Lapplies over all input paths
+    return(lapply(path, function(lcPath) {
+        # Determines all positions of substrings; 0 and n+1 are used if no substrings are present
+        seps = unique(c(0, do.call(c, stringr::str_locate_all(lcPath, unlist(seps))), nchar(lcPath) + 1))
+
+        # If any substring were found (there are more separators than the 2 default: begin and end of the string)
+        if (length(seps) > 2) {
+            # Order, important if multiple matches of multiple seps
+            seps = seps[order(seps)]
+            # Distances between adjacent indices
+            szs = diff(seps)
+            # Generate substrings
+            items = sapply(1:length(szs), function(i) stringr::str_sub(lcPath, seps[i] + 1, seps[i] + szs[i] - 1), simplify = T)
+            # Remove empty substrings
+            return(items[nzchar(items)])
+        }
+        else return (as.character(NULL))
+    }))
 }
 
 Tex2Pdf = function(source) {
@@ -714,7 +744,12 @@ Tex2Pdf = function(source) {
 
 #dev.off()
 #Tex2Pdf(".\\Debug\\test3.tex")
-print(PlotAPI.SplitFilePath(".\\Debug\\test3.tex"))
+#x = PlotAPI.SplitString(".\\Debug\\test3.tex", seps = c("\\\\", "/"))
+#fl = x[[1]][length(x[[1]])]
+#dr = do.call(paste, c(as.list(x[[1]][1:(length(x[[1]]) - 1)]), sep = "\\"))
+
+#print(fl)
+#print(dr)
 
 #dat = rnorm(1000, 0, 1)
 
