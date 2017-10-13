@@ -1,4 +1,4 @@
-AssignDefaultConstants = function()
+PlotAPI.AssignDefaultConstants = function()
 {
     # Assigns global plotting parameters
 
@@ -18,9 +18,7 @@ AssignDefaultConstants = function()
    
 }
 
-AssignDefaultConstants()
-
-PrettyAPI = function(range, N = 6) {
+PlotAPI.Pretty = function(range, N = 6) {
     # Calculates pretty set of numbers to be used in axis notation.
     # Args:
     #   range : Initial range, vector of two values
@@ -177,7 +175,7 @@ AxisDesc$methods("ExpRep" =
         return(result)
     })
 
-AxisDesc$methods("Pretty" = PrettyAPI )
+AxisDesc$methods("Pretty" = PlotAPI.Pretty)
 
 AxisDesc$methods("LabelsDrawer"
     = function(
@@ -357,7 +355,7 @@ AxisDesc$methods("Plot"
         
     })
 
-PlotAPI = function(
+PlotAPI.Plot = function(
     frame,
     x.cols,
     y.cols,
@@ -685,7 +683,7 @@ PlotAPI.SplitString = function(path, seps = c("\\\\", "/")) {
     }))
 }
 
-Tex2Pdf = function(source) {
+PlotAPI.Tex2Pdf = function(source) {
     # Transforms TeX output of tikzDevice into .pdf
     # using texify command. 
     # Output file is fle with the same name as source, 
@@ -722,7 +720,10 @@ Tex2Pdf = function(source) {
     
 }
 
-
+# Backwards compatibility
+AssignDefaultConstants = PlotAPI.AssignDefaultConstants
+PrettyAPI = PlotAPI.Pretty
+Tex2Pdf = PlotAPI.Tex2Pdf
 
 
 ##z = data.frame(x = rnorm(100), y = runif(100))
