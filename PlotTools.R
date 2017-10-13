@@ -20,6 +20,45 @@ AssignDefaultConstants = function()
 
 AssignDefaultConstants()
 
+PrettyAPI = function(range, N = 6) {
+    # Calculates pretty set of numbers to be used in axis notation.
+    # Args:
+    #   range : Initial range, vector of two values
+    #   N     : Number of desired points in set; the actual amount of points may vary
+    # Returns: Vector of pretty, human-readable value, equally spaced within range
+
+    # Prefered steps. This means that the actual step will be coerved to the closest value using this vector.
+    # E.g., if actual step is 0.00123, then it will be coerced to 0.001; if 0.00193 - then, to 0.002.
+    # If actual step is 0.89, it will be coerced to 1.0 and so on.
+    # Prefered steps designate least significant digit.
+    steps = c(1, 2, 5, 10)
+
+    # Actual step
+    dx = diff(range) / N
+    # Rounds to obtain number of decimal digits (with a minus for dx < 1)
+    decDig = floor(log10(dx))
+
+    # This gives the most significant digit in dx
+    byStep = round(dx * 10 ^ (-decDig))
+
+    # Now, compare this digit to templated 1, 2, 5, 10
+    dists = abs(steps - byStep)
+    # Pick step which is closest to byStep
+    step = steps[which(dists == min(dists))] * 10 ^ decDig
+
+    # Generate a sequence of values using step.
+    # To prevent things that can happen if range is defined by non-pretty number
+    # (e.g., step is 0.01, but range is [1.234, 1.287], which can lead to output set being
+    # [1.234, 1.244, 1.254.., 1.284], round range with respsect to step.
+    # This procedure ensures that there is integer number of steps between from and to parameters
+    result = seq(round(range[1] / step) * step, round(range[2] / step) * step, by = step)
+    # Ensures that all values are within range
+    result = result[result >= range[1] & result <= range[2]]
+    # Returns result
+    return(result)
+
+}
+
 # A class that describes axis
 AxisDesc = setRefClass("AxisDesc",
     fields = list(
@@ -43,7 +82,7 @@ AxisDesc = setRefClass("AxisDesc",
     ))
 
 AxisDesc$methods("initialize"
-    = function(label, index = 1L, range = c(0,1), nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),
+    = function(label, index = 1L, range = NA, nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),
         transformFunc = function(x) x,
         labelsSize = 0.85, namesSize = 1, decimalDigits = as.numeric(NA), forceScientific = FALSE, isTeX = FALSE,
         tickSize = 0.45, smallTickStep = as.numeric(NA), nSmallTicks = as.integer(NA), smallBreaks = as.numeric(NA), smallTickSize = 0.225)
@@ -66,9 +105,6 @@ AxisDesc$methods("initialize"
         #   smallTickStep   : Number of small ticks
         #   smallBreaks     : custom small ticks
         #   smallTickSize   : Size of small ticks
-
-        if (is.na(nTicks) && is.na(breaks))
-            stop("[nTicks] and [breaks] cannot be NA at the same time.")
 
         Label <<- as.character(label)
         NTicks <<- as.integer(nTicks)
@@ -141,44 +177,7 @@ AxisDesc$methods("ExpRep" =
         return(result)
     })
 
-AxisDesc$methods("Pretty" = function(range, N = 6) {
-    # Calculates pretty set of numbers to be used in axis notation.
-    # Args:
-    #   range : Initial range, vector of two values
-    #   N     : Number of desired points in set; the actual amount of points may vary
-    # Returns: Vector of pretty, human-readable value, equally spaced within range
-
-    # Prefered steps. This means that the actual step will be coerved to the closest value using this vector.
-    # E.g., if actual step is 0.00123, then it will be coerced to 0.001; if 0.00193 - then, to 0.002.
-    # If actual step is 0.89, it will be coerced to 1.0 and so on.
-    # Prefered steps designate least significant digit.
-    steps = c(1, 2, 5, 10)
-
-    # Actual step
-    dx = diff(range) / N
-    # Rounds to obtain number of decimal digits (with a minus for dx < 1)
-    decDig = floor(log10(dx))
-
-    # This gives the most significant digit in dx
-    byStep = round(dx * 10 ^ (-decDig))
-
-    # Now, compare this digit to templated 1, 2, 5, 10
-    dists = abs(steps - byStep)
-    # Pick step which is closest to byStep
-    step = steps[which(dists == min(dists))] * 10 ^ decDig
-
-    # Generate a sequence of values using step.
-    # To prevent things that can happen if range is defined by non-pretty number
-    # (e.g., step is 0.01, but range is [1.234, 1.287], which can lead to output set being
-    # [1.234, 1.244, 1.254.., 1.284], round range with respsect to step.
-    # This procedure ensures that there is integer number of steps between from and to parameters
-    result = seq(round(range[1] / step) * step, round(range[2] / step) * step, by = step)
-    # Ensures that all values are within range
-    result = result[result >= range[1] & result <= range[2]]
-    # Returns result
-    return(result)
-
-})
+AxisDesc$methods("Pretty" = PrettyAPI )
 
 AxisDesc$methods("LabelsDrawer"
     = function(
@@ -255,7 +254,6 @@ AxisDesc$methods("Plot"
     = function()      
     {
         # Plots axis
-
         # Orientation of axis, 1 - x, 0 - y
         orient = Index %% 2
 
@@ -302,10 +300,10 @@ AxisDesc$methods("Plot"
             smallBreaks = SmallBreaks
         }
         else if (!is.na(SmallTickStep)) {
-            smallBreaks = unique(c(seq(min(breaks), Range[2], by = SmallTickStep), seq(max(breaks), Range[1], by = -SmallTickStep)))
+            locStep = mean(diff(breaks))
+            smallBreaks = seq(round(Range[1]/ locStep) * locStep, round(Range[2]/ locStep) * locStep, by = SmallTickStep)
         }
         else smallBreaks = NA
-        
 
         # Adds axis with ticks, but no label and tick labels. Ticks inside
         Axis(side = Index, at = breaks, labels = NA, tcl = TickSize)
@@ -328,7 +326,6 @@ AxisDesc$methods("Plot"
             # Uses global settings to determine positions of axis tick labels and axis labels
             posTick = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.Y.Axis.Tick.Offset.Inch
             posLab = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.Y.Axis.Lab.Offset.Inch
-
             # Puts tick labels
             text(y = breaks, x = posTick, labels = labels, xpd = TRUE, pos = Index, cex = LabelsSize)
             # Puts axis label
@@ -350,7 +347,6 @@ AxisDesc$methods("Plot"
             # Uses global settings to determine positions of axis tick labels and axis labels
             posTick = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.X.Axis.Tick.Offset.Inch
             posLab = sz[[ind_2]] + sign(ind_2 - 1.5) * f * .Plot.X.Axis.Lab.Offset.Inch
-
             # Puts tick labels
             text(x = breaks, y = posTick, labels = labels, xpd = TRUE, pos = Index, cex = LabelsSize)
             # Puts axis label
@@ -516,7 +512,6 @@ PlotAPI = function(
     # Scales x and y limits if plot is logarithmic
     xlim = FX(xlim)
     ylim = FY(ylim)
-
     # Creates new frame (compatible fith tikz)
     frame()
     # Creates the base of the plot with given scales. No axes or labels
@@ -607,7 +602,7 @@ PlotAPI = function(
     # Calls axis plot function for each possible axis
     if (!is.null(x.axis.1)) {
         x.axis.1$Index = 1L
-        x.axis.1$Range = xlim
+        x.axis.1$Range = if (all(is.na(x.axis.1$Range))) xlim else x.axis.1$Range
         x.axis.1$LabelsSize = labs.size
         x.axis.1$NamesSize = names.size
         x.axis.1$IsTeX = tex
@@ -615,7 +610,7 @@ PlotAPI = function(
     }
     if (!is.null(x.axis.2)) {
         x.axis.2$Index = 3L
-        x.axis.2$Range = xlim
+        x.axis.2$Range = if (all(is.na(x.axis.2$Range))) xlim else x.axis.2$Range
         x.axis.2$LabelsSize = labs.size
         x.axis.2$NamesSize = names.size
         x.axis.2$IsTeX = tex
@@ -623,7 +618,7 @@ PlotAPI = function(
     }
     if (!is.null(y.axis.1)) {
         y.axis.1$Index = 2L
-        y.axis.1$Range = ylim
+        y.axis.1$Range = if (all(is.na(y.axis.1$Range))) ylim else y.axis.1$Range
         y.axis.1$LabelsSize = labs.size
         y.axis.1$NamesSize = names.size
         y.axis.1$IsTeX = tex
@@ -631,7 +626,7 @@ PlotAPI = function(
     }
     if (!is.null(y.axis.2)) {
         y.axis.2$Index = 4L
-        y.axis.2$Range = ylim
+        y.axis.2$Range = if (all(is.na(y.axis.2$Range))) ylim else y.axis.2$Range
         y.axis.2$LabelsSize = labs.size
         y.axis.2$NamesSize = names.size
         y.axis.2$IsTeX = tex
@@ -654,6 +649,10 @@ PlotAPI = function(
         #AxisPlotter(y.axis.2, 4, xlim = xlim, ylim = ylim, labs.size = labs.size, names.size = names.size,
             #forceScientific = ifelse(length(y.axis.2$ForceSc) == 0, FALSE, y.axis.2$ForceSc),
             #decimalDigits = ifelse(length(y.axis.2$DecDgt) == 0, NA, y.axis.2$DecDgt), tex = tex)
+}
+
+PlotAPI.SplitFilePath = function(path) {
+
 }
 
 Tex2Pdf = function(source) {
@@ -680,7 +679,8 @@ Tex2Pdf = function(source) {
             # Sets workdir
             setwd(dir)
             # Executes texify
-            system(sprintf("texify %s --pdf --clean --quiet", file))
+            #system(sprintf("texify %s --pdf --clean --quiet", file))
+            system(sprintf("pdflatex --job-name=test.pdf %s", file))
         },
         # Switches workdir back
         finally = setwd(wd))
@@ -713,7 +713,8 @@ Tex2Pdf = function(source) {
     #y.axis.1 = AxisDesc$new(label = "$\\theta$"), tex = TRUE)
 
 #dev.off()
-#Tex2Pdf("test3.tex")
+#Tex2Pdf(".\\Debug\\test3.tex")
+print(PlotAPI.SplitFilePath(".\\Debug\\test3.tex"))
 
 #dat = rnorm(1000, 0, 1)
 
