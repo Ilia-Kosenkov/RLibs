@@ -609,8 +609,8 @@ PlotAPI.Plot = function(
             Plot(selected[[i]], i)
     }
 
-    # Assigns plot offsets according to current device properties
-    AssignDefaultConstants()
+    ## Assigns plot offsets according to current device properties
+    #AssignDefaultConstants()
                                       
     # Calls axis plot function for each possible axis
     if (!is.null(x.axis.1)) {
@@ -721,9 +721,9 @@ PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
     fInfo[inds] = source[inds]
     # Generates a list of [file, path to dir] pair
     fileDir = lapply(fInfo, function(info) c(info[length(info)],
-                     if (length(info) > 1)
+                     tools::file_path_as_absolute( if (length(info) > 1)
                         do.call(paste, c(as.list(info[1:(length(info) - 1)]), sep = .Platform$file.sep))
-                     else "."))
+                     else ".")))
     # Adds only file name to each list entry
     fileDir = suppressWarnings(lapply(fileDir, function(info)
         c(info, stringr::str_sub(info[1], 1,
@@ -743,7 +743,7 @@ PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
         tempFiles = paste(finfo[2], .Platform$file.sep, finfo[3], ".", c("aux", "log"), sep = "")
         # Calls either rm (linux) or powershell "rm" (windows) to remove
         # auxilary files
-        sapply(tempFiles, function(fl) system(sprintf("%s \"rm %s %s\"",
+        sapply(tempFiles, function(fl) system(sprintf("%s \"rm %s '%s'\"",
             ifelse(.Platform$OS.type == "windows", "powershell", ""), ifelse(verbose, "-v", ""), fl)))
         })
 
