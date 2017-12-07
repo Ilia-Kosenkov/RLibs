@@ -434,7 +434,7 @@ PlotAPI.Plot = function(
     #                         R's <expressions> to plain text. This can be used along latex math notation with <tikz> devices.
 
 
-
+    require(stringr)
     # Scaling functions for x and y axis. Transform plot to log scale if needed
     if (xlog)
         FX = function(x) log10(x)
@@ -526,10 +526,13 @@ PlotAPI.Plot = function(
     xlim = FX(xlim)
     ylim = FY(ylim)
     # Creates new frame (compatible fith tikz)
-    frame()
+    isTikz = all(!is.na(stringr::str_locate(names(dev.cur())[1], "tikz")))
+
+    if(isTikz)
+        frame()
     # Creates the base of the plot with given scales. No axes or labels
     plot(NA, xlab = "", ylab = "",
-        xlim = (xlim), ylim = (ylim), xaxt = 'n', yaxt = 'n', bty = bty, new = TRUE)
+        xlim = (xlim), ylim = (ylim), xaxt = 'n', yaxt = 'n', bty = bty, new = isTikz)
 
     # Computes flags that indicate if there are error bars
     plotXErr = (length(x.cols) > 1) 
