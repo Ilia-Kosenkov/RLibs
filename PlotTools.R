@@ -546,8 +546,9 @@ PlotAPI.Plot = function(
     if (plotYErr)
         y.cols.err = y.cols[c(2, length(y.cols))]
 
-    # Strips inpit frame of NAs
-    data = frame[!is.na(frame[[y.cols[1]]]),]
+    ## Strips inpit frame of NAs
+    #data = frame[!is.na(frame[[y.cols[1]]]),]
+    data = frame
 
     Plot = function(sel, ind)
     {
@@ -559,11 +560,13 @@ PlotAPI.Plot = function(
         #
 
         # Selects data in a group
-        if (selected.by.ind)
+        if (selected.by.ind) 
             subData = data[sel,]
         else
             subData = data[data[[selectionColumn]] %in% sel,]
-        
+
+        subData = subData[!is.na(subData[[y.cols[1]]]),]
+
         # Points plot
         points(FX(subData[[x.cols[1]]]), FY(subData[[y.cols[1]]]),
             pch = pchs[ind], col = cols[ind], cex = pch.size[ind])
