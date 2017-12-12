@@ -20,6 +20,14 @@
 #       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #   SOFTWARE.
 
+PlotAPI.IsTikzDevice = function(dev = dev.cur()) {
+    # Checks if current device is Tikz device (and therefore supports LaTeX)
+    # Args :
+    #   dev : device to check. Defaults to current device
+
+    return(all(regexpr("tikz", names(dev)) > 0 ))
+}
+
 PlotAPI.AssignDefaultConstants = function()
 {
     # Assigns global plotting parameters
