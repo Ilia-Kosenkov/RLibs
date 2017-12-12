@@ -34,13 +34,15 @@ RDevice$methods("initialize" = function(...) {
             Index <<- newDevInd
             Name <<- names(newDevices)[newDevices == .self$Index]
         }
-        else if (length(args) > 0 && is.integer(args[[1]])) {
+        else if (length(args) > 0 &&
+            is.integer(args[[1]]) &&
+            as.integer(args[[1]]) %in% newDevices) {
             Index <<- args[[1]]
             Name <<- names(newDevices)[newDevices == .self$Index]
             .self$SetActive()
         }
         else
-            stop("More than one device were created.")
+            stop("Created device is either unavailable or several devices were created.")
     }
     else
         stop ("No new device was created.")
@@ -103,4 +105,26 @@ RDevice$methods("GetProperties" = function() {
     }
     else
         return (NULL)
+    })
+
+RDevice$methods("GetType" = function() {
+    if (.self$IsAlive()) {
+        check = function(str) all(regexpr(str, Name) > 0)
+
+        if (check("tikz"))
+            return("tikz")
+        else if (check("postscript"))
+            return("ps")
+        else if (check("pdf"))
+            return("pdf")
+        else if (check("ide"))
+            return("ide")
+        else if (check("png"))
+            return("png")
+        else if (check("jpeg"))
+            return("jpeg")
+    }
+    else
+        return (NULL)
+
 })
