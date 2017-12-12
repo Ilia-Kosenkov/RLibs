@@ -56,12 +56,14 @@ RDevice$methods("IsAlive" = function() {
 
 RDevice$methods("finalize" = function() {
     if (.self$IsAlive()) {
-        print(.self)
         invisible(dev.off(Index))
+        message(sprintf("Device %d [%s] is disposed.", Index, Name))
     }
     else
         warning(sprintf("Device %d [%s] is no longer available and therefore cannot be disposed.", Index, Name))
 
+    Index <<- as.integer(NA)
+    Name <<- ""
 })
 
 RDevice$methods("Close" = function() { .self$finalize()})
