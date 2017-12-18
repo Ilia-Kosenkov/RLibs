@@ -30,8 +30,8 @@ RDevice$methods("initialize" = function(...) {
     if (length(newDevices) >= length(knownDevices)) {
         newDevInd = setdiff(newDevices, knownDevices)
 
-        if (length(newDevInd) == 1) {
-            Index <<- newDevInd
+        if (length(newDevInd) > 0 ) {
+            Index <<- newDevInd[length(newDevInd)]
             Name <<- names(newDevices)[newDevices == .self$Index]
         }
         else if (length(args) > 0 &&
@@ -42,7 +42,7 @@ RDevice$methods("initialize" = function(...) {
             .self$SetActive()
         }
         else
-            stop("Created device is either unavailable or several devices were created.")
+            stop("Created device is unavailable.")
     }
     else
         stop ("No new device was created.")
