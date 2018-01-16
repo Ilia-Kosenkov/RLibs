@@ -26,6 +26,7 @@
 # used to generate cluster UIDs
 .Parallel.symbs = c(97:122, 65:90, 48:57)
 
+#' @importFrom utils installed.packages
 # Checks if packages are installed
 Parallel.Available = function()
     return (all(.Parallel.Packages %in% installed.packages()))
@@ -45,6 +46,8 @@ Cluster = setRefClass("Cluster",
 # ID is immutable.
 Cluster$lock("ClusterDesc", "ID")
 
+#' @importFrom snow makeCluster stopCluster
+#' @importFrom parallel detectCores
 # Initialization
 Cluster$methods("initialize" = function(nProcs) {
     # Constructor.

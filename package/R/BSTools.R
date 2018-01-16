@@ -1,6 +1,6 @@
 #   MIT License
 #   
-#   Copyright(c) 2017 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
+#   Copyright(c) 2017-2018 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
 #   
 #   Permission is hereby granted, free of charge, to any person obtaining a copy
 #   of this software and associated documentation files(the "Software"), to deal
@@ -20,12 +20,13 @@
 #       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #   SOFTWARE.
 
-library("sqldf")
-library("rjags")
-library("MASS")
-library("plyr")
+
+
+#' @importFrom stats approx density quantile sd update
+#' @importFrom utils setTxtProgressBar txtProgressBar install.packages
 
 BSTools.Plots.Densities.PlotsPerRow = 4
+BSTools.Result = NULL
 
 BSTools.ToVector = function(data)
 {
@@ -79,6 +80,8 @@ BSTools.Analyze = function(result = BSTools.Result, qntls = c(0.05, 0.95))
     
 }
 
+#' @importFrom rjags jags.model coda.samples adapt
+
 BSTools.Run = function(model, initials, samples, N, M = 3, sample_each = 10, n_updates = 1)
 {
   
@@ -87,7 +90,7 @@ BSTools.Run = function(model, initials, samples, N, M = 3, sample_each = 10, n_u
   for (i in 1:n_updates)
   {
     writeLines(sprintf("\r\nUpdating (%i)...", i))
-    update(mdl, N)
+    adapt(mdl, N)
   }
   
   writeLines(sprintf("\r\nSampling..."))
@@ -122,7 +125,7 @@ BSTools.Run1 = function(model, data, samples, N, initials = NA, M = 3, sample_ea
         for (i in 1:n_updates)
         {
             message(sprintf("\r\nUpdating (%i)...", i))
-            update(mdl, N)
+            adapt(mdl, N)
         }
 
     message(sprintf("\r\nSampling..."))
@@ -135,9 +138,12 @@ BSTools.Run1 = function(model, data, samples, N, initials = NA, M = 3, sample_ea
 
 }
 
-
+#' @importFrom MASS kde2d
+#' @importFrom graphics contour
 BSTools.Densities = function(plot = TRUE, rerun = TRUE)
 {
+    #require(MASS)
+
     N_runs = length(BSTools.Result)
     
     pb = txtProgressBar(min = 0, max = 100, initial = 0, char = ">", style = 3, width = 60)
@@ -343,8 +349,9 @@ BSTools.Densities = function(plot = TRUE, rerun = TRUE)
     }
 }
 
+#' @importFrom rjags load.module parallel.seeds
 BSTools.RNGs = function(n) {
-    require(rjags)
+    #require(rjags)
     load.module("lecuyer")
 
     return(parallel.seeds("lecuyer::RngStream", n))

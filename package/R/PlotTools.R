@@ -19,6 +19,15 @@
 #   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #   SOFTWARE.
+#' @importFrom graphics plot plot.new points lines arrows par legend mtext
+#' @importFrom grDevices dev.cur
+
+.Plot.X.Axis.N.Ticks = 8
+.Plot.Y.Axis.N.Ticks = 6
+.Plot.Y.Axis.Tick.Offset.Inch = 0
+.Plot.Y.Axis.Lab.Offset.Inch = 0.8 * par()$mai[[2]]
+.Plot.X.Axis.Tick.Offset.Inch = 0
+.Plot.Xc.Axis.Lab.Offset.Inch = 0.5 * par()$mai[[1]]
 
 PlotAPI.IsTikzDevice = function(dev = dev.cur()) {
     # Checks if current device is Tikz device (and therefore supports LaTeX)
@@ -30,21 +39,28 @@ PlotAPI.IsTikzDevice = function(dev = dev.cur()) {
 
 PlotAPI.AssignDefaultConstants = function()
 {
+    Assign = function(x, v) assign(as.character(substitute(x)), v, envir = .GlobalEnv) 
+
     # Assigns global plotting parameters
 
     # Default amount of pretty() ticks per x - axis
-    .Plot.X.Axis.N.Ticks <<- 8
+    #.Plot.X.Axis.N.Ticks <<- 8
+    Assign(.Plot.X.Axis.N.Ticks, 8)
     # Default amount of pretty() ticks per y-axis
-    .Plot.Y.Axis.N.Ticks <<- 6
+    #.Plot.Y.Axis.N.Ticks <<- 6
+    Assign(.Plot.Y.Axis.N.Ticks, 6)
     # Default offset (in respect to par()$usr) of tick labels, inch, y-axis
-    .Plot.Y.Axis.Tick.Offset.Inch <<- 0
+    #.Plot.Y.Axis.Tick.Offset.Inch <<- 0
+    Assign(.Plot.Y.Axis.Tick.Offset.Inch, 0)
     # Default offset (in respect to par()$usr) of axis label, inch, y-axis
-    .Plot.Y.Axis.Lab.Offset.Inch <<- 0.8 * par()$mai[[2]]
+    #.Plot.Y.Axis.Lab.Offset.Inch <<- 0.8 * par()$mai[[2]]
+    Assign(.Plot.Y.Axis.Lab.Offset.Inch, 0.8 * par()$mai[[2]])
     # Default offset (in respect to par()$usr) of tick labels, inch, x-axis
-    .Plot.X.Axis.Tick.Offset.Inch <<- 0
+    #.Plot.X.Axis.Tick.Offset.Inch <<- 0
+    Assign(.Plot.X.Axis.Tick.Offset.Inch, 0)
     # Default offset (in respect to par()$usr) of axis label, inch, x-axis
-    .Plot.X.Axis.Lab.Offset.Inch <<- 0.5 * par()$mai[[1]]
-
+    #.Plot.Xc.Axis.Lab.Offset.Inch <<- 0.5 * par()$mai[[1]]
+    Assign(.Plot.X.Axis.Tick.Offset.Inch, 0)
    
 }
 
@@ -87,6 +103,7 @@ PlotAPI.Pretty = function(range, N = 6) {
 
 }
 
+#' @importFrom methods new
 # A class that describes axis
 AxisDesc = setRefClass("AxisDesc",
     fields = list(
@@ -442,7 +459,7 @@ PlotAPI.Plot = function(
     #                         R's <expressions> to plain text. This can be used along latex math notation with <tikz> devices.
 
 
-    require(stringr)
+    #require(stringr)
     # Scaling functions for x and y axis. Transform plot to log scale if needed
     if (xlog)
         FX = function(x) log10(x)
@@ -477,12 +494,12 @@ PlotAPI.Plot = function(
         # E.g., if selected is list of 10 groups, to plot all groups with the same symbol (pch = 19),
         # one can either pass pchs = rep(19,10), or pchs = 19. Last scenario is processed here.
 
-        cols = InitDefault(cols, N_init)
-        pchs = InitDefault(pchs, N_init)
-        ltys = InitDefault(ltys, N_init)
-        pch.size = InitDefault(pch.size, N_init)
-        lty.size = InitDefault(lty.size, N_init)
-        errorBar.size = InitDefault(errorBar.size, N_init)
+        cols = rep("black", N_init)
+        pchs = rep(19, N_init)
+        ltys = rep(1, N_init)
+        pch.size = rep(1, N_init)
+        lty.size = rep(1, N_init)
+        errorBar.size = rep(1, N_init)
     }
 
 
@@ -691,7 +708,7 @@ PlotAPI.SplitString = function(path, seps = c("\\\\", "/")) {
     if (any(is.null(as.character(unlist(seps)))) || any(is.na(as.character(unlist(seps)))) || any(!is.character(unlist(seps))))
         stop("[seps] should be a string collection.")
     # Required for string manipulations
-    require(stringr)
+    #require(stringr)
     # Lapplies over all input paths
     return(lapply(path, function(lcPath) {
         # Determines all positions of substrings; 0 and n+1 are used if no substrings are present

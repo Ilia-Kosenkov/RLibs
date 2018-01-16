@@ -310,3 +310,9 @@ $RECYCLE.BIN/
 *.Rhistory
 *.Rdata
 *.rdata
+
+# R CMD check folder
+*Rcheck
+
+# Tar package
+*tar.gz

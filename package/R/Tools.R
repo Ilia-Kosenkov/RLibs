@@ -229,9 +229,10 @@ Tools.DataFrame.DF2Latex2 = function(frame, file, frmt = '%6.2f', printHeaders =
     finally = sink())
 }
 
+#' @importFrom stringr str_length
 Tools.String.IndexOfChar = function(string, charPattern)
 {
-  require(stringr)
+  #require(stringr)
   
   n = str_length(string)
   
@@ -325,7 +326,7 @@ Tools.Interpolate = function(x, args, vals)
 
 Tools.AverageAndScatter = function(x, dx, limits = c(0.16, 0.84), nRuns = 1000, nUpd = 5, nSample = 10000) 
 {
-    require(rjags)
+    #require(rjags)
     
     n = min(length(x), length(dx))
     x = x[1:n]
@@ -371,6 +372,7 @@ Tools.AverageAndScatter = function(x, dx, limits = c(0.16, 0.84), nRuns = 1000, 
     return (list("Mean" = mean, "Limits" = sigmas))
 }
 
+#' @importFrom grDevices contourLines
 Tools.GetContour = function(x, y, prob, n = 30)
 {
     # Calculates contours for a given 2D distribution (pairs of [x_i, y_i])
@@ -396,7 +398,7 @@ Tools.GetContour = function(x, y, prob, n = 30)
         stop("n should be a positive number at least greater than 1.")
 
     # Depends on MASS package
-    require(MASS)
+    #require(MASS)
     # Calculates 2D density
     dens = kde2d(x, y, n = n)
 
