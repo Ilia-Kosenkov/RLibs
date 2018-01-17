@@ -27,6 +27,11 @@ test_that("M.Orth2 throws on illegal 'vec' argument", {
     expect_error(M.Orth2(1:3), "length 2")
 })
 
+test_that("M.Norm throws on illegal 'vec' argument", {
+    expect_error(M.Norm(NA), "not a number")
+    expect_error(M.Norm(matrix(1, 2, 3)), "1D vector")
+})
+
 
 context("Math result tests")
 
@@ -70,5 +75,13 @@ test_that("M.Orth2 returns normal to a given vector; tests [normal x vector == 0
         z = M.Orth2(y)
         expect_equal(as.numeric(y %*% z), 0,
             info = sprintf("\tvec = [%f, %f]\n\tnorm = [%f, %f]\n", y[1], y[2], z[1], z[2]))
+    }
+})
+
+test_that("M.Norm returnes vector, which length is 1", {
+    N = 100
+    for (i in 1:10) {
+        x = runif(N, -10, 10)
+        expect_equal(sum(M.Norm(x)^2), 1)
     }
 })

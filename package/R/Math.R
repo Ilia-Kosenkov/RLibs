@@ -36,3 +36,14 @@ M.Orth2 = function(vec) {
 
     return(c(-vec[2], vec[1]))
 }
+
+M.Norm = function(vec) {
+    if (!all(is.numeric(vec)))
+        stop("Parameter 'vec' is not a number.")
+    else if (length(dim(vec)) > 1 && ((sum(dim(vec) == 1) != length(dim(vec)) - 1)))
+        stop("Parameter 'vec' cannot be coerced to 1D vector.")
+
+    vec = as.numeric(vec)
+
+    return (vec / sqrt(sum(vec^2)))
+}
