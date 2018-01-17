@@ -46,8 +46,7 @@ M.Orth2 = function(vec) {
 #' Divides all source vector elements by a positive quantity selected in such a way that Euclidian norm of 
 #' the resulting vector is 1. Requires a numerical structure coercible to 1D array.
 #'
-#' @param vec 
-#' Input vector (or similar structure, e.g. N x 1 matrix).
+#' @param vec  Input vector (or similar structure, e.g. N x 1 matrix).
 #' 
 #' @return
 #' A unit vector parallel to the source one.
