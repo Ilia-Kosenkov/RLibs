@@ -1,0 +1,1 @@
+source(sprintf("..%1$spackage%1$sR%1$sMath.R", .Platform$file.sep))
