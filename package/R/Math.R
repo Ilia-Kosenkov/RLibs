@@ -37,6 +37,20 @@ M.Orth2 = function(vec) {
     return(c(-vec[2], vec[1]))
 }
 
+#' @title Math.NormalizeVector
+#'
+#' @description 
+#' \code{M.Norm} normalizes vector, reducing its length in terms of Euclidian norm to 1.
+#'
+#' @details 
+#' Divides all source vector elements by a positive quantity selected in such a way that Euclidian norm of 
+#' the resulting vector is 1. Requires a numerical structure coercible to 1D array.
+#' @param vec Input vector (or similar structure, e.g. N x 1 matrix).
+#' 
+#' @return
+#' A unit vector parallel to the source one.
+#'
+#' @export
 M.Norm = function(vec) {
     if (!all(is.numeric(vec)))
         stop("Parameter 'vec' is not a number.")
