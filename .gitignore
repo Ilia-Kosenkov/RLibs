@@ -311,8 +311,7 @@ $RECYCLE.BIN/
 *.Rhistory
 *.Rdata
 *.rdata
-*.rd
-*.Rd
+
 
 # R CMD check folder
 *Rcheck
