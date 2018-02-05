@@ -56,3 +56,13 @@ M.Norm = function(vec) {
 
     return (vec / sqrt(sum(vec^2)))
 }
+
+M.IsReal = function(z) {
+    # TODO: check z for proper type
+    return(Re(z) == Mod(z))
+}
+
+M.IsImaginary = function(z) {
+    return(Im(z) == Mod(z))
+}
+    

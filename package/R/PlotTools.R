@@ -60,7 +60,8 @@ PlotAPI.AssignDefaultConstants = function()
     Assign(.Plot.X.Axis.Tick.Offset.Inch, 0)
     # Default offset (in respect to par()$usr) of axis label, inch, x-axis
     #.Plot.Xc.Axis.Lab.Offset.Inch <<- 0.5 * par()$mai[[1]]
-    Assign(.Plot.X.Axis.Tick.Offset.Inch, 0)
+    #Assign(.Plot.X.Axis.Tick.Offset.Inch, 0)
+    Assign(.Plot.X.Axis.Lab.Offset.Inch, 0.6 * par()$mai[[1]])
    
 }
 
@@ -486,8 +487,7 @@ PlotAPI.Plot = function(
         N_init = length(selected)
 
     # If there are more than 1 selections 
-    if(!is.na(N_init))
-    {
+    if (is.na(N_init)) {
         # Each paramter that should provide value for each group is checked.
         # If there is not enough elements in vector, fills it with the first value.
         # Can be used to specify only one value to use across N selections.
@@ -500,6 +500,49 @@ PlotAPI.Plot = function(
         pch.size = rep(1, N_init)
         lty.size = rep(1, N_init)
         errorBar.size = rep(1, N_init)
+    }
+    else {
+        if (length(cols) != N_init) {
+            if (length(cols) == 1)
+                cols = rep(cols[1], N_init)
+            else
+                stop("'cols'")
+         }
+
+        if (length(pchs) != N_init) {
+            if (length(pchs) == 1)
+                pchs = rep(pchs[1], N_init)
+            else
+                stop("'pchs'")
+        }
+
+        if (length(ltys) != N_init) {
+            if (length(ltys) == 1)
+                ltys = rep(ltys[1], N_init)
+            else
+                stop("'ltys'")
+        }
+
+        if (length(pch.size) != N_init) {
+            if (length(pch.size) == 1)
+                pch.size = rep(pch.size[1], N_init)
+            else
+                stop("'pch.size'")
+        }
+
+        if (length(lty.size) != N_init) {
+            if (length(lty.size) == 1)
+                lty.size = rep(lty.size[1], N_init)
+            else
+                stop("'lty.size'")
+        }
+
+        if (length(errorBar.size) != N_init) {
+            if (length(errorBar.size) == 1)
+                errorBar.size = rep(errorBar.size[1], N_init)
+            else
+                stop("'errorBar.size'")
+        }
     }
 
 

@@ -2,7 +2,8 @@
 RDevice = setRefClass("RDevice",
                       fields = list(
                         Index = "integer",
-                        Name = "character"))
+                        Name = "character"
+                        ))
 
 
 RDevice$methods("initialize" = function(...) {
@@ -56,19 +57,18 @@ RDevice$methods("IsAlive" = function() {
         return(FALSE)
     })
 
-RDevice$methods("finalize" = function() {
+RDevice$methods("finalize" = function(closing = FALSE) {
     if (.self$IsAlive()) {
         invisible(dev.off(Index))
         message(sprintf("Device %d [%s] is disposed.", Index, Name))
     }
-    else
+    else if(closing)
         warning(sprintf("Device %d [%s] is no longer available and therefore cannot be disposed.", Index, Name))
-
     Index <<- as.integer(NA)
     Name <<- ""
 })
 
-RDevice$methods("Close" = function() { .self$finalize()})
+RDevice$methods("Close" = function() { .self$finalize(TRUE)})
 
 RDevice$methods("IsActive" = function() {
     if (.self$IsAlive() && dev.cur() == Index)
