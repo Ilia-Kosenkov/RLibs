@@ -1,13 +1,42 @@
 context("GGplot2 helper functions")
-test_that("find.gtable provides output", {
+test_that("Lookup.gtable provides output", {
+    result = Lookup(grob, "panel", "axis-l")$GrobDesc
+    expect_true((c("panel") %in% result$name) &&
+                (c("axis-l") %in% result$name))
+})
+
+test_that("Get grob", {
+
+    expect_true(nzchar(GetGrob(grob, "title")$name))
+
+})
+
+test_that("NullGrob can be determined", {
+    title = GetGrob(grob, "title")
+    back = GetGrob(grob, "background")
           
-          data = data.frame(x = 1:10, y = log(1:10))
-          plot = ggplot(data, aes(x, y)) + geom_line() + geom_point()
-          grob = ggplotGrob(plot)
-          result = lookup(grob, "panel", "axis-l")
+    expect_true(IsGrobNull(title))
+    expect_false(IsGrobNull(back))
+    expect_true(all(c(TRUE, FALSE) == IsGrobNull(title, back)))
+})
 
-          expect_true((c("panel") %in% result$name) &&
-                      (c("axis-l") %in% result$name))
-          })
+test_that("Inner margins are obtained", {
+    expect_true(length(GetMargins(grob, "inner")) == 4)
+})
 
+test_that("Outer margins are obtained", {
+    expect_true(length(GetMargins(grob, "outer")) == 4)
+})
+
+test_that("Both margins are obtained", {
+    expect_true(length(r <- GetMargins(grob)) == 2)
+    expect_true(length(r[[1]]) == 4)
+    expect_true(length(r[[2]]) == 4)
+
+})
+
+test_that("GetaMargins throws error", {
+    expect_error(GetMargins(grob, 123), "type")
+    expect_error(GetMargins(NULL), "grob")
+})
 
