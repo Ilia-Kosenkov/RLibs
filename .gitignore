@@ -318,3 +318,6 @@ $RECYCLE.BIN/
 
 # Tar package
 *tar.gz
+
+# Custom dumps
+*.dat
