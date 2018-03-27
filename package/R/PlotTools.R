@@ -494,12 +494,12 @@ PlotAPI.Plot = function(
         # E.g., if selected is list of 10 groups, to plot all groups with the same symbol (pch = 19),
         # one can either pass pchs = rep(19,10), or pchs = 19. Last scenario is processed here.
 
-        cols = rep("black", N_init)
-        pchs = rep(19, N_init)
-        ltys = rep(1, N_init)
-        pch.size = rep(1, N_init)
-        lty.size = rep(1, N_init)
-        errorBar.size = rep(1, N_init)
+        cols = "black"
+        pchs = 19
+        ltys = 1
+        pch.size = 1
+        lty.size = 1
+        errorBar.size = 1
     }
     else {
         if (length(cols) != N_init) {
