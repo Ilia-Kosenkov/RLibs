@@ -472,3 +472,10 @@ Tools.IsWithin = function(x, range) {
 
 #'@export
 `%??%` = function(what, if.null) ifelse(is.null(what), if.null, what)
+
+`+` <- function(e1, e2) UseMethod("+")
+`+.default` <- function(e1, e2) .Primitive("+")(e1, e2)
+`+.character` <- function(e1, e2)
+    if (length(e1) == length(e2)) {
+        paste(e1, e2, sep = '')
+    } else stop('String Vectors of Different Lengths')
