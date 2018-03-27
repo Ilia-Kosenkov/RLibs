@@ -1,141 +1,163 @@
 #   MIT License
-#   
+#
 #   Copyright(c) 2017-2018 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
-#   
+#
 #   Permission is hereby granted, free of charge, to any person obtaining a copy
 #   of this software and associated documentation files(the "Software"), to deal
 #   in the Software without restriction, including without limitation the rights
 #   to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
 #   copies of the Software, and to permit persons to whom the Software is
 #   furnished to do so, subject to the following conditions:
-#   
-#   The above copyright notice and this permission notice shall be included in all
+#
+#   The above copyright notice and this permission
+#   notice shall be included in all
 #   copies or substantial portions of the Software.
-#   
+#
 #   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 #   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#       FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#   SOFTWARE.
+#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+#   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+#   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
 #' @importFrom stats approx density quantile sd update
 #' @importFrom utils setTxtProgressBar txtProgressBar install.packages
 
-BSTools.Plots.Densities.PlotsPerRow = 4
-BSTools.Result = NULL
+BSTools.Plots.Densities.PlotsPerRow <- 4
+BSTools.Result <- NULL
 
-BSTools.ToVector = function(data)
-{
-    N = length(data)
-    result = rep(0.0, N)
-    
-    for (i in 1:N)
-    {
-        result[i] = data[i]
+BSTools.ToVector <- function(data) {
+    N <- length(data)
+    result <- rep(0.0, N)
+
+    for (i in 1:N) {
+        result[i] <- data[i]
     }
-    
+
     return (result)
 }
 
-BSTools.Density = function(data)
-{
-    dens = density(data) 
-    
-    result = data.frame(dens$x, dens$y)
-    names(result) = c("Quantity", "Density")
-  
-    
+BSTools.Density <- function(data) {
+    dens <- density(data)
+
+    result <- data.frame(dens$x, dens$y)
+    names(result) <- c("Quantity", "Density")
+
     return (result)
 }
 
-BSTools.Analyze = function(result = BSTools.Result, qntls = c(0.05, 0.95))
-{
-    N = length(result)
-    
-    for (i in 1:N)
-    {
-        temp.df = as.data.frame(result[[i]])
-        assign(sprintf("%s%0i", "BSTools.Result.Run", i), temp.df, envir = .GlobalEnv)
-        
-        temp.stats = data.frame(V1 = numeric(4))
-        
-        for (j in 1:ncol(temp.df))
-        {
-            temp.stats[1,j] = mean (temp.df[[j]])
-            temp.stats[2,j] = sd (temp.df[[j]])
-            qnt = quantile(temp.df[[j]], qntls)
+BSTools.Analyze <- function(result = BSTools.Result, qntls = c(0.05, 0.95)) {
+    N <- length(result)
+
+    for (i in 1:N)  {
+        temp.df <- as.data.frame(result[[i]])
+        assign(sprintf("%s%0i", "BSTools.Result.Run", i),
+               temp.df, envir = .GlobalEnv)
+
+        temp.stats <- data.frame(V1 = numeric(4))
+
+        for (j in 1:ncol(temp.df)) {
+            temp.stats[1, j] <- mean (temp.df[[j]])
+            temp.stats[2, j] <- sd (temp.df[[j]])
+            qnt <- quantile(temp.df[[j]], qntls)
             for (k in 1:length(qnt))
-                temp.stats[2+k, j] = qnt[[k]]
+                temp.stats[2 + k, j] <- qnt[[k]]
         }
-        
-        names(temp.stats) = attributes(result[[i]])$dimnames[[2]]
-        
-        assign(sprintf("%s%0i%s", "BSTools.Result.Run", i, ".Stats"), temp.stats, envir = .GlobalEnv)
+
+        names(temp.stats) <- attributes(result[[i]])$dimnames[[2]]
+
+        assign(sprintf("%s%0i%s", "BSTools.Result.Run", i, ".Stats"),
+               temp.stats, envir = .GlobalEnv)
     }
 
-    
 }
 
 #' @importFrom rjags jags.model coda.samples adapt
 
-BSTools.Run = function(model, initials, samples, N, M = 3, sample_each = 10, n_updates = 1)
-{
-  
-  mdl = jags.model(model, initials, n.chains = M, n.adapt = N)
- 
-  for (i in 1:n_updates)
-  {
+BSTools.Run <- function(model, initials, samples, N,
+    M = 3, sample_each = 10, n_updates = 1) {
+
+  mdl <- jags.model(model, initials, n.chains = M, n.adapt = N)
+
+  for (i in 1:n_updates)  {
     writeLines(sprintf("\r\nUpdating (%i)...", i))
     adapt(mdl, N)
   }
-  
+
   writeLines(sprintf("\r\nSampling..."))
-  result = coda.samples(mdl, samples, N, sample_each)
-  
-  n = length(samples)
-  
-  
+  result <- coda.samples(mdl, samples, N, sample_each)
+
+  n <- length(samples)
+
+
   assign("BSTools.Result", result, envir = .GlobalEnv)
-    
+
 }
 
 
-BSTools.Run1 = function(model, data, samples, N, initials = NA, M = 3, sample_each = 10, n_updates = 1)
-{
-    message("\r\nStarting simulation...\r\n")
-    if(!all(is.na(initials)))
-        mdl = jags.model(
+BSTools.Run1 <- function(model, data, samples, N,
+                        initials = NA, M = 3, sample_each = 10, n_updates = 1) {
+    #message("\r\nStarting simulation...\r\n")
+    if (!all(is.na(initials)))
+        mdl <- jags.model(
             file = model,
             data = data,
             inits = initials,
             n.chains = M,
             n.adapt = N)
     else
-        mdl = jags.model(
+        mdl <- jags.model(
             file = model,
             data = data,
             n.chains = M,
             n.adapt = N)
 
-    if(n_updates > 0 )
-        for (i in 1:n_updates)
-        {
-            message(sprintf("\r\nUpdating (%i)...", i))
+        for (i in seq_len(n_updates)) {
+            #message(sprintf("\r\nUpdating (%i)...", i))
             adapt(mdl, N)
         }
 
-    message(sprintf("\r\nSampling..."))
-    result = coda.samples(mdl, samples, N, sample_each)
+    #message(sprintf("\r\nSampling..."))
+    result <- coda.samples(mdl, samples, N, sample_each)
 
-    n = length(samples)
+    n <- length(samples)
 
 
     assign("BSTools.Result", result, envir = .GlobalEnv)
 
+}
+
+#' @importFrom tidyverse
+BSTools.Run2 <- function(model, data, samples, initials = NA,
+        nChain, nBurn, nUpdate = nBurn, updateCount = 2,
+        nSample = nUpdate, sampleEach = 10) {
+    message("\r\nStarting simulation...\r\n")
+    if (!all(is.na(initials)))
+        mdl <- jags.model(
+            file = model,
+            data = data,
+            inits = initials,
+            n.chains = nChain,
+            n.adapt = nBurn)
+    else
+        mdl <- jags.model(
+            file = model,
+            data = data,
+            n.chains = nChain,
+            n.adapt = nBurn)
+
+    for (i in seq_len(updateCount)) {
+        message(sprintf("\r\nUpdating (%i)...\r\n", i))
+        adapt(mdl, nUpdate)
+    }
+
+    message(sprintf("\r\nSampling..."))
+    result <- coda.samples(mdl, samples, nSample * sampleEach, sampleEach)
+
+    return(lapply(result, as.tibble))
 }
 
 #' @importFrom MASS kde2d
@@ -350,9 +372,28 @@ BSTools.Densities = function(plot = TRUE, rerun = TRUE)
 }
 
 #' @importFrom rjags load.module parallel.seeds
-BSTools.RNGs = function(n) {
+BSTools.RNGs <- function(n) {
     #require(rjags)
     load.module("lecuyer")
 
     return(parallel.seeds("lecuyer::RngStream", n))
+}
+
+BSTools.Analyze1 <- function(input) {
+    lapply(input,
+          function(x)
+              x %>%
+              as.tibble %>%
+              summarise_all(
+              funs(Mean = mean, SD = sd,
+                Q_02  = quantile(., 1 - pnorm(2)),
+                Q_05  = quantile(., 0.05),
+                Q_16  = quantile(., 1 - pnorm(1)),
+                Q_84  = quantile(., pnorm(1)),
+                Q_95  = quantile(., 0.95),
+                Q_98  = quantile(., pnorm(2)),
+              ))) %>%
+        bind_rows %>%
+        mutate(Vars = input %>% names) %>%
+        select(Vars, everything())
 }
