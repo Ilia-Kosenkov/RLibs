@@ -321,3 +321,6 @@ $RECYCLE.BIN/
 
 # Custom dumps
 *.dat
+
+# Test results
+**/Rplots.pdf
