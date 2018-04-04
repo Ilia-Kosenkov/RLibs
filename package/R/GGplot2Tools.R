@@ -1,11 +1,37 @@
+#   MIT License
+#
+#   Copyright(c) 2017-2018 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
+#
+#   Permission is hereby granted, free of charge, to any person obtaining a copy
+#   of this software and associated documentation files(the "Software"), to deal
+#   in the Software without restriction, including without limitation the rights
+#   to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+#   copies of the Software, and to permit persons to whom the Software is
+#   furnished to do so, subject to the following conditions:
+#
+#   The above copyright notice and this permission
+#   notice shall be included in all
+#   copies or substantial portions of the Software.
+#
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+#   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+#   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+#' @export
 Lookup = function(object, ...) UseMethod("Lookup")
 
+#' @import grid
 Lookup.gtable = function(grob, ...) {
     what = unlist(list(...))
     inds = sapply(what, function(i) which(grob$layout$name == i))
     return(list(GrobDesc = grob$layout[inds, ], Index = inds))
 }
 
+#' @export
 GetGrob = function(grob, ...) {
     inds = Lookup(grob, ...)$Index
     if (all(is.na(inds)))
@@ -15,11 +41,14 @@ GetGrob = function(grob, ...) {
     return(grob$grobs[inds])
 }
 
+#' @export
 IsGrobNull = function(...) {
     args = list(...)
     return(sapply(args, function(x) "zeroGrob" %in% class(x), simplify = TRUE))
 }
 
+#' @export
+#' @import grid
 GetMargins = function(grob, type = c("inner", "outer")) {
 
     if (is.null(grob) || !("gDesc" %in% class(grob)))
@@ -44,6 +73,8 @@ GetMargins = function(grob, type = c("inner", "outer")) {
 
 }
 
+#' @export
+#' @import grid
 SetMargins = function(grob, type, margins) {
     worker = function(txtX, txtY) {
         ax.lr = Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
@@ -74,6 +105,8 @@ SetMargins = function(grob, type, margins) {
     return(grob)
 }
 
+#' @export
+#' @import ggplot2
 DefaultTheme = function() {
     return(theme_bw() +
                 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
@@ -86,37 +119,8 @@ DefaultTheme = function() {
                     element_text(size = 10, margin = margin(l = unit(10, "pt")), colour = "#000000")))
 }
 
-#Ticks <- function(range, n, breaks, labels, size) {
-    #if (!missing(breaks) &&
-        #!missing(labels) &&
-         #is.numeric(breaks)) {
-        #this <- list(
-             #"breaks" = breaks,
-             #"labels" = as.character(labels),
-             #"n" = length(breaks),
-             #"size" = if (missing(size)) NULL else size)
-    #}
-    #else if (!missing(range) &&
-             #!missing(n)) {
-        #breaks <- pretty(range, n)
-        #this <- list(
-            #"breaks" = breaks,
-            #"labels" = as.character(breaks),
-            #"n" = length(breaks),
-            #"size" = if (missing(size)) NULL else size)
-    #}
-    #else
-        #stop("Illegal initilization of `Ticks` instance.")
-
-    #class(this) <- append(class(this), "Ticks")
-
-    #return(this)
-#}
-
-#is.Ticks <- function(obj) {
-    #return(all(c("Ticks", "list") %in% class(obj)))
-#}
-
+#' @export
+#' @import ggplot2
 scale_x_custom <- function(type = "continuous", breaks, except = c(), ...) {
 
     params <- list(...)
@@ -127,6 +131,8 @@ scale_x_custom <- function(type = "continuous", breaks, except = c(), ...) {
     do.call(paste0("scale_x_", type), args = params)
 }
 
+#' @export
+#' @import ggplot2
 scale_y_custom <- function(type = "continuous", breaks, ...) {
 
     params <- list(...)
@@ -137,7 +143,8 @@ scale_y_custom <- function(type = "continuous", breaks, ...) {
 }
 
 
-
+#' @export
+#' @import ggplot2 foreach
 GGCustomLargeTicks <- function(
     side,
     breaks,
@@ -145,7 +152,8 @@ GGCustomLargeTicks <- function(
     min,
     max
    ) {
-
+    lb <- NULL
+    br <- NULL
    if (side == 1) {
         append(
             foreach(br = seq(along = breaks),
@@ -165,24 +173,3 @@ GGCustomLargeTicks <- function(
 
 }
 
-#test <- function() {
-    #a <- (tibble(x = 1:10, y = 1:10) %>%
-        #ggplot(aes(x, y)) +
-        #DefaultTheme() +
-        #geom_line() +
-        #scale_x_custom(breaks = pretty(c(1, 10), 100), except = 1:10, limit = c(-2, 10)) +
-        #geom_point(color = "black") +
-        #annotate(geom = "segment",
-            #x = seq(2.5, 10, length.out = 6), xend = seq(2.5, 10, length.out = 6),
-            #y = -Inf, yend = rep(10, 6)))
-
-    #for (ann in GGCustomLargeTicks(side = 1, breaks = 1:10, labels = 10:1, min = -Inf, max = 1.0))
-        #a <- a + ann
-
-    #a <- a %>% ggplot_build() %>% ggplot_gtable()
-    #a$layout$clip[a$layout$name == "panel"] <- "off"
-    #grid.newpage()
-    #grid.draw(a)
-#}
-
-#test()

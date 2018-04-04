@@ -21,7 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+#' @export
 Tools.DataFrame.DF2Latex = function(frame, file, frmt='%6.2f', printHeaders=TRUE, insMathHead=TRUE)
 {
   sink(file)
@@ -84,6 +84,7 @@ Tools.DataFrame.DF2Latex = function(frame, file, frmt='%6.2f', printHeaders=TRUE
   )
 }
 
+#' @export
 Tools.DataFrame.DF2Latex2 = function(frame, file, frmt = '%6.2f', printHeaders = TRUE, 
                                      insMathHead = TRUE, insMathBody = FALSE, insMathBefore = FALSE, insMathAfter = FALSE,
                                      cols = 'c', NA.symb = NA_character_,
@@ -466,12 +467,12 @@ Tools.Norm = function(x) {
     return (sqrt(sum(x^2)))
 }
 
-
+#' @export
 Tools.IsWithin = function(x, range) {
     return(sapply(x, function(item) item > range[1] & item < range[2]))
 }
 
-#'@export
+#' @export
 `%??%` <- function(what, if.null) ifelse(is.null(what), if.null, what)
 
 `+` <- function(e1, e2) UseMethod("+")
@@ -481,6 +482,7 @@ Tools.IsWithin = function(x, range) {
         paste(e1, e2, sep = "")
     } else stop("String Vectors of Different Lengths")
 
+#' @export
 WriteFixed <- function(frame, path, frmt = "%8.2f") {
     Tools.DataFrame.Print(frame, file = path, frmt = frmt)
 }

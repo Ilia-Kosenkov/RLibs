@@ -373,6 +373,7 @@ BSTools.Densities = function(plot = TRUE, rerun = TRUE)
     }
 }
 
+#' @export
 #' @importFrom rjags load.module parallel.seeds
 BSTools.RNGs <- function(n) {
     #require(rjags)

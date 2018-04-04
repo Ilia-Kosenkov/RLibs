@@ -1,5 +1,0 @@
-source(sprintf("..%1$spackage%1$sR%1$sGGPlot2Tools.R", .Platform$file.sep))
-library(ggplot2)
-data = data.frame(x = 1:10, y = log(1:10))
-plot = ggplot(data, aes(x, y)) + geom_line() + geom_point()
-grob = ggplotGrob(plot)

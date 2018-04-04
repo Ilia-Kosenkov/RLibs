@@ -21,7 +21,4 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-library(testthat)
-library(RLibs)
-
-test_check("RLibs")
+modelStr <- paste("model", "{", "a ~ dnorm(0, 1)", "}", sep = "\r\n")

@@ -21,7 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-library(testthat)
-library(RLibs)
-
-test_check("RLibs")
+library(ggplot2)
+data <- data.frame(x = 1:10, y = log(1:10))
+plot <- ggplot(data, aes(x, y)) + geom_line() + geom_point()
+grob <- ggplotGrob(plot)
