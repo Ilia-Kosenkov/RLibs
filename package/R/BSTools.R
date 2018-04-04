@@ -130,7 +130,9 @@ BSTools.Run1 <- function(model, data, samples, N,
 
 }
 
-#' @importFrom tidyverse
+#' @export
+#' @importFrom tibble as.tibble
+#' @import rjags 
 BSTools.Run2 <- function(model, data, samples, initials = NA,
         nChain, nBurn, nUpdate = nBurn, updateCount = 2,
         nSample = nUpdate, sampleEach = 10) {
@@ -156,8 +158,8 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
 
     message(sprintf("\r\nSampling..."))
     result <- coda.samples(mdl, samples, nSample * sampleEach, sampleEach)
-
-    return(lapply(result, as.tibble))
+    result <- lapply(result, as.tibble)
+    return(result)
 }
 
 #' @importFrom MASS kde2d
@@ -379,7 +381,12 @@ BSTools.RNGs <- function(n) {
     return(parallel.seeds("lecuyer::RngStream", n))
 }
 
+#' @export
+#' @import dplyr
+#' @importFrom stats pnorm
 BSTools.Analyze1 <- function(input) {
+    . = NULL
+    Vars = NULL
     lapply(input,
           function(x)
               x %>%
