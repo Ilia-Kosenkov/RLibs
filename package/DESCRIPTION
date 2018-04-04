@@ -1,8 +1,8 @@
 Package: RLibs
-Title: Auxilary functions for data analysis
+Title: RLibs
 Version: 0.2.0
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Auxilary functions for data analysis
 Depends: R (>= 3.4.1)
 Imports: MASS, methods, stats, rjags, snow, stringr, tibble, dplyr, grid, ggplot2, foreach
 License: MIT + file LICENSE
