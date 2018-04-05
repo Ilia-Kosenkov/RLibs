@@ -22,24 +22,29 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Packages required for execution
-.Parallel.Packages = c("foreach", "parallel", "doSNOW")
+#' @export
+.Parallel.Packages <- c("foreach", "parallel", "doSNOW")
 # Symbols (latin upper/lower-case letters & numbers 
 # used to generate cluster UIDs
-.Parallel.symbs = c(97:122, 65:90, 48:57)
+#' @export
+.Parallel.symbs <- c(97:122, 65:90, 48:57)
 
+#' @export
 #' @importFrom utils installed.packages
 # Checks if packages are installed
-Parallel.Available = function()
-    return (all(.Parallel.Packages %in% installed.packages()))
+Parallel.Available <- function()
+    return(all(.Parallel.Packages %in% installed.packages()))
 
 # Required, otherwise cannot declare fields of type [SOCKcluster]
 setOldClass("cluster")
 setOldClass("SOCKcluster")
 
+#' @export Cluster
+#' @exportClass Cluster
 # Cluster class declaration
-Cluster = setRefClass("Cluster",
+Cluster <- setRefClass("Cluster",
     fields = list(
-        ClusterDesc = "SOCKcluster",        
+        ClusterDesc = "SOCKcluster",
         IsRegistered = "logical",
         IsDisposed = "logical",
         ID = "character"))
@@ -86,15 +91,14 @@ Cluster$methods("getID" = function() .self$ID)
 Cluster$methods("getIsDisposed" = function() .self$IsDisposed)
 
 
-Cluster$methods("Register" = function(backend = "SNOW")
-{
+Cluster$methods("Register" = function(backend = "SNOW") {
     # Registers current claster
     # Args:
     #   backedn: Type of backend. !!! Tested only with SNOW
 
     # Tries to register backend assuming register method has a pattern of registerDoXXX
     # where XXX is backend
-    initCall = paste("registerDo", backend, sep = "")
+    initCall <- paste("registerDo", backend, sep = "")
 
     # If such init method is present, initializes
     if (exists(initCall))
@@ -107,8 +111,7 @@ Cluster$methods("Register" = function(backend = "SNOW")
     message(sprintf("Cluster %s (%d nodes) was registered.", .self$ID, .self$getClusterSize()))
 })
 
-Cluster$methods("Dispose" = function()
-{
+Cluster$methods("Dispose" = function() {
     # Explicit destructor. Frees resources/
 
     # Stops cluster
@@ -121,8 +124,7 @@ Cluster$methods("Dispose" = function()
     message(sprintf("Cluster %s (%d nodes) was disposed.", .self$ID, .self$getClusterSize()))
 })
 
-Cluster$methods("finalize" = function()
-{
+Cluster$methods("finalize" = function() {
     # Implicit destructor.
     # Called when [Cluster] object is garbage-collected.
     # If it was already disposed, does nothing, otherwise, calls Dispose()
