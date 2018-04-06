@@ -246,71 +246,47 @@ Tools.String.IndexOfChar = function(string, charPattern)
   return (-1)
 }
 
-Tools.DataFrame.Print = function(frame, file, frmt='%8.2f', printHeaders=TRUE, append=FALSE)
-{
-  temp = ''
-  Nc = ncol(frame)
-  Nr = nrow(frame)
-  
-  tryCatch(
-    {
-      sink(file, append = append)
-  
-      if(printHeaders)
-      {
-        for (i in 1:Nc)
-        {
-          if (length(frmt) > 1)
-          {
-            start = Tools.String.IndexOfChar(frmt[i], '%')+1
-            stop = Tools.String.IndexOfChar(frmt[i], '.')-1
-            if(stop < start)
-            stop = max(Tools.String.IndexOfChar(frmt[i], 's'), Tools.String.IndexOfChar(frmt[i], 'd')) - 1
-            
-            headFrmt = sprintf("%s%ss", '%s%', substr(frmt[i], start, stop))
-           
-          }
-          else
-          {
-            start = Tools.String.IndexOfChar(frmt[1], '%')+1
-            stop = Tools.String.IndexOfChar(frmt[1], '.')-1
-            if(stop < start)
-              stop = Tools.String.IndexOfChar(frmt[i], 's')-1
-            
-            headFrmt = sprintf("%s%ss", '%s%', substr(frmt[1], start, stop))
-            
-          }
-          temp = sprintf(headFrmt, temp, names(frame)[i])
+Tools.DataFrame.Print <- function(frame, file, frmt = "%8.2f",
+                                 printHeaders = TRUE, append = FALSE) {
+  temp <- ""
+  Nc <- ncol(frame)
+  Nr <- nrow(frame)
+
+  tryCatch({
+        sink(file, append = append)
+
+        if (printHeaders) {
+            sizes <- as.integer(
+                sapply(regmatches(frmt, regexec("%([0-9]*)", frmt)),
+                "[[", 2))
+            if(any(is.na(sizes)))
+                stop("Explicit column width is required in [frmt].")
+            if(length(sizes) != ncol(frame))
+                sizes <- rep(sizes[1], ncol(frame))
+
+            hdrFrmt <- sapply(sizes, function(sz) sprintf("%%%ss", sz))
+            header <- paste(
+                sapply(seq_len(length(hdrFrmt)),
+                    function(i) sprintf(hdrFrmt[i], names(frame)[i])),
+                collapse = "")
+            writeLines(header)
         }
-           writeLines(temp)
-          temp =''
-        
-      }
-        for(j in 1:Nr)
-        {
-          for (i in 1:Nc)
-          {
-            if (length(frmt) > 1)
-            {
-              bodyFrmt = sprintf("%s%s", '%s', frmt[i])
-            }
-            else
-            {
-              bodyFrmt = sprintf("%s%s", '%s', frmt[1])
-            }
-            
-            temp = sprintf(bodyFrmt, temp, frame[j, i])
-          }
-          writeLines(temp)
-          temp = ''
+
+        if (length(frmt) != ncol(frame))
+            bodyFrmt <- rep(frmt[1], ncol(frame))
+        else
+            bodyFrmt <- frmt
+        for(j in 1:Nr) {
+
+            data <- as.list(frame[j, ])
+            body <- paste(sapply(seq_len(length(bodyFrmt)),
+                            function(i) sprintf(bodyFrmt[i], data[[i]])),
+                          collapse = "")
+            writeLines(body)
         }
-      
-     
     },
-  
     finally = sink()
   )
-    
 }
 
 Tools.Interpolate = function(x, args, vals)
