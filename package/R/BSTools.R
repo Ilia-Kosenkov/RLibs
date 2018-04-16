@@ -134,7 +134,7 @@ BSTools.Run1 <- function(model, data, samples, N,
 #' @importFrom tibble as.tibble
 #' @import rjags
 BSTools.Run2 <- function(model, data, samples, initials = NA,
-        nChain, nBurn, nUpdate = nBurn, updateCount = 2,
+        nChain, nBurn, updateCount = 2, nUpdate = nBurn,
         nSample = nUpdate, sampleEach = 10) {
     cat("\r\nStarting simulation...\r\n")
     if (!all(is.na(initials)))
@@ -153,7 +153,7 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
 
     for (i in seq_len(updateCount)) {
         cat(sprintf("\r\nUpdating (%i)...\r\n", i))
-        adapt(mdl, nUpdate)
+        update(mdl, nUpdate, progress.bar = "text")
     }
 
     cat(sprintf("\r\nSampling..."))

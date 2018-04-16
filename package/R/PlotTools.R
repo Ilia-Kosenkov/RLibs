@@ -827,7 +827,7 @@ PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
 }
 
 # Backwards compatibility
-AssignDefaultConstants = PlotAPI.AssignDefaultConstants
-PrettyAPI = PlotAPI.Pretty
-Tex2Pdf = PlotAPI.Tex2Pdf
+AssignDefaultConstants <<- PlotAPI.AssignDefaultConstants
+PrettyAPI <<- PlotAPI.Pretty
+Tex2Pdf <<- PlotAPI.Tex2Pdf
 
