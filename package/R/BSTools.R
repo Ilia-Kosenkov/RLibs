@@ -132,11 +132,11 @@ BSTools.Run1 <- function(model, data, samples, N,
 
 #' @export
 #' @importFrom tibble as.tibble
-#' @import rjags 
+#' @import rjags
 BSTools.Run2 <- function(model, data, samples, initials = NA,
         nChain, nBurn, nUpdate = nBurn, updateCount = 2,
         nSample = nUpdate, sampleEach = 10) {
-    message("\r\nStarting simulation...\r\n")
+    cat("\r\nStarting simulation...\r\n")
     if (!all(is.na(initials)))
         mdl <- jags.model(
             file = model,
@@ -152,11 +152,11 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
             n.adapt = nBurn)
 
     for (i in seq_len(updateCount)) {
-        message(sprintf("\r\nUpdating (%i)...\r\n", i))
+        cat(sprintf("\r\nUpdating (%i)...\r\n", i))
         adapt(mdl, nUpdate)
     }
 
-    message(sprintf("\r\nSampling..."))
+    cat(sprintf("\r\nSampling..."))
     result <- coda.samples(mdl, samples, nSample * sampleEach, sampleEach)
     result <- lapply(result, as.tibble)
     return(result)

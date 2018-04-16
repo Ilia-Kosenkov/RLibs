@@ -19,3 +19,4 @@ A unit vector parallel to the source one.
 Divides all source vector elements by a positive quantity selected in such a way that Euclidian norm of 
 the resulting vector is 1. Requires a numerical structure coercible to 1D array.
 }
+

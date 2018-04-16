@@ -1,12 +1,25 @@
 Package: RLibs
 Title: RLibs
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
-Description: Auxilary functions for data analysis
-Depends: R (>= 3.4.1)
-Imports: MASS, methods, stats, rjags, snow, stringr, tibble, dplyr, grid, ggplot2, foreach
+Description: Auxilary functions for data analysis.
+Depends:
+    R (>= 3.4.1)
+Imports:
+    MASS,
+    methods,
+    stats,
+    rjags,
+    snow,
+    stringr,
+    tibble,
+    dplyr,
+    grid,
+    ggplot2,
+    foreach
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1.9000
-Suggests: testthat
+RoxygenNote: 5.0.1
+Suggests:
+    testthat
