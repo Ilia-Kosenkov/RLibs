@@ -22,18 +22,18 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #' @export
-Lookup = function(object, ...) UseMethod("Lookup")
+Lookup <- function(object, ...) UseMethod("Lookup")
 
 #' @import grid
-Lookup.gtable = function(grob, ...) {
-    what = unlist(list(...))
-    inds = sapply(what, function(i) which(grob$layout$name == i))
+Lookup.gtable <- function(grob, ...) {
+    what <- unlist(list(...))
+    inds <- sapply(what, function(i) which(grob$layout$name == i))
     return(list(GrobDesc = grob$layout[inds, ], Index = inds))
 }
 
 #' @export
-GetGrob = function(grob, ...) {
-    inds = Lookup(grob, ...)$Index
+GetGrob <- function(grob, ...) {
+    inds <- Lookup(grob, ...)$Index
     if (all(is.na(inds)))
         return(NULL)
     if (length(inds) == 1)
@@ -42,22 +42,22 @@ GetGrob = function(grob, ...) {
 }
 
 #' @export
-IsGrobNull = function(...) {
-    args = list(...)
+IsGrobNull <- function(...) {
+    args <- list(...)
     return(sapply(args, function(x) "zeroGrob" %in% class(x), simplify = TRUE))
 }
 
 #' @export
 #' @import grid
-GetMargins = function(grob, type = c("inner", "outer")) {
+GetMargins <- function(grob, type = c("inner", "outer")) {
 
     if (is.null(grob) || !("gDesc" %in% class(grob)))
         stop("`grob` is invalid.")
-    worker = function(txtX, txtY) {
-        ax.lr = Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
-        ax.tb = Lookup(grob, paste(txtY, c("t", "b"), sep = "-"))
-        inds.lr = ax.lr$GrobDesc$l
-        inds.tb = ax.tb$GrobDesc$t
+    worker <- function(txtX, txtY) {
+        ax.lr <- Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
+        ax.tb <- Lookup(grob, paste(txtY, c("t", "b"), sep = "-"))
+        inds.lr <- ax.lr$GrobDesc$l
+        inds.tb <- ax.tb$GrobDesc$t
         return(list(t = grob$heights[inds.tb[1]], r = grob$widths[inds.lr[2]],
             b = grob$heights[inds.tb[2]], l = grob$widths[inds.lr[1]]))
     }
@@ -75,39 +75,39 @@ GetMargins = function(grob, type = c("inner", "outer")) {
 
 #' @export
 #' @import grid
-SetMargins = function(grob, type, margins) {
-    worker = function(txtX, txtY) {
-        ax.lr = Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
-        ax.tb = Lookup(grob, paste(txtY, c("t", "b"), sep = "-"))
-        inds.lr = ax.lr$GrobDesc$l
-        inds.tb = ax.tb$GrobDesc$t
+SetMargins <- function(grob, type, margins) {
+    worker <- function(txtX, txtY) {
+        ax.lr <- Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
+        ax.tb <- Lookup(grob, paste(txtY, c("t", "b"), sep = "-"))
+        inds.lr <- ax.lr$GrobDesc$l
+        inds.tb <- ax.tb$GrobDesc$t
         return(list(t = inds.tb[1], r = inds.lr[2],
             b = inds.tb[2], l = inds.lr[1]))
 
     }
 
     if (all(type == "inner"))
-        inds = worker("axis", "axis")
+        inds <- worker("axis", "axis")
     else if (all(type == "outer"))
-        inds = worker("ylab", "xlab")
+        inds <- worker("ylab", "xlab")
     else
         stop("Wrong `type`.")
 
-    if(!is.null(margins$t))
-        grob$heights[inds$t] = margins$t
+    if (!is.null(margins$t))
+        grob$heights[inds$t] <- margins$t
     if (!is.null(margins$b))
-        grob$heights[inds$b] = margins$b
+        grob$heights[inds$b] <- margins$b
     if (!is.null(margins$l))
-        grob$widths[inds$l] = margins$l
+        grob$widths[inds$l] <- margins$l
     if (!is.null(margins$r))
-        grob$widths[inds$r] = margins$r
+        grob$widths[inds$r] <- margins$r
 
     return(grob)
 }
 
 #' @export
 #' @import ggplot2
-DefaultTheme = function() {
+DefaultTheme <- function() {
     return(theme_bw() +
                 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
                 theme(axis.ticks.length = unit(-3.5, "pt")) +
@@ -172,4 +172,3 @@ GGCustomLargeTicks <- function(
 
 
 }
-
