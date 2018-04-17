@@ -773,8 +773,11 @@ PlotAPI.SplitString = function(path, seps = c("\\\\", "/")) {
         else return (as.character(NULL))
     }))
 }
-
-PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
+#' @export
+#' @aliases PlotAPI.Tex2Pdf
+#' @importFrom stringr str_sub str_locate_all
+#' @importFrom tools file_path_as_absolute
+Tex2Pdf <- function(source, verbose = FALSE, additionalParams = "") {
     # Transforms TeX output of tikzDevice into .pdf
     # using texify command. 
     # Output file is fle with the same name as source, 
@@ -782,26 +785,26 @@ PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
     # Params :
     #   source : path to .tex file
     if (all(nzchar(unlist(additionalParams))))
-        params = do.call(paste, as.list(additionalParams))
+        params <- do.call(paste, as.list(additionalParams))
     else
-        params = ""
+        params <- ""
 
     if (!verbose)
-        params = paste(params, "-quiet")
+        params <- paste(params, "-quiet")
 
     # Splits strings
-    fInfo = PlotAPI.SplitString(source)
+    fInfo <- PlotAPI.SplitString(source)
     # Plain file names w/o directories
-    inds = sapply(fInfo, length) == 0
+    inds <- sapply(fInfo, length) == 0
     # Replaces empty strings with plain file names
-    fInfo[inds] = source[inds]
+    fInfo[inds] <- source[inds]
     # Generates a list of [file, path to dir] pair
-    fileDir = lapply(fInfo, function(info) c(info[length(info)],
-                     tools::file_path_as_absolute( if (length(info) > 1)
+    fileDir <- lapply(fInfo, function(info) c(info[length(info)],
+                     tools::file_path_as_absolute(if (length(info) > 1)
                         do.call(paste, c(as.list(info[1:(length(info) - 1)]), sep = .Platform$file.sep))
                      else ".")))
     # Adds only file name to each list entry
-    fileDir = suppressWarnings(lapply(fileDir, function(info)
+    fileDir <- suppressWarnings(lapply(fileDir, function(info)
         c(info, stringr::str_sub(info[1], 1,
             min(
                 abs(max(
@@ -823,11 +826,13 @@ PlotAPI.Tex2Pdf = function(source, verbose = FALSE, additionalParams = "") {
             ifelse(.Platform$OS.type == "windows", "powershell", ""), ifelse(verbose, "-v", ""), fl)))
         })
 
-    return (NULL)
+    return(NULL)
 }
 
-# Backwards compatibility
-AssignDefaultConstants <<- PlotAPI.AssignDefaultConstants
-PrettyAPI <<- PlotAPI.Pretty
-Tex2Pdf <<- PlotAPI.Tex2Pdf
-
+#' @export
+#' @importFrom stringr str_sub str_locate_all
+#' @importFrom tools file_path_as_absolute
+PlotAPI.Tex2Pdf <- function(...) {
+    message("[RLibs::PlotAPI.Tex2Pdf] is deprecated, use [RLibs::Tex2Pdf]")
+    do.call("Tex2Pdf", ...)
+}
