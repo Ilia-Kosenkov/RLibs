@@ -145,30 +145,80 @@ scale_y_custom <- function(type = "continuous", breaks, ...) {
 
 #' @export
 #' @import ggplot2 foreach
-GGCustomLargeTicks <- function(
-    side,
-    breaks,
-    labels,
-    min,
-    max
-   ) {
+GGCustomLargeTicks <- function(side, breaks, labels,
+                               start, end, delta = 0) {
     lb <- NULL
     br <- NULL
-   if (side == 1) {
+
+    if (length(breaks) != length(labels) && length(labels) > 1)
+        stop("Length of [breaks] and [labels] should be equal.")
+    if (length(labels) == 1)
+        labels <- rep(labels, length(breaks))
+
+    if (side == 1 ||
+        side == "b" ||
+        regexpr("bot", side) > 0) {
         append(
-            foreach(br = seq(along = breaks),
-                    lb = seq(along = labels)) %do% {
-                        annotation_custom(
+            foreach(br = breaks,
+                    lb = labels) %do% {
+                annotation_custom(
                             grob = textGrob(label = lb,
-                                hjust = 0.5, vjust = 1.3),
+                                hjust = 0.5, vjust = 1.5 + delta),
                             xmin = br, xmax = br,
-                            ymin = -Inf,
-                            ymax = -Inf)
+                            ymin = -Inf, ymax = -Inf)
             },
             annotate(geom = "segment",
                             x = breaks, xend = breaks,
-                            y = min, yend = max))
+                            y = start, yend = end))
     }
-
-
+    else if (side == 3 ||
+             side == "t" ||
+             regexpr("top", side) > 0) {
+        append(
+            foreach(br = breaks,
+                    lb = labels) %do% {
+                annotation_custom(
+                            grob = textGrob(label = lb,
+                                hjust = 0.5, vjust = -0.7 + delta),
+                            xmin = br, xmax = br,
+                            ymin = Inf, ymax = Inf)
+            },
+            annotate(geom = "segment",
+                            x = breaks, xend = breaks,
+                            y = end, yend = start))
+    }
+    else if (side == 2 ||
+             side == "l" ||
+             regexpr("lef", side) > 0) {
+        append(
+            foreach(br = breaks,
+                    lb = labels) %do% {
+                annotation_custom(
+                            grob = textGrob(label = lb,
+                                hjust = 1.5 + delta, vjust = 0.5),
+                            xmin = -Inf, xmax = -Inf,
+                            ymin = br, ymax = br)
+            },
+            annotate(geom = "segment",
+                            x = start, xend = end,
+                            y = breaks, yend = breaks))
+    }
+    else if (side == 4 ||
+             side == "4" ||
+             regexpr("rig", side) > 0) {
+        append(
+            foreach(br = breaks,
+                    lb = labels) %do% {
+            annotation_custom(
+                            grob = textGrob(label = lb,
+                                hjust = -0.4 + delta, vjust = 0.5),
+                            xmin = Inf, xmax = Inf,
+                            ymin = br, ymax = br)
+            },
+            annotate(geom = "segment",
+                            x = end, xend = start,
+                            y = breaks, yend = breaks))
+    }
+    else
+        stop(sprintf("Unknown axis %s", as.character(side)))
 }
