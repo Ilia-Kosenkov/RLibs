@@ -152,10 +152,15 @@ GGPlotGetRange <- function(plt) {
                 c("x", "y", "x2", "y2")))
 }
 
+#' @title GGPlotCustomTicls
+#' @description
+#' Creates custom ticks with labels. Requires a finished ggproto object.
+#' Can be piped with %>%.
 #' @export
 #' @import ggplot2 grid
 GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
-                              trnsf = identity, delta = 0) {
+                              trnsf = identity, gp = gpar(),
+                              rot = 0, delta = 0) {
     lb <- NULL
     br <- NULL
 
@@ -173,7 +178,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         # Return
         plt +
             annotation_custom(
-                grob = textGrob(label = labels,
+                grob = textGrob(label = labels, gp = gp, rot = rot,
                     hjust = 0.5, vjust = 1.5 + delta,
                     x = breaks, y = 0)) +
             annotation_custom(
@@ -188,7 +193,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         # Return
         plt +
             annotation_custom(
-                grob = textGrob(label = labels,
+                grob = textGrob(label = labels, gp = gp, rot = rot,
                     hjust = 0.5, vjust = -0.7 + delta,
                     x = breaks, y = 1)) +
             annotation_custom(
@@ -203,7 +208,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         # Return
         plt +
             annotation_custom(
-                grob = textGrob(label = labels,
+                grob = textGrob(label = labels, gp = gp, rot = rot,
                     hjust = 1.5 + delta, vjust = 0.5,
                     x = 0, y = breaks)) +
             annotation_custom(
@@ -218,7 +223,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         # Return
         plt +
             annotation_custom(
-                grob = textGrob(label = labels,
+                grob = textGrob(label = labels, gp = gp, rot = rot,
                     hjust = -0.4 + delta, vjust = 0.5,
                     x = 1, y = breaks)) +
             annotation_custom(
