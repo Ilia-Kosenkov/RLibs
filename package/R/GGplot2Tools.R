@@ -152,8 +152,82 @@ GGPlotGetRange <- function(plt) {
                 c("x", "y", "x2", "y2")))
 }
 
-GGPlotCustomTicks <- function(plt, side, breaks, labels, relSz, delta = 0) {
+#' @export
+#' @import ggplot2 grid
+GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
+                              trnsf = identity, delta = 0) {
+    lb <- NULL
+    br <- NULL
 
+    if (length(breaks) != length(labels) && length(labels) > 1)
+        stop("Length of [breaks] and [labels] should be equal.")
+    if (length(labels) == 1)
+        labels <- rep(labels, length(breaks))
+
+    rngs <- GGPlotGetRange(plt)
+
+    if (side == 1 ||
+        side == "b" ||
+        regexpr("bot", side) > 0) {
+        breaks <- (trnsf(breaks) - min(rngs$x)) / diff(rngs$x)
+        # Return
+        plt +
+            annotation_custom(
+                grob = textGrob(label = labels,
+                    hjust = 0.5, vjust = 1.5 + delta,
+                    x = breaks, y = 0)) +
+            annotation_custom(
+                grob = segmentsGrob(
+                    x0 = breaks, x1 = breaks,
+                    y0 = 0, y1 = tckSz))
+    }
+    else if (side == 3 ||
+             side == "t" ||
+             regexpr("top", side) > 0) {
+        breaks <- (trnsf(breaks) - min(rngs$x)) / diff(rngs$x)
+        # Return
+        plt +
+            annotation_custom(
+                grob = textGrob(label = labels,
+                    hjust = 0.5, vjust = -0.7 + delta,
+                    x = breaks, y = 1)) +
+            annotation_custom(
+                grob = segmentsGrob(
+                    x0 = breaks, x1 = breaks,
+                    y0 = 1, y1 = 1 - tckSz))
+    }
+    else if (side == 2 ||
+             side == "l" ||
+             regexpr("lef", side) > 0) {
+        breaks <- (trnsf(breaks) - min(rngs$y)) / diff(rngs$y)
+        # Return
+        plt +
+            annotation_custom(
+                grob = textGrob(label = labels,
+                    hjust = 1.5 + delta, vjust = 0.5,
+                    x = 0, y = breaks)) +
+            annotation_custom(
+                grob = segmentsGrob(
+                    x0 = 0, x1 = tckSz,
+                    y0 = breaks, y1 = breaks))
+    }
+    else if (side == 4 ||
+             side == "r" ||
+             regexpr("rig", side) > 0) {
+        breaks <- (trnsf(breaks) - min(rngs$y)) / diff(rngs$y)
+        # Return
+        plt +
+            annotation_custom(
+                grob = textGrob(label = labels,
+                    hjust = -0.4 + delta, vjust = 0.5,
+                    x = 1, y = breaks)) +
+            annotation_custom(
+                grob = segmentsGrob(
+                    x0 = 1, x1 = 1 - tckSz,
+                    y0 = breaks, y1 = breaks))
+    }
+    else
+        stop(sprintf("Unknown axis %s", as.character(side)))
 }
 
 #' @export
