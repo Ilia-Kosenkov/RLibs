@@ -184,6 +184,9 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
         result <- append(result, list(Small = Within(temp, range)))
     }
 
+    if (all(names(result) %in% c("Large", "Small")))
+        result$Small <- result$Small[!result$Small %in% result$Large]
+
     return(result)
 }
 
