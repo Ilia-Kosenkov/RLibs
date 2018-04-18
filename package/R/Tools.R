@@ -462,3 +462,18 @@ Tools.IsWithin = function(x, range) {
 WriteFixed <- function(frame, path, frmt = "%8.2f") {
     Tools.DataFrame.Print(frame, file = path, frmt = frmt)
 }
+
+#' @title Within
+#' @description
+#' Returns a subset of x such as x is
+#' within [min(range), max(range)].
+#' @param x Input subset.
+#' @param range Range within which elements of x should be.
+#' @returns Subset of source vector x.
+#' @export
+Within <- function(x, range) {
+    min <- min(range, na.rm = TRUE)
+    max <- max(range, na.rm = TRUE)
+
+    return(x[x >= min & x <= max])
+}

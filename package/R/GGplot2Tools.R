@@ -152,6 +152,30 @@ GGPlotGetRange <- function(plt) {
                 c("x", "y", "x2", "y2")))
 }
 
+#' @title GenerateBreaks
+#' @description
+#' Generates large and small breaks within given range.
+#' @param range Range of breaks (typically a scale of an axis).
+#' @param largeStep Step for large breaks (the ones with labels).
+#' @param smallStep Step for small breaks (only ticks).
+#' @returns A list containing either $Large, $Small collections of breaks, or both.
+#' @export
+GenerateBreaks <- function(range, largeStep, smallStep) {
+    result <- list()
+    if (!missing(largeStep)) {
+        temp <- largeStep *
+            (ceiling(range[1] / largeStep):floor(range[2] / largeStep))
+        result <- append(result, list(Large = temp))
+    }
+    if (!missing(smallStep)) {
+        temp <- smallStep *
+            (floor(range[1] / smallStep):ceiling(range[2] / smallStep))
+        result <- append(result, list(Small = Within(temp, range)))
+    }
+
+    return(result)
+}
+
 #' @title GGPlotCustomTicls
 #' @description
 #' Creates custom ticks with labels. Requires a finished ggproto object.
