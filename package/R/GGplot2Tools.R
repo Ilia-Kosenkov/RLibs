@@ -157,10 +157,14 @@ GGPlotGetRange <- function(plt) {
 #' Generates large and small breaks within given range.
 #' @param range Range of breaks (typically a scale of an axis).
 #' @param largeStep Step for large breaks (the ones with labels).
-#' @param smallStep Step for small breaks (only ticks).
+#' @param smallStep If specified, used as step for small breaks.
+#' @param ticks If \code{smallStep} is not specified, then \code{ticks} are used
+#' to create small breaks.
+#' @param op Used in combination with \code{ticks} as: per each large break produces
+#' \code{op(ticks, break)} small breaks and then limits them to \code{range}
 #' @returns A list containing either $Large, $Small collections of breaks, or both.
 #' @export
-GenerateBreaks <- function(range, largeStep, smallStep) {
+GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
     result <- list()
     if (!missing(largeStep)) {
         temp <- largeStep *
@@ -171,6 +175,13 @@ GenerateBreaks <- function(range, largeStep, smallStep) {
         temp <- smallStep *
             (floor(range[1] / smallStep):ceiling(range[2] / smallStep))
         result <- append(result, list(Small = Within(temp, range)))
+    }
+    else if (!missing(ticks) && !missing(largeStep)) {
+        sq <- c(min(result$Large) - largeStep,
+                result$Large,
+                max(result$Large) + largeStep)
+        temp <- unlist(lapply(sq, function(x) op(ticks, x)))
+        result <- append(result, list(smallStep = Within(temp, range)))
     }
 
     return(result)

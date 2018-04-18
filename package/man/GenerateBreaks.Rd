@@ -4,14 +4,20 @@
 \alias{GenerateBreaks}
 \title{GenerateBreaks}
 \usage{
-GenerateBreaks(range, largeStep, smallStep)
+GenerateBreaks(range, largeStep, smallStep, ticks, op = `*`)
 }
 \arguments{
 \item{range}{Range of breaks (typically a scale of an axis).}
 
 \item{largeStep}{Step for large breaks (the ones with labels).}
 
-\item{smallStep}{Step for small breaks (only ticks).}
+\item{smallStep}{If specified, used as step for small breaks.}
+
+\item{ticks}{If \code{smallStep} is not specified, then \code{ticks} are used
+to create small breaks.}
+
+\item{op}{Used in combination with \code{ticks} as: per each large break produces
+\code{op(ticks, break)} small breaks and then limits them to \code{range}}
 }
 \description{
 Generates large and small breaks within given range.
