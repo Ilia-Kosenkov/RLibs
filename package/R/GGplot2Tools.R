@@ -217,7 +217,7 @@ GGCustomLargeTicks <- function(side, breaks, labels,
                             y = breaks, yend = breaks))
     }
     else if (side == 4 ||
-             side == "4" ||
+             side == "r" ||
              regexpr("rig", side) > 0) {
         append(
             foreach(br = breaks,
