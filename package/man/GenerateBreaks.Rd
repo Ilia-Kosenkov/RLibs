@@ -19,6 +19,10 @@ to create small breaks.}
 \item{op}{Used in combination with \code{ticks} as: per each large break produces
 \code{op(ticks, break)} small breaks and then limits them to \code{range}}
 }
+\value{
+A list containing either $Large, $Small collections of breaks, or both.
+}
 \description{
 Generates large and small breaks within given range.
 }
+

@@ -469,7 +469,7 @@ WriteFixed <- function(frame, path, frmt = "%8.2f") {
 #' within [min(range), max(range)].
 #' @param x Input subset.
 #' @param range Range within which elements of x should be.
-#' @returns Subset of source vector x.
+#' @return Subset of source vector x.
 #' @export
 Within <- function(x, range) {
     min <- min(range, na.rm = TRUE)

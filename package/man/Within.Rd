@@ -11,7 +11,11 @@ Within(x, range)
 
 \item{range}{Range within which elements of x should be.}
 }
+\value{
+Subset of source vector x.
+}
 \description{
 Returns a subset of x such as x is
 within [min(range), max(range)].
 }
+
