@@ -146,14 +146,21 @@ scale_y_custom <- function(type = "continuous", breaks, ...) {
     do.call(paste0("scale_y_", type), args = params)
 }
 
+#' @title GGPlotGetRange
+#' @description Builds provided \code{ggplot2} object and determines
+#' actual ranges of all of its axes.
+#' @param plt Plot to measure.
+#' @return A \code{list()} of ranges with names \code{"x", "y", "x2", "y2"}.
+#' Some values (like *2) can be \code{NULL} if no respective axis is present.
 #' @export
 #' @import ggplot2
+#' @importFrom stats setNames
 GGPlotGetRange <- function(plt) {
-    compact(
-            setNames(
+    result <- setNames(
                 ggplot_build(plt)$layout$panel_params[[1]][
                     c("x.range", "y.range", "x.sec.range", "y.sec.range")],
-                c("x", "y", "x2", "y2")))
+                c("x", "y", "x2", "y2"))
+    result <- result[!sapply(result, is.null)]
 }
 
 #' @title GenerateBreaks
@@ -198,11 +205,26 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
 #' @description
 #' Creates custom ticks with labels. Requires a finished ggproto object.
 #' Can be piped with %>%.
+#' @param plt Target plot.
+#' @param side Indicates axis. Can be either \code{1,2,3,4},
+#' \code{"b", "l", "t", "r"}, or strings containing
+#' \code{"bot", "lef", "top", "rig"} substring.
+#' @param breaks Breaks in the axis scale.
+#' @param labels Respective texr labels.
+#' @param tckSz Relative size of the tick.
+#' @param trnsf Trnsformation function. Should match \code{scale_*} of
+#' the target axis. E.g. for \code{scale_x_log10} \code{trnsf}
+#' should be \code{log10}.
+#' @param gp A \code{gpar} set of parameters passed to the text methods.
+#' Affects rendering of the labels.
+#' @param rot Rotation of labels, deg.
+#' @param deltaH Additional horizontal text shift. If affected by \code{rot}.
+#' @param deltaV Additional vertical text shift. Is affected by \code{rot}.
 #' @export
 #' @import ggplot2 grid
 GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
                               trnsf = identity, gp = gpar(),
-                              rot = 0, delta = 0) {
+                              rot = 0, deltaH = 0, deltaV = 0) {
     lb <- NULL
     br <- NULL
 
@@ -221,7 +243,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         plt +
             annotation_custom(
                 grob = textGrob(label = labels, gp = gp, rot = rot,
-                    hjust = 0.5, vjust = 1.5 + delta,
+                    hjust = 0.5 + deltaH, vjust = 1.5 + deltaV,
                     x = breaks, y = 0)) +
             annotation_custom(
                 grob = segmentsGrob(
@@ -236,7 +258,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         plt +
             annotation_custom(
                 grob = textGrob(label = labels, gp = gp, rot = rot,
-                    hjust = 0.5, vjust = -0.7 + delta,
+                    hjust = 0.5 + deltaH, vjust = -0.7 + deltaV,
                     x = breaks, y = 1)) +
             annotation_custom(
                 grob = segmentsGrob(
@@ -251,7 +273,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         plt +
             annotation_custom(
                 grob = textGrob(label = labels, gp = gp, rot = rot,
-                    hjust = 1.5 + delta, vjust = 0.5,
+                    hjust = 1.5 + deltaH, vjust = 0.5 + deltaV,
                     x = 0, y = breaks)) +
             annotation_custom(
                 grob = segmentsGrob(
@@ -266,7 +288,7 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
         plt +
             annotation_custom(
                 grob = textGrob(label = labels, gp = gp, rot = rot,
-                    hjust = -0.4 + delta, vjust = 0.5,
+                    hjust = -0.4 + deltaH, vjust = 0.5 + deltaV,
                     x = 1, y = breaks)) +
             annotation_custom(
                 grob = segmentsGrob(
@@ -357,7 +379,7 @@ GGCustomLargeTicks <- function(side, breaks, labels,
         stop(sprintf("Unknown axis %s", as.character(side)))
     }
 
-#' @title GG2Grob
+#' @title GGPlot2Grob
 #' @description
 #' Converts \code{ggplot2} objects into \code{gTables}
 #' and sets up margins.
@@ -369,12 +391,14 @@ GGCustomLargeTicks <- function(side, breaks, labels,
 #' of the plot area.
 #' @return A collection of \code{grobs}.
 #' @import ggplot2 foreach
+#' @importFrom stats setNames
 #' @export
-GG2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
+GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
+    p <- NULL
     grobs <- foreach(p = plots,
         .final = function(x) setNames(x, names(plots))) %do% {
 
-        grob <- ggplot_grob(ggplot_build(p))
+        grob <- ggplot_gtable(ggplot_build(p))
 
         grob$layout$clip[grob$layout$name == "panel"] <-
             ifelse(clip, "on", "off")

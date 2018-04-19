@@ -5,7 +5,33 @@
 \title{GGPlotCustomTicls}
 \usage{
 GGPlotCustomTicks(plt, side, breaks, labels, tckSz, trnsf = identity,
-  gp = gpar(), rot = 0, delta = 0)
+  gp = gpar(), rot = 0, deltaH = 0, deltaV = 0)
+}
+\arguments{
+\item{plt}{Target plot.}
+
+\item{side}{Indicates axis. Can be either \code{1,2,3,4},
+\code{"b", "l", "t", "r"}, or strings containing
+\code{"bot", "lef", "top", "rig"} substring.}
+
+\item{breaks}{Breaks in the axis scale.}
+
+\item{labels}{Respective texr labels.}
+
+\item{tckSz}{Relative size of the tick.}
+
+\item{trnsf}{Trnsformation function. Should match \code{scale_*} of
+the target axis. E.g. for \code{scale_x_log10} \code{trnsf}
+should be \code{log10}.}
+
+\item{gp}{A \code{gpar} set of parameters passed to the text methods.
+Affects rendering of the labels.}
+
+\item{rot}{Rotation of labels, deg.}
+
+\item{deltaH}{Additional horizontal text shift. If affected by \code{rot}.}
+
+\item{deltaV}{Additional vertical text shift. Is affected by \code{rot}.}
 }
 \description{
 Creates custom ticks with labels. Requires a finished ggproto object.
