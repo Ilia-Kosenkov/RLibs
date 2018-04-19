@@ -11,4 +11,3 @@ GGPlotCustomTicks(plt, side, breaks, labels, tckSz, trnsf = identity,
 Creates custom ticks with labels. Requires a finished ggproto object.
 Can be piped with %>%.
 }
-

@@ -109,14 +109,18 @@ SetMargins <- function(grob, type, margins) {
 #' @import ggplot2
 DefaultTheme <- function() {
     return(theme_bw() +
-                theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+                theme(panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank()) +
                 theme(axis.ticks.length = unit(-3.5, "pt")) +
                 theme(axis.text.x =
-                    element_text(size = 10, margin = margin(t = unit(10, "pt")), colour = "#000000")) +
+                    element_text(size = 10,
+                        margin = margin(t = unit(10, "pt")), colour = "#000000")) +
                 theme(axis.text.y =
-                    element_text(size = 10, margin = margin(r = unit(10, "pt")), colour = "#000000")) +
+                    element_text(size = 10,
+                        margin = margin(r = unit(10, "pt")), colour = "#000000")) +
                 theme(axis.text.y.right =
-                    element_text(size = 10, margin = margin(l = unit(10, "pt")), colour = "#000000")))
+                    element_text(size = 10,
+                        margin = margin(l = unit(10, "pt")), colour = "#000000")))
 }
 
 #' @export
@@ -351,4 +355,48 @@ GGCustomLargeTicks <- function(side, breaks, labels,
     }
     else
         stop(sprintf("Unknown axis %s", as.character(side)))
+    }
+
+#' @title GG2Grob
+#' @description
+#' Converts \code{ggplot2} objects into \code{gTables}
+#' and sets up margins.
+#' @param plots Plots to convert.
+#' @param innerMar If present, sets inner margins.
+#' @param outerMar If present, sets outer margins.
+#' @param clip If \code{TRUE}, clips everything outside of the plot ares
+#' (affects custom tick labels and so on), otherwise, allows contents outside 
+#' of the plot area.
+#' @return A collection of \code{grobs}.
+#' @import ggplot2 foreach
+#' @export
+GG2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
+    grobs <- foreach(p = plots,
+        .final = function(x) setNames(x, names(plots))) %do% {
+
+        grob <- ggplot_grob(ggplot_build(p))
+
+        grob$layout$clip[grob$layout$name == "panel"] <-
+            ifelse(clip, "on", "off")
+
+        if (!missing(innerMar))
+            grob <- SetMargins(grob, "inner", innerMar)
+        if (!missing(outerMar))
+            grob <- SetMargins(grob, "outer", outerMar)
+
+        return(grob)
+    }
+}
+
+#' @title GrobPlot
+#' @description
+#' Plots provide \code{gTable} objects, one per page
+#' @param grobs Figures to plot.
+#' @importFrom grid grid.newpage grid.draw
+#' @export
+GrobPlot <- function(grobs) {
+    invisible(lapply(grobs, function(g) {
+        grid.newpage()
+        grid.draw(g)
+    }))
 }
