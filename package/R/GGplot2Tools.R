@@ -210,7 +210,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
 #' \code{"b", "l", "t", "r"}, or strings containing
 #' \code{"bot", "lef", "top", "rig"} substring.
 #' @param breaks Breaks in the axis scale.
-#' @param labels Respective texr labels.
+#' @param labels Respective text labels.
 #' @param tckSz Relative size of the tick.
 #' @param trnsf Trnsformation function. Should match \code{scale_*} of
 #' the target axis. E.g. for \code{scale_x_log10} \code{trnsf}
