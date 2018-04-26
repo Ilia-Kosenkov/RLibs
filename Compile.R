@@ -3,6 +3,11 @@ if (interactive()) {
 
     test_BSTools.DebugPlot <- function() {
         require(dplyr)
+        require(foreach)
+        require(ggplot2)
+        require(RColorBrewer)
+        require(gridExtra)
+
         N <- 10000
         data <- list(
             tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100), test = rbeta(N, 1, 2)),
