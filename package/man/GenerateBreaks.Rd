@@ -25,3 +25,4 @@ A list containing either $Large, $Small collections of breaks, or both.
 \description{
 Generates large and small breaks within given range.
 }
+

@@ -16,7 +16,7 @@ GGPlotCustomTicks(plt, side, breaks, labels, tckSz, trnsf = identity,
 
 \item{breaks}{Breaks in the axis scale.}
 
-\item{labels}{Respective texr labels.}
+\item{labels}{Respective text labels.}
 
 \item{tckSz}{Relative size of the tick.}
 
@@ -37,3 +37,4 @@ Affects rendering of the labels.}
 Creates custom ticks with labels. Requires a finished ggproto object.
 Can be piped with %>%.
 }
+

@@ -18,3 +18,4 @@ Subset of source vector x.
 Returns a subset of x such as x is
 within [min(range), max(range)].
 }
+

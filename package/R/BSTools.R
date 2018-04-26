@@ -411,14 +411,20 @@ BSTools.Analyze1 <- function(input) {
 #' Plots results of JAGS simulation obtained from \code{BSTools.Run2}.
 #' Result is similar to calling \code{plot} on the direct result of
 #' \code{coda.samples}
-#' @param data A list of tibbles - one per each simulated chain
+#' @param data A list of tibbles - one per each simulated chain.
 #' @export
-#' @import dplyr foreach ggplot
+#' @import dplyr foreach ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom gridExtra grid.arrange
 BSTools.DebugPlot <- function(data) {
 
     item <- NULL
+    group <- NULL
+    . <- NULL
+    .Group <- NULL
+    `:=` <- NULL
+    x <- NULL
+    y <- NULL
 
     names <- names(data[[1]])
 

@@ -24,3 +24,4 @@ A collection of \code{grobs}.
 Converts \code{ggplot2} objects into \code{gTables}
 and sets up margins.
 }
+

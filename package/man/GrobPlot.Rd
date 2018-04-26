@@ -12,3 +12,4 @@ GrobPlot(grobs)
 \description{
 Plots provide \code{gTable} objects, one per page
 }
+

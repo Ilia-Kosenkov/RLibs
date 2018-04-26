@@ -17,3 +17,4 @@ Some values (like *2) can be \code{NULL} if no respective axis is present.
 Builds provided \code{ggplot2} object and determines
 actual ranges of all of its axes.
 }
+
