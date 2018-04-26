@@ -24,4 +24,11 @@
 library(testthat)
 library(RLibs)
 
-test_check("RLibs")
+if (!interactive()) {
+    # If is not interactive session (part of a build & testing process).
+    # Runs tests on the package.
+    test_check("RLibs")
+} else {
+    # Runs some debug code snippets if is executed interactively
+    # (part of the developing process)
+}
