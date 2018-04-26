@@ -405,3 +405,80 @@ BSTools.Analyze1 <- function(input) {
         mutate(Vars = input %>% names) %>%
         select(Vars, everything())
 }
+
+BSTools.DebugPlot <- function(data) {
+    require(foreach)
+    require(dplyr)
+    require(ggplot2)
+    require(RColorBrewer)
+    require(gridExtra)
+
+    item <- NULL
+
+    names <- names(data[[1]])
+
+    pltData <- foreach(item = data, group = seq_len(length(data))) %do% {
+        item %>%
+            mutate(.Group = group) %>%
+            mutate(ID = 1:nrow(.))
+    } %>%
+        bind_rows %>%
+        mutate(.Group = as.factor(.Group))
+
+    densData <- foreach(item = data, group = seq_len(length(data))) %do% {
+        foreach(name = names) %do% {
+            item %>%
+                pull(name) %>%
+                density %>%
+                "["(c("x", "y")) %>%
+                as.tibble %>%
+                rename(!!name := x, !!paste0("dens_", name) := y)
+        } %>%
+            bind_cols %>%
+            mutate(.Group = group)
+    } %>%
+        bind_rows %>%
+        mutate(.Group = as.factor(.Group))
+
+
+    plts <- list()
+    for(name in names) {
+        trace <- (pltData %>%
+            ggplot(aes_string(x = "ID", y = name,
+                group = ".Group", col = ".Group")) +
+            DefaultTheme() +
+            geom_line() +
+            scale_color_manual(values = c("#000000", brewer.pal(9, "Set1")),
+                guide = FALSE) +
+            xlab("Observation") +
+            ylab(name))
+
+        dens <- (densData %>%
+            ggplot(aes_string(x = name, y = paste0("dens_", name),
+                group = ".Group", col = ".Group")) +
+            DefaultTheme() +
+            geom_line() +
+            scale_color_manual(values = c("#000000", brewer.pal(9, "Set1")),
+                guide = FALSE) +
+            xlab(name) +
+            ylab(paste("Density of", name)))
+
+        plts <- append(plts, list(trace))
+        plts <- append(plts, list(dens))
+    }
+
+    grobs <- GGPlot2Grob(plts)
+
+    if (length(names) == 1) {
+        grid.arrange(grobs = grobs, widths = c(1, 1))
+    } else {
+
+        n <- ceiling(length(names) / 2)
+
+        for (i in seq_len(n)) {
+            pltInds <- (i - 1) * 4 + 1:4
+            pltInds <- Within(pltInds, c(1, 2 * length(names)))
+            grid.arrange(grobs = grobs[pltInds], widths = c(1, 1), heights = c(1, 1))
+        }
+    }
+}
