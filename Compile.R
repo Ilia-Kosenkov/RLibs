@@ -7,15 +7,22 @@ if (interactive()) {
         require(ggplot2)
         require(RColorBrewer)
         require(gridExtra)
+        require(tibble)
+
+
 
         N <- 10000
         data <- list(
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100), test = rbeta(N, 1, 2)),
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100), test = rbeta(N, 1, 2)),
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100), test = rbeta(N, 1, 2)),
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100), test = rbeta(N, 1, 2)))
+            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
+                test = rbeta(N, 1, 2)),
+            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
+                test = rbeta(N, 1, 2)),
+            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
+                test = rbeta(N, 1, 2)),
+            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
+                test = rbeta(N, 1, 2)))
 
-        BSTools.DebugPlot(data)
+        BSTools.DebugPlot(data, 100L, 10000L, nPltRow = 3L)
     }
 
     test_BSTools.DebugPlot()
