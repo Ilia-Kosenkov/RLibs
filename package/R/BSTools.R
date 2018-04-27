@@ -386,8 +386,8 @@ BSTools.RNGs <- function(n) {
 #' @import dplyr
 #' @importFrom stats pnorm
 BSTools.Analyze1 <- function(input) {
-    . = NULL
-    Vars = NULL
+    . <- NULL
+    Vars <- NULL
     lapply(input,
           function(x)
               x %>%
@@ -494,8 +494,11 @@ BSTools.DebugPlot <- function(data,
 
     grobs <- GGPlot2Grob(plts)
 
+    isFirstPageRequired <- names(dev.cur()) != "pdf"
+
     if (length(names) == 1) {
-        grid.arrange(grobs = grobs, widths = c(1, 1))
+        grid.arrange(grobs = grobs, widths = c(1, 1),
+            newpage = isFirstPageRequired)
     } else {
 
         n <- ceiling(length(names) / nPltRow)
@@ -504,7 +507,8 @@ BSTools.DebugPlot <- function(data,
             pltInds <- (i - 1) * 2 * nPltRow + 1:(2 * nPltRow)
             pltInds <- Within(pltInds, c(1, 2 * length(names)))
             grid.arrange(grobs = grobs[pltInds],
-                widths = c(1, 1), heights = rep(1, nPltRow))
+                widths = c(1, 1), heights = rep(1, nPltRow),
+                newpage = ifelse(i == 1, isFirstPageRequired, TRUE))
         }
     }
 }
