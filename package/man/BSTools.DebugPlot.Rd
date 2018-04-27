@@ -4,10 +4,21 @@
 \alias{BSTools.DebugPlot}
 \title{BSTools.DebugPlot}
 \usage{
-BSTools.DebugPlot(data)
+BSTools.DebugPlot(data, traceLen = 1000L, densLen = 10000L, nPltRow = 3L)
 }
 \arguments{
 \item{data}{A list of tibbles - one per each simulated chain.}
+
+\item{traceLen}{Amount of data used in traceplot. If \code{traceLen} is
+less than the size of input tibble, input is equally sampled to produce
+a total of \code{traceLen} points on the plot. Can be useful to accelerate
+computations.}
+
+\item{densLen}{Amount of data used to construct density (distribution) plots.
+Value smaller than the size of \code{data} downsamples input to accelerate
+computations of densities and plotting.}
+
+\item{nPltRow}{Number of plot rows per page. A good value is between 1 and 4.}
 }
 \description{
 Plots results of JAGS simulation obtained from \code{BSTools.Run2}.
