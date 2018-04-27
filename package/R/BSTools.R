@@ -416,7 +416,7 @@ BSTools.Analyze1 <- function(input) {
 #' @import dplyr foreach ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom gridExtra grid.arrange
-BSTools.DebugPlot <- function(data) {
+BSTools.DebugPlot <- function(data, traceLen = 1000L, nPltRow = 3L) {
 
     item <- NULL
     group <- NULL
@@ -431,7 +431,8 @@ BSTools.DebugPlot <- function(data) {
     pltData <- foreach(item = data, group = seq_len(length(data))) %do% {
         item %>%
             mutate(.Group = group) %>%
-            mutate(ID = 1:nrow(.))
+            mutate(ID = 1:nrow(.)) %>%
+            slice(seq.int(1L, n(), length.out = traceLen))
     } %>%
         bind_rows %>%
         mutate(.Group = as.factor(.Group))
@@ -484,12 +485,13 @@ BSTools.DebugPlot <- function(data) {
         grid.arrange(grobs = grobs, widths = c(1, 1))
     } else {
 
-        n <- ceiling(length(names) / 2)
+        n <- ceiling(length(names) / nPltRow)
 
         for (i in seq_len(n)) {
-            pltInds <- (i - 1) * 4 + 1:4
+            pltInds <- (i - 1) * 2 * nPltRow + 1:(2 * nPltRow)
             pltInds <- Within(pltInds, c(1, 2 * length(names)))
-            grid.arrange(grobs = grobs[pltInds], widths = c(1, 1), heights = c(1, 1))
+            grid.arrange(grobs = grobs[pltInds],
+                widths = c(1, 1), heights = rep(1, nPltRow))
         }
     }
 }
