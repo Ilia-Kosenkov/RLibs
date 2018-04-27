@@ -412,11 +412,21 @@ BSTools.Analyze1 <- function(input) {
 #' Result is similar to calling \code{plot} on the direct result of
 #' \code{coda.samples}
 #' @param data A list of tibbles - one per each simulated chain.
+#' @param traceLen Amount of data used in traceplot. If \code{traceLen} is
+#' less than the size of input tibble, input is equally sampled to produce
+#' a total of \code{traceLen} points on the plot. Can be useful to accelerate
+#' computations.
+#' @param densLen Amount of data used to construct density (distribution) plots.
+#' Value smaller than the size of \code{data} downsamples input to accelerate
+#' computations of densities and plotting.
+#' @param nPltRow Number of plot rows per page. A good value is between 1 and 4.
 #' @export
 #' @import dplyr foreach ggplot2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom gridExtra grid.arrange
-BSTools.DebugPlot <- function(data, traceLen = 1000L, nPltRow = 3L) {
+BSTools.DebugPlot <- function(data,
+                              traceLen = 1000L, densLen = 10000L,
+                              nPltRow = 3L) {
 
     item <- NULL
     group <- NULL
@@ -442,6 +452,7 @@ BSTools.DebugPlot <- function(data, traceLen = 1000L, nPltRow = 3L) {
         group = seq.int_len(length(data))) %do% {
         foreach(name = names) %do% {
             item %>%
+                slice(seq.int(1, n(), length.out = densLen)) %>%
                 pull(name) %>%
                 density %>%
                 "["(c("x", "y")) %>%
