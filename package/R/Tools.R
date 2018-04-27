@@ -478,18 +478,18 @@ Within <- function(x, range) {
     return(x[x >= min & x <= max])
 }
 
-#' @title seq.int_len
+#' @title seq_int_len
 #' @param length.out Size of the sequence.
 #' @return Sequence of ints.
 #' @export
-seq.int_len <- function(length.out) {
+seq_int_len <- function(length.out) {
     seq.int(length.out = length.out)
 }
 
-#' @title seq.int_along
+#' @title seq_int_along
 #' @param along.with Sequence along which indexes are genereated.
 #' @return Sequence of ints.
 #' @export
-seq.int_along <- function(along.with) {
+seq_int_along <- function(along.with) {
     seq.int(along.with = along.with)
 }

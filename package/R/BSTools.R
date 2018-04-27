@@ -439,7 +439,7 @@ BSTools.DebugPlot <- function(data,
     names <- names(data[[1]])
 
     pltData <- foreach(item = data,
-        group = seq.int_len(length(data))) %do% {
+        group = seq_int_len(length(data))) %do% {
         item %>%
             mutate(.Group = group) %>%
             mutate(ID = 1:nrow(.)) %>%
@@ -449,7 +449,7 @@ BSTools.DebugPlot <- function(data,
         mutate(.Group = as.factor(.Group))
 
     densData <- foreach(item = data,
-        group = seq.int_len(length(data))) %do% {
+        group = seq_int_len(length(data))) %do% {
         foreach(name = names) %do% {
             item %>%
                 slice(seq.int(1, n(), length.out = densLen)) %>%
@@ -500,7 +500,7 @@ BSTools.DebugPlot <- function(data,
 
         n <- ceiling(length(names) / nPltRow)
 
-        for (i in seq.int_len(n)) {
+        for (i in seq_int_len(n)) {
             pltInds <- (i - 1) * 2 * nPltRow + 1:(2 * nPltRow)
             pltInds <- Within(pltInds, c(1, 2 * length(names)))
             grid.arrange(grobs = grobs[pltInds],
