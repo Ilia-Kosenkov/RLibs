@@ -4,10 +4,14 @@
 \alias{GrobPlot}
 \title{GrobPlot}
 \usage{
-GrobPlot(grobs)
+GrobPlot(grobs, noNewPageDevList = c("pdf"))
 }
 \arguments{
 \item{grobs}{Figures to plot.}
+
+\item{noNewPageDevList}{Names of devices that produce empty page
+if \code{grid::grid.newage()} is called before first call
+of \code{grid::grid.draw(...)}.}
 }
 \description{
 Plots provide \code{gTable} objects, one per page
