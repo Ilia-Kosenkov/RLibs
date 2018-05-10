@@ -416,23 +416,36 @@ GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
 #' @description
 #' Plots provide \code{gTable} objects, one per page
 #' @param grobs Figures to plot.
+#' @param noNewPageDevList Names of devices that produce empty page
+#' if \code{grid::grid.newage()} is called before first call
+#' of \code{grid::grid.draw(...)}.
 #' @importFrom grid grid.newpage grid.draw
 #' @export
-GrobPlot <- function(grobs) {
+GrobPlot <- function(grobs, noNewPageDevList = c("pdf")) {
     # Typical classes of passed grob
     grobClassIds <- c("gtable", "gTree", "grob", "gDesc")
     # If there is a match, then received one grob (not list of grobs)
     isStandAloneGrob <- any(sapply(grobClassIds, grepl,
         x = class(grobs), ignore.case = TRUE))
 
+    # If current device is part of the list, than
+    # no first page should be drawn.
+    # First call to [grid.newpage] produces empty page.
+    drawNewPage <- !any(sapply(noNewPageDevList, grepl,
+        x = names(dev.cur()), ignore.case = TRUE)))
 
-
+    # Case of a single plot
     if (isStandAloneGrob) {
-        grid.newpage()
+        if (drawNewPage)
+            grid.newpage()
         grid.draw(grobs)
+    } else
+        for (ind in seq_int_len(length(grobs))) {
+            # If first new page should be drawn or
+            # it is not the first plot of a collection.
+            if (ind != 1L || drawNewPage)
+                grid.newpage()
+
+            grid.draw(grobs[[ind]])
     }
-    invisible(lapply(grobs, function(g) {
-        grid.newpage()
-        grid.draw(g)
-    }))
 }
