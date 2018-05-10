@@ -419,6 +419,18 @@ GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
 #' @importFrom grid grid.newpage grid.draw
 #' @export
 GrobPlot <- function(grobs) {
+    # Typical classes of passed grob
+    grobClassIds <- c("gtable", "gTree", "grob", "gDesc")
+    # If there is a match, then received one grob (not list of grobs)
+    isStandAloneGrob <- any(sapply(grobClassIds, grepl,
+        x = class(grobs), ignore.case = TRUE))
+
+
+
+    if (isStandAloneGrob) {
+        grid.newpage()
+        grid.draw(grobs)
+    }
     invisible(lapply(grobs, function(g) {
         grid.newpage()
         grid.draw(g)
