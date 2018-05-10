@@ -157,7 +157,7 @@ scale_y_custom <- function(type = "continuous", breaks, ...) {
 #' @importFrom stats setNames
 GGPlotGetRange <- function(plt) {
     result <- setNames(
-                ggplot_build(plt)$layout$panel_ranges[[1]][
+                ggplot_build(plt)$layout$panel_params[[1]][
                     c("x.range", "y.range", "x.sec.range", "y.sec.range")],
                 c("x", "y", "x2", "y2"))
     result <- result[!sapply(result, is.null)]
