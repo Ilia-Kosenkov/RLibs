@@ -24,9 +24,18 @@ if (interactive()) {
 
         BSTools.DebugPlot(data, 100L, 10000L, nPltRow = 3L)
     }
+    test_parallel <- function() {
+        require(foreach)
+        require(doSNOW)
+        require(parallel)
 
-    test_BSTools.DebugPlot()
+        cluster <- Cluster$new(4)
+        cluster$Register()
+    }
 
+
+    #test_BSTools.DebugPlot()
+    test_parallel()
 } else {
     # If session is not interactive, build package
     require(devtools)
