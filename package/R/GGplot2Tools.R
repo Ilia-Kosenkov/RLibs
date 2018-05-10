@@ -432,7 +432,7 @@ GrobPlot <- function(grobs, noNewPageDevList = c("pdf")) {
     # no first page should be drawn.
     # First call to [grid.newpage] produces empty page.
     drawNewPage <- !any(sapply(noNewPageDevList, grepl,
-        x = names(dev.cur()), ignore.case = TRUE)))
+        x = names(dev.cur()), ignore.case = TRUE))
 
     # Case of a single plot
     if (isStandAloneGrob) {
