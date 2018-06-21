@@ -20,7 +20,9 @@ Imports:
     gridExtra,
     RColorBrewer,
     rlang,
-    magrittr
+    purrr,
+    magrittr,
+    tidyr
 RoxygenNote: 6.0.1.9000
 ByteCompile: true
 License: MIT + file LICENSE
