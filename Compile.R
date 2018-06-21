@@ -1,47 +1,26 @@
 if (interactive()) {
     # If is in interactive session, run debug code
 
-    test_BSTools.DebugPlot <- function() {
-        require(dplyr)
-        require(foreach)
-        require(ggplot2)
-        require(RColorBrewer)
-        require(gridExtra)
-        require(tibble)
-
-
-
-        N <- 10000
-        data <- list(
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
-                test = rbeta(N, 1, 2)),
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
-                test = rbeta(N, 1, 2)),
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
-                test = rbeta(N, 1, 2)),
-            tibble(x = runif(N), y = rnorm(N), z = rnorm(N, 1, 100),
-                test = rbeta(N, 1, 2)))
-
-        BSTools.DebugPlot(data, 100L, 10000L, nPltRow = 3L)
-    }
-    test_parallel <- function() {
-        require(foreach)
-        require(doSNOW)
-        require(parallel)
-
-        cluster <- Cluster$new(4)
-        cluster$Register()
-    }
-
-
-    #test_BSTools.DebugPlot()
-    test_parallel()
 } else {
-    # If session is not interactive, build package
-    require(devtools)
-    require(roxygen2)
 
+    message("Running `roxygen2::roxygenize`...")
     roxygen2::roxygenize("./package")
-    #devtools::document("./package")
-    system("cmd /k \"R.exe CMD build ./package && R.exe CMD check *gz && exit\"")
+
+    pckgs <- base::dir(".", "*.gz")
+
+    `%>%` <- dplyr::`%>%`
+    stringr::str_match_all(pckgs, "RLibs_(([0-9]\\.){3}).*gz") %>%
+        purrr::map(dplyr::as_tibble) %>%
+        purrr::reduce(dplyr::bind_rows) %>%
+        dplyr::select(1:2) %>%
+        stats::setNames(nm = c("File", "Version")) %>%
+        dplyr::arrange(desc(Version)) %>%
+        dplyr::slice(1) %>%
+        dplyr::pull(File) -> latestPckg
+
+    command <- sprintf("cmd /k \"R.exe CMD build ./package && R.exe CMD check %s && exit\"",
+        latestPckg)
+    message(paste("Executing:", command))
+    system(command)
+
 }
