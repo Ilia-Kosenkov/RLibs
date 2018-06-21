@@ -18,8 +18,11 @@ Imports:
     ggplot2,
     foreach,
     gridExtra,
-    RColorBrewer
+    RColorBrewer,
+    rlang,
+    magrittr
 RoxygenNote: 6.0.1.9000
+ByteCompile: true
 License: MIT + file LICENSE
 Suggests:
     testthat
