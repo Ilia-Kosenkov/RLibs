@@ -588,3 +588,130 @@ Log10Floor <- function(x) {
 Log10Ceiling <- function(x) {
     x %>% log10 %>% ceiling %>% raise(10)
 }
+
+#' @title RoundIntervalTo
+#' @param x An input oredered vector of size 2 (Interval lims).
+#' @param rnd Rounding base.
+#' @return A vector of size 2, both limits of which are powers of \code{rnd}
+#' @export
+RoundIntervalTo <- function(x, rnd) {
+    rnd * c(floor(x[1] / rnd), ceiling(x[2] / rnd))
+}
+
+#' @title GenerateLog10Breaks
+#' @param ylim Axis limit.
+#' @return log10 breaks.
+#' @import dplyr
+#' @export
+GenerateLog10Breaks <- function(ylim) {
+
+    if (ylim %>% log10 %>% diff %>% `<=`(1)) {
+        mult <- ylim %>% min %>% Log10Floor
+        yInt <- ylim / mult
+
+        lStep <- yInt %>% FancyStep(4)
+        sStep <- 0.1 * lStep
+
+        yRng <- yInt %>% RoundIntervalTo(lStep)
+
+        breaks <- list(
+            Large = seq(yRng[1], yRng[2], by = lStep),
+            Small = seq(yRng[1], yRng[2], by = sStep))
+
+        inds <- Intersect(breaks$Large, breaks$Small, tol = 0.5 * sStep) %>%
+            `[[`(2)
+
+        breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
+
+        breaks <- breaks %>%
+            lapply(Within, range = yInt) %>%
+            lapply(`*`, mult)
+
+    } else {
+
+        breaks <- ylim %>% log10 %>%
+        GenerateBreaks(largeStep = 1,
+            ticks = log10(1:9), op = `+`)
+
+        breaks$Large <- breaks$Large %>%
+            lapply(function(x)
+                log10(c(0.2, 0.5, 1, 2, 5)) + x) %>%
+            unlist %>%
+            unique %>%
+            Within(range = log10(ylim))
+
+        inds <- Intersect(breaks$Large, breaks$Small, tol = 1e-4)[[2]]
+
+        breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
+
+        breaks <- breaks %>%
+            lapply(Within, range = log10(ylim)) %>%
+            sapply(raise, 10)
+    }
+
+    return(breaks)
+}
+
+#' @title Clamp
+#' @param ... Parameter.
+#' @return Clamped numerics.
+#' @export
+Clamp <- function(...) {
+    UseMethod("Clamp")
+}
+
+#' @title Clamp.numeric
+#' @param ... Input parameters.
+#' @return Clamps vector.
+#' @export
+Clamp.numeric <- function(...) {
+    args <- list(...)
+    x <- args[[1]]
+    lower <- args[[2]]
+    upper <- args[[3]]
+    if (!missing(lower))
+        x[x < lower] <- lower
+    if (!missing(upper))
+        x[x > upper] <- upper
+
+    return(x)
+}
+
+#' @title Clamp.data.frame
+#' @param .data Input \code{data.frame} or \code{tibble}.
+#' @param .var Variable to clamp.
+#' @param .range Clamp range.
+#' @return \code{.data} whith clamped within \code{.range} column \code{.var}.
+#' @importFrom dplyr mutate %>% if_else
+#' @importFrom rlang enquo quo_squash !! :=
+#' @export
+Clamp.data.frame <- function(.data, .var, .range) {
+    expr <- quo_squash(enquo(.var))
+
+    .data %>%
+        mutate(!!expr := if_else(!!expr > .range[2], .range[2], !!expr)) %>%
+        mutate(!!expr := if_else(!!expr < .range[1], .range[1], !!expr))
+}
+
+#' @title Expand
+#' @param x Input interval.
+#' @param factor How large the expansion is. 
+#'  1 corresponds to !00% increase in size.
+#' @param direction In which way to expand.
+#' @return Expanded interval.
+#' @export
+Expand <- function(x, factor = 1, direction = c(1, 1)) {
+    # Expands provided interval x factor times, 
+    # preserving the center of the interval
+    # Args :
+    #   x      : input interval
+    #   factor : expanding factor
+    # Returns :
+    #   Expanded interval
+
+    center <- mean(x)
+
+    halfSize <- (diff(x)) / 2
+
+    return(center + (c(-1, 1) * (1 + factor * direction)) * halfSize)
+}
