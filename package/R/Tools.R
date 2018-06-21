@@ -695,13 +695,13 @@ Clamp.data.frame <- function(.data, .var, .range) {
 
 #' @title Expand
 #' @param x Input interval.
-#' @param factor How large the expansion is. 
-#'  1 corresponds to !00% increase in size.
+#' @param factor How large the expansion is.
+#' 1 corresponds to 100\% increase in size.
 #' @param direction In which way to expand.
 #' @return Expanded interval.
 #' @export
 Expand <- function(x, factor = 1, direction = c(1, 1)) {
-    # Expands provided interval x factor times, 
+    # Expands provided interval x factor times,
     # preserving the center of the interval
     # Args :
     #   x      : input interval
@@ -714,4 +714,94 @@ Expand <- function(x, factor = 1, direction = c(1, 1)) {
     halfSize <- (diff(x)) / 2
 
     return(center + (c(-1, 1) * (1 + factor * direction)) * halfSize)
+}
+
+#' @title a_ch
+#' @description A shortcut to \code{as.character}.
+#' @param ... Arguments to convert.
+#' @return Character representation of arguments.
+#' @importFrom purrr map_chr
+#' @export
+a_ch <- function(...) map_chr(list(...), as.character)
+
+#' @title Lin
+#' @param x0 Where to interpolate.
+#' @param x Arguments (size 2).
+#' @param y Values (size 2).
+#' @return Interpolated value between two provided.
+#' @importFrom purrr map_dbl
+#' @importFrom magrittr %<>%
+#' @export
+Lin <- function(x0, x, y) {
+    x %<>% unlist %>% as.numeric
+    y %<>% unlist %>% as.numeric
+
+    map_dbl(x0, ~ y[1] + diff(y) / diff(x) * (. - x[1]))
+}
+
+#' @title UniqueWhichTol
+#' @param x Vector to check.
+#' @param tol Tolerance level for comparisons.
+#' @return Indices of unique elements within given tlerance.
+#' @importFrom dplyr %>%
+#' @importFrom magrittr subtract is_less_than extract
+#' @importFrom purrr map map2 map_lgl
+#' @export
+UniqueWhichTol <- function(x, tol = .Machine$double.eps) {
+    x %>%
+        outer(x, subtract) %>%
+        abs %>%
+        is_less_than(tol) %>% {
+            map(seq_int_len(length(x)),
+                function(x) extract(., x,))
+        } %>%
+        map2(seq_int_len(length(x)), ~ c(.y, which(.x))) %>%
+        map_lgl(~.x[2] == .x[1]) %>%
+        which
+}
+
+#' @title UniqueTol
+#' @param x Vector to check.
+#' @param tol Tolerance level for comparisons.
+#' @return Unique elements of the vector.
+#' @importFrom dplyr %>%
+#' @importFrom magrittr extract
+#' @export
+UniqueTol <- function(x, tol = .Machine$double.eps) {
+    x %>%
+        extract(UniqueWhichTol(., tol))
+}
+
+#' @title BetweenWhich
+#' @param x Ordered vector.
+#' @param x0 Value to find.
+#' @importFrom purrr map_lgl map
+#' @importFrom rlang is_empty
+#' @importFrom dplyr %>%
+#' @export
+BetweenWhich <- function(x, x0) {
+    1:(length(x) - 1) %>%
+        map_lgl(~(x[.x] <= x0 & x0 < x[.x + 1]) |
+                 (x[.x + 1] < x0 & x0 <= x[.x])) %>%
+        which %>% {
+            if (is_empty(.))
+                NA
+            else
+                map(., ~ .x + 0:1)
+            }
+}
+
+#' @title FitlerRange
+#' @param .data Input table.
+#' @param .var Column to filter.
+#' @param .range Limits on the column.
+#' @return FIltered table.
+#' @importFrom rlang enquo quo_squash !!
+#' @importFrom dplyr %>% filter
+#' @export
+FilterRange <- function(.data, .var, .range) {
+    expr <- quo_squash(enquo(.var))
+
+    .data %>%
+        filter(!!expr >= .range[1] & !!expr <= .range[2])
 }

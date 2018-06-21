@@ -21,6 +21,8 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+utils::globalVariables(c(".", "w", "Key", "Val"))
+
 #' @export
 Lookup <- function(object, ...) UseMethod("Lookup")
 
@@ -448,4 +450,288 @@ GrobPlot <- function(grobs, noNewPageDevList = c("pdf")) {
 
             grid.draw(grobs[[ind]])
     }
+}
+
+#' @title TrimRibbonData
+#' @param .data Input table.
+#' @param x \code{x} column.
+#' @param y \code{y} column.
+#' @param xlim \code{x} limits.
+#' @param ylim \code{y} limits.
+#' @param lwr Lower \code{y} limit of ribbon.
+#' @param upp Upper \code{y} limit of ribbon
+#' @param ... Additional columns to preserve.
+#' @return Table ready to be plotted.
+#' @importFrom rlang enquo quo_squash := !! is_empty
+#' @importFrom purrr map reduce
+#' @importFrom magrittr extract is_less_than is_greater_than %<>%
+#' @import dplyr
+#' @export
+TrimRibbonData <- function(.data, x, y, xlim, ylim, lwr, upp, ...) {
+    .dots <- enquos(...) %>%
+        map(quo_squash)
+
+    nm <- list()
+    nm$x <- quo_squash(enquo(x))
+    nm$y <- quo_squash(enquo(y))
+    nm$lwr <- quo_squash(enquo(lwr))
+    nm$upp <- quo_squash(enquo(upp))
+
+    .data %<>%
+        arrange(!!nm$x)
+    xInds <- .data %>%
+        mutate(w := !!nm$x >= xlim[1] & !!nm$x <= xlim[2]) %>%
+        pull(w) %>%
+        which %>%
+        c(min(.) - 1, max(.) + 1) %>%
+        Clamp(1, nrow(.data)) %>%
+        unique %>%
+        Order
+
+    pltData <- .data %>%
+        slice(xInds)
+    m <- nrow(pltData)
+
+    if (pltData %>% extract(1, a_ch(nm$x)) %>%
+            is_less_than(xlim[1])) {
+        arg <- pltData %>% extract(1:2, a_ch(nm$x))
+        val <- pltData %>% extract(1:2, a_ch(nm$y))
+        lVal <- pltData %>% extract(1:2, a_ch(nm$lwr))
+        uVal <- pltData %>% extract(1:2, a_ch(nm$upp))
+
+        y0 <- Lin(xlim[1], arg, val)
+        l0 <- Lin(xlim[1], arg, lVal)
+        u0 <- Lin(xlim[1], arg, uVal)
+
+        pltData %<>%
+            mutate(!!nm$x := replace(!!nm$x, row_number() == 1L, xlim[1])) %>%
+            mutate(!!nm$y := replace(!!nm$y, row_number() == 1L, y0)) %>%
+            mutate(!!nm$lwr := replace(!!nm$lwr, row_number() == 1L, l0)) %>%
+            mutate(!!nm$upp := replace(!!nm$upp, row_number() == 1L, u0))
+    }
+    if (pltData %>% extract(m, a_ch(nm$x)) %>%
+            is_greater_than(xlim[2])) {
+        arg <- pltData %>% extract(m - 1:0, a_ch(nm$x))
+        val <- pltData %>% extract(m - 1:0, a_ch(nm$y))
+        lVal <- pltData %>% extract(m - 1:0, a_ch(nm$lwr))
+        uVal <- pltData %>% extract(m - 1:0, a_ch(nm$upp))
+
+        y0 <- Lin(xlim[2], arg, val)
+        l0 <- Lin(xlim[2], arg, lVal)
+        u0 <- Lin(xlim[2], arg, uVal)
+
+        pltData %<>%
+            mutate(!!nm$x := replace(!!nm$x, row_number() == m, xlim[2])) %>%
+            mutate(!!nm$y := replace(!!nm$y, row_number() == m, y0)) %>%
+            mutate(!!nm$lwr := replace(!!nm$lwr, row_number() == m, l0)) %>%
+            mutate(!!nm$upp := replace(!!nm$upp, row_number() == m, u0))
+    }
+
+    Interpolate <- function(.dt, name, lim) {
+
+        .dt %>%
+        pull(a_ch(name)) %>% {
+            ((.[1:(length(.) - 1)] < lim) &
+             (.[2:length(.)] > lim)) |
+            ((.[1:(length(.) - 1)] > lim) &
+             (.[2:length(.)] < lim))
+        } %>%
+        which %>% {
+            if (is_empty(.))
+                .dt
+            else {
+                map(., ~ .x + c(0, 1)) %>%
+                map(function(x) {
+                    vals <- c(
+                        Lin(lim,
+                            extract(.dt, x, a_ch(name)),
+                            extract(.dt, x, a_ch(nm$x))),
+                        Lin(lim,
+                            extract(.dt, x, a_ch(name)),
+                            extract(.dt, x, a_ch(nm$y))),
+                        Lin(lim,
+                            extract(.dt, x, a_ch(name)),
+                            extract(.dt, x, a_ch(nm$lwr))),
+                        Lin(lim,
+                            extract(.dt, x, a_ch(name)),
+                            extract(.dt, x, a_ch(nm$upp))))
+
+                    tibble(!!nm$x := vals[1], !!nm$y := vals[2],
+                       !!nm$lwr := vals[3], !!nm$upp := vals[4]) %>%
+                    mutate(!!name := lim) %>% {
+                        reduce(.dots, function(d, nm)
+                                    mutate(d, !!nm :=
+                                        extract(.dt, x[1], a_ch(nm)) %>%
+                                        unlist),
+                                .init = .)
+                    }
+                }) %>%
+                reduce(bind_rows) %>%
+                bind_rows(.dt) %>%
+                arrange(!!nm$x)
+            }
+        }
+    }
+
+    pltData %>%
+        Interpolate(nm$y, ylim[1]) %>%
+        Interpolate(nm$lwr, ylim[1]) %>%
+        Interpolate(nm$upp, ylim[1]) %>%
+        Interpolate(nm$y, ylim[2]) %>%
+        Interpolate(nm$lwr, ylim[2]) %>%
+        Interpolate(nm$upp, ylim[2]) %>%
+        Clamp(!!nm$lwr, ylim) %>%
+        Clamp(!!nm$upp, ylim) %>%
+        mutate(!!paste0(a_ch(nm$y), "_clamped") := !!nm$y) %>%
+        Clamp(!!sym(paste0(a_ch(nm$y), "_clamped")), ylim) %>%
+        arrange(!!nm$x) %>%
+        slice(UniqueWhichTol(!!nm$x))
+}
+
+#' @title TrimLineData
+#' @param .data Input table.
+#' @param .var_x x variable.
+#' @param .var_y y variable.
+#' @param lim Limits.
+#' @importFrom rlang enquo quo_name !! := sym
+#' @import dplyr
+#' @export
+TrimLineData <- function(.data, .var_x, .var_y, lim) {
+    x <- quo_name(enquo(.var_x))
+    x2 <- x %>% paste0("2")
+    y <- quo_name(enquo(.var_y))
+    y2 <- y %>% paste0("2")
+    y_c <- y %>% paste0("_clamped")
+
+    isMissing <- missing(lim)
+    .data %>%
+        mutate(!!x2 := (!!sym(x))[c(2:n(), n())]) %>%
+        mutate(!!y2 := (!!sym(y))[c(2:n(), n())]) %>%
+        slice(-n()) %>% {
+            if (isMissing)
+                .
+            else
+                filter(., !!sym(y2) <= lim[2]) %>%
+                filter(!!sym(y2) >= lim[1]) %>%
+                filter(!!sym(y) <= lim[2]) %>%
+                filter(!!sym(y) >= lim[1])
+            }
+}
+
+#' @title ClipXY
+#' @param .dt Input table.
+#' @param x \code{x} column name.
+#' @param y code{y} column name.
+#' @param xlim Limits on \code{x}.
+#' @param ylim Limits on \code{y}.
+#' @param ... Additional columns to preserve.
+#' @importFrom rlang quo_squash enquo enquos !! := sym
+#' @importFrom magrittr extract
+#' @importFrom purrr map reduce
+#' @import dplyr
+#' @export
+ClipXY <- function(.dt, x, y, xlim, ylim, ...) {
+    .dots <- enquos(...) %>% map(quo_squash)
+    nx <- quo_squash(enquo(x))
+    ny <- quo_squash(enquo(y))
+
+    .dt %<>%
+        arrange(!!nx)
+
+    process <- function(name, val) {
+        .dt %>%
+        pull(a_ch(name)) %>%
+        BetweenWhich(val) %>% {
+            if (all(is.na(.)))
+                tibble(!!nx := numeric(0),
+                       !!ny := numeric(0))
+            else
+                map(., ~ tibble(
+                            !!nx := Lin(val,
+                                .dt %>% extract(.x, a_ch(name)),
+                                .dt %>% extract(.x, a_ch(nx))),
+                            !!ny := Lin(val,
+                                .dt %>% extract(.x, a_ch(name)),
+                                .dt %>% extract(.x, a_ch(ny)))) %>% {
+                reduce(.dots, function(acc, nm)
+                                    acc %>%
+                                        mutate(!!nm :=
+                                            extract(.dt, .x[1], a_ch(nm)) %>%
+                                            unlist),
+                                   .init = .)
+            })
+        } %>%
+        reduce(bind_rows)
+    }
+
+    x_l <- process(nx, xlim[1])
+    x_u <- process(nx, xlim[2])
+    y_l <- process(ny, ylim[1])
+    y_u <- process(ny, ylim[2])
+
+    nx2 <- nx %>% a_ch %>% paste0("2") %>% sym
+    ny2 <- ny %>% a_ch %>% paste0("2") %>% sym
+
+    .dt %>%
+        bind_rows(x_l) %>%
+        bind_rows(x_u) %>%
+        bind_rows(y_l) %>%
+        bind_rows(y_u) %>%
+        filter(!is.na(!!nx)) %>%
+        arrange(!!nx) %>%
+        AsSegments(!!nx, !!ny, suffix = "2") %>%
+        FilterRange(!!nx, xlim) %>%
+        FilterRange(!!nx2, xlim) %>%
+        FilterRange(!!ny, ylim) %>%
+        FilterRange(!!ny2, ylim)
+
+}
+
+#' @title AsSegments
+#' @param .data Input table.
+#' @param ... Columns to process.
+#' @param suffix Suffix to the end value column names.
+#' @return Modified table.
+#' @importFrom rlang enquos !! :=
+#' @importFrom dplyr %>% mutate n
+#' @importFrom purrr map reduce
+#' @export
+AsSegments <- function(.data, ..., suffix = "_end") {
+    .dots <- enquos(...)
+    .names <- .dots %>%
+        map(quo_squash)
+    .data %>% {
+        reduce(.names, .init = .,
+               .f = function(x, y) {
+                   mutate(x, !!paste0(a_ch(y), suffix) :=
+                        (!!y)[c(2:n(), n())])
+               })
+    } %>%
+    slice(-n())
+}
+
+#' @title Segments2Points
+#' @param .dt Input table.
+#' @param x \code{x} column name.
+#' @param y \code{y} column name.
+#' @param xend \code{x} end column name.
+#' @param yend \code{y} end column name.
+#' @return Trnasformed table.
+#' @importFrom rlang enquo quo_squash !!
+#' @importFrom dplyr %>% mutate select slice row_number if_else n
+#' @importFrom tidyr gather spread
+#' @export
+Segments2Points <- function(.dt, x, y, xend, yend) {
+    nx <- quo_squash(enquo(x))
+    ny <- quo_squash(enquo(y))
+    nx2 <- quo_squash(enquo(xend))
+    ny2 <- quo_squash(enquo(yend))
+
+    .dt %>%
+        gather(Key, Val, !!nx, !!nx2, !!ny, !!ny2) %>%
+        mutate(Key = if_else(row_number() <= (n() / 2), a_ch(nx), a_ch(ny)),
+               ID = rep(1:(n() / 2), 2)) %>%
+        spread(Key, Val) %>%
+        select(-ID) %>%
+        slice(UniqueWhichTol(!!nx))
 }
