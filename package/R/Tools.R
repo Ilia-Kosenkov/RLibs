@@ -444,7 +444,7 @@ Tools.Norm = function(x) {
 }
 
 #' @export
-Tools.IsWithin = function(x, range) {
+Tools.IsWithin <- function(x, range) {
     return(sapply(x, function(item) item > range[1] & item < range[2]))
 }
 
@@ -492,4 +492,17 @@ seq_int_len <- function(length.out) {
 #' @export
 seq_int_along <- function(along.with) {
     seq.int(along.with = along.with)
+}
+
+#' @title Intersect
+#' @param x First vector.
+#' @param y Second vector.
+#' @param tol The tolerance level.
+#' @return Indices of first and second vector.
+#' These elements are found to be equal within \code{tol}
+Intersect <- function(x, y, tol = 0.1) {
+    x %>% outer(y, subtract) %>% abs %>%
+        is_weakly_less_than(tol) %>% which(arr.ind = TRUE) -> indices
+
+    return(list(indices[, 1], indices[, 2]))
 }
