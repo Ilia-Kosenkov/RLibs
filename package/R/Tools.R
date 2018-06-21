@@ -494,15 +494,97 @@ seq_int_along <- function(along.with) {
     seq.int(along.with = along.with)
 }
 
+#' @title raise
+#' @param x Power.
+#' @param y Base.
+#' @return \code{y ^ x}
+#' @export
+raise <- function(x, y) y ^ x
+
 #' @title Intersect
 #' @param x First vector.
 #' @param y Second vector.
 #' @param tol The tolerance level.
 #' @return Indices of first and second vector.
 #' These elements are found to be equal within \code{tol}
+#' @export
 Intersect <- function(x, y, tol = 0.1) {
-    x %>% outer(y, subtract) %>% abs %>%
-        is_weakly_less_than(tol) %>% which(arr.ind = TRUE) -> indices
+    x %>% outer(y, `-`) %>%
+        abs %>%
+        `<=`(tol) %>%
+        which(arr.ind = TRUE) -> indices
 
     return(list(indices[, 1], indices[, 2]))
+}
+
+#' @title FancyStep
+#' @param range The range within which the ticks are placed.
+#' @param n Approximate number of desired ticks.
+#' @param modifier Preferred tick placements/
+#' @return Returns the size of the step.
+#' @import dplyr
+#' @export
+FancyStep <- function(range,
+    n = 6, modifier = c(1, 2.5, 5)) {
+    . <- NULL
+    modifier <- c(0.1 * modifier, modifier)
+
+    # Gets the smallest base_10 step
+    largeSteps <- range %>%
+        diff %>% abs %>% log10 %>% floor %>% raise(10)
+
+    # Calculates the number of intervals within range
+    # for each modifer and selects the ones
+    # that produce the closest to n amount of breaks.
+    # If there are multuple matches, selects the smallest step
+    # or largest number of breaks
+    modInd <- largeSteps %>%
+        `*`(modifier) %>%
+        `^`(-1) %>%
+        `*`(range %>% diff %>% abs) %>%
+        `-`(n) %>%
+        abs %>%
+        `==` (min(.)) %>%
+        which
+
+    largeSteps * modifier[modInd] %>% min
+}
+
+#' @title Order
+#' @description Returns ordered collection.
+#' @param x Input collection.
+#' @return Ordered \code{x}
+#' @export
+Order <- function(x) {
+    x[order(x)]
+}
+
+#' @title WithinL
+#' @description Returns \code{TRUE}/\code{FALSE} vector indicating
+#' which elements are within the range.
+#' @param x Input collection.
+#' @param low Lower boundary.
+#' @param upp Upper boundary.
+#' @return Logical vector.
+#' @export
+WithinL <- function(x, low, upp) {
+    x >= low & x <= upp
+}
+
+#' @title Log10Floor
+#' @param x Input numeric vector.
+#' @return Closest power of 10 that is smaller than or equal to the number.
+#' @import dplyr
+#' @export
+Log10Floor <- function(x) {
+    x %>% log10 %>% floor %>% raise(10)
+}
+
+#' @title Log10Ceiling
+#' @param x Input numeric vector.
+#' @return Closest power of 10 that is greater than or equal to the number.
+#' @import dplyr
+#' @export
+Log10Ceiling <- function(x) {
+    x %>% log10 %>% ceiling %>% raise(10)
 }
