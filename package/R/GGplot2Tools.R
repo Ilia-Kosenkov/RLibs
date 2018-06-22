@@ -21,7 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-utils::globalVariables(c(".", "w", "Key", "Val"))
+utils::globalVariables(c(".", "Key", "Val"))
 
 #' @export
 Lookup <- function(object, ...) UseMethod("Lookup")
@@ -480,8 +480,8 @@ TrimRibbonData <- function(.data, x, y, xlim, ylim, lwr, upp, ...) {
     .data %<>%
         arrange(!!nm$x)
     xInds <- .data %>%
-        mutate(w := !!nm$x >= xlim[1] & !!nm$x <= xlim[2]) %>%
-        pull(w) %>%
+        mutate(!!as.name("w") := !!nm$x >= xlim[1] & !!nm$x <= xlim[2]) %>%
+        pull("w") %>%
         which %>%
         c(min(.) - 1, max(.) + 1) %>%
         Clamp(1, nrow(.data)) %>%

@@ -456,8 +456,12 @@ Tools.IsWithin <- function(x, range) {
     return(sapply(x, function(item) item > range[1] & item < range[2]))
 }
 
+#' @importFrom rlang %||%
 #' @export
-`%??%` <- function(what, if.null) ifelse(is.null(what), if.null, what)
+`%??%` <- function(what, if.null) {
+    warning("`%??%` is deprecated. Use `rlang::`%||%`.")
+    return(what %||% if.null)
+}
 
 `+` <- function(e1, e2) UseMethod("+")
 `+.default` <- function(e1, e2) .Primitive("+")(e1, e2)

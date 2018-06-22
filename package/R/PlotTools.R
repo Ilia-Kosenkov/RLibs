@@ -21,13 +21,14 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SuppressNotes <- function(args) {
-    for (var in args) {
-        assign(var, NULL, envir = .GlobalEnv)
-    }
-}
+#SuppressNotes <- function(args) {
+    #for (var in args) {
+        #assign(var, NULL, envir = .GlobalEnv)
+    #}
+#}
 
-SuppressNotes(c("Label", "NTicks", "Breaks", "TickLabels", "TransformFunc",
+#SuppressNotes(
+utils::globalVariables(c("Label", "NTicks", "Breaks", "TickLabels", "TransformFunc",
     "Index", "Range", "LabelsSize", "NamesSize", "DecimalDigits", "ForceScientific",
     "IsTeX", "TickSize", "SmallTickStep", "SmallBreaks", "SmallTickSize",
     "NSmallTicks"))
