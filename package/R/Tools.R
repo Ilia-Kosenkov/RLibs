@@ -21,6 +21,14 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+SuppressNotes <- function(args) {
+    for (var in args) {
+        assign(var, NULL, envir = .GlobalEnv)
+    }
+}
+
+SuppressNotes(".")
+
 #' @export
 Tools.DataFrame.DF2Latex = function(frame, file, frmt='%6.2f', printHeaders=TRUE, insMathHead=TRUE)
 {
@@ -507,11 +515,13 @@ raise <- function(x, y) y ^ x
 #' @param tol The tolerance level.
 #' @return Indices of first and second vector.
 #' These elements are found to be equal within \code{tol}
+#' @importFrom magrittr subtract is_weakly_less_than
+#' @importFrom dplyr %>%
 #' @export
 Intersect <- function(x, y, tol = 0.1) {
-    x %>% outer(y, `-`) %>%
+    x %>% outer(y, subtract) %>%
         abs %>%
-        `<=`(tol) %>%
+        is_weakly_less_than(tol) %>%
         which(arr.ind = TRUE) -> indices
 
     return(list(indices[, 1], indices[, 2]))
@@ -523,10 +533,11 @@ Intersect <- function(x, y, tol = 0.1) {
 #' @param modifier Preferred tick placements/
 #' @return Returns the size of the step.
 #' @import dplyr
+#' @importFrom magrittr multiply_by raise_to_power subtract equals
 #' @export
 FancyStep <- function(range,
     n = 6, modifier = c(1, 2.5, 5)) {
-    . <- NULL
+
     modifier <- c(0.1 * modifier, modifier)
 
     # Gets the smallest base_10 step
@@ -539,12 +550,12 @@ FancyStep <- function(range,
     # If there are multuple matches, selects the smallest step
     # or largest number of breaks
     modInd <- largeSteps %>%
-        `*`(modifier) %>%
-        `^`(-1) %>%
-        `*`(range %>% diff %>% abs) %>%
-        `-`(n) %>%
+        multiply_by(modifier) %>%
+        raise_to_power(-1) %>%
+        multiply_by(range %>% diff %>% abs) %>%
+        subtract(n) %>%
         abs %>%
-        `==` (min(.)) %>%
+        equals(min(.)) %>%
         which
 
     largeSteps * modifier[modInd] %>% min
@@ -601,11 +612,12 @@ RoundIntervalTo <- function(x, rnd) {
 #' @title GenerateLog10Breaks
 #' @param ylim Axis limit.
 #' @return log10 breaks.
+#' @importFrom magrittr is_weakly_less_than extract2 multiply_by add
 #' @import dplyr
 #' @export
 GenerateLog10Breaks <- function(ylim) {
 
-    if (ylim %>% log10 %>% diff %>% `<=`(1)) {
+    if (ylim %>% log10 %>% diff %>% is_weakly_less_than(1)) {
         mult <- ylim %>% min %>% Log10Floor
         yInt <- ylim / mult
 
@@ -619,19 +631,19 @@ GenerateLog10Breaks <- function(ylim) {
             Small = seq(yRng[1], yRng[2], by = sStep))
 
         inds <- Intersect(breaks$Large, breaks$Small, tol = 0.5 * sStep) %>%
-            `[[`(2)
+            extract2(2)
 
         breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
 
         breaks <- breaks %>%
             lapply(Within, range = yInt) %>%
-            lapply(`*`, mult)
+            lapply(multiply_by, mult)
 
     } else {
 
         breaks <- ylim %>% log10 %>%
         GenerateBreaks(largeStep = 1,
-            ticks = log10(1:9), op = `+`)
+            ticks = log10(1:9), op = add)
 
         breaks$Large <- breaks$Large %>%
             lapply(function(x)
