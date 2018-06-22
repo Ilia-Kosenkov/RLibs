@@ -21,6 +21,17 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+SuppressNotes <- function(args) {
+    for (var in args) {
+        assign(var, NULL, envir = .GlobalEnv)
+    }
+}
+
+SuppressNotes(c("Label", "NTicks", "Breaks", "TickLabels", "TransformFunc",
+    "Index", "Range", "LabelsSize", "NamesSize", "DecimalDigits", "ForceScientific",
+    "IsTex", "TickSize", "SmallTickStep", "SmallBreaks", "SmallTickSize",
+    "NSmallTicks"))
+
 #' @importFrom graphics plot plot.new points lines arrows par legend mtext
 #' @importFrom grDevices dev.cur
 
@@ -128,6 +139,7 @@ AxisDesc = setRefClass("AxisDesc",
         SmallTickSize = "numeric",   # Small tick size
         NSmallTicks = "integer"      # Number of small ticks
     ))
+
 
 AxisDesc$methods("initialize"
     = function(label, index = 1L, range = NA, nTicks = 5L, breaks = as.numeric(NA), tickLabels = as.character(NULL),

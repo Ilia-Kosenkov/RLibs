@@ -21,6 +21,14 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+SuppressNotes <- function(args) {
+    for (var in args) {
+        assign(var, NULL, envir = .GlobalEnv)
+    }
+}
+
+SuppressNotes(c("IsRegistered", "IsDisposed", "ID", "ClusterDesc"))
+
 # Packages required for execution
 #' @export
 .Parallel.Packages <- c("foreach", "parallel", "doSNOW")
