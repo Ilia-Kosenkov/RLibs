@@ -29,7 +29,7 @@ SuppressNotes <- function(args) {
 
 SuppressNotes(c("Label", "NTicks", "Breaks", "TickLabels", "TransformFunc",
     "Index", "Range", "LabelsSize", "NamesSize", "DecimalDigits", "ForceScientific",
-    "IsTex", "TickSize", "SmallTickStep", "SmallBreaks", "SmallTickSize",
+    "IsTeX", "TickSize", "SmallTickStep", "SmallBreaks", "SmallTickSize",
     "NSmallTicks"))
 
 #' @importFrom graphics plot plot.new points lines arrows par legend mtext
