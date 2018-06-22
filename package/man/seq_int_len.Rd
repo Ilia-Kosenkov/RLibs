@@ -12,4 +12,6 @@ seq_int_len(length.out)
 \value{
 Sequence of ints.
 }
-
+\description{
+seq_int_len
+}

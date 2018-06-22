@@ -55,7 +55,14 @@ Const.R_gas <- 8.314459848e7
 
 # Unit conversions
 #' @export
-Const.Jy2CGC <- 1e-23
+Const.Jy2CGS <- 1e-23
+
+makeActiveBinding("Const.Jy2CGC", function() {
+    warning("`Const.Jy2CGC` is deprecated due to the typo. Use `Const.Jy2CGS`.")
+    return(Const.Jy2CGS)
+}, environment())
+
+#' @rawNamespace export(Const.Jy2CGC)
 
 # Alias
 #' @export

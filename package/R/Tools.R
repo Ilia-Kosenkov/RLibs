@@ -444,7 +444,7 @@ Tools.Norm = function(x) {
 }
 
 #' @export
-Tools.IsWithin = function(x, range) {
+Tools.IsWithin <- function(x, range) {
     return(sapply(x, function(item) item > range[1] & item < range[2]))
 }
 
@@ -492,4 +492,316 @@ seq_int_len <- function(length.out) {
 #' @export
 seq_int_along <- function(along.with) {
     seq.int(along.with = along.with)
+}
+
+#' @title raise
+#' @param x Power.
+#' @param y Base.
+#' @return \code{y ^ x}
+#' @export
+raise <- function(x, y) y ^ x
+
+#' @title Intersect
+#' @param x First vector.
+#' @param y Second vector.
+#' @param tol The tolerance level.
+#' @return Indices of first and second vector.
+#' These elements are found to be equal within \code{tol}
+#' @export
+Intersect <- function(x, y, tol = 0.1) {
+    x %>% outer(y, `-`) %>%
+        abs %>%
+        `<=`(tol) %>%
+        which(arr.ind = TRUE) -> indices
+
+    return(list(indices[, 1], indices[, 2]))
+}
+
+#' @title FancyStep
+#' @param range The range within which the ticks are placed.
+#' @param n Approximate number of desired ticks.
+#' @param modifier Preferred tick placements/
+#' @return Returns the size of the step.
+#' @import dplyr
+#' @export
+FancyStep <- function(range,
+    n = 6, modifier = c(1, 2.5, 5)) {
+    . <- NULL
+    modifier <- c(0.1 * modifier, modifier)
+
+    # Gets the smallest base_10 step
+    largeSteps <- range %>%
+        diff %>% abs %>% log10 %>% floor %>% raise(10)
+
+    # Calculates the number of intervals within range
+    # for each modifer and selects the ones
+    # that produce the closest to n amount of breaks.
+    # If there are multuple matches, selects the smallest step
+    # or largest number of breaks
+    modInd <- largeSteps %>%
+        `*`(modifier) %>%
+        `^`(-1) %>%
+        `*`(range %>% diff %>% abs) %>%
+        `-`(n) %>%
+        abs %>%
+        `==` (min(.)) %>%
+        which
+
+    largeSteps * modifier[modInd] %>% min
+}
+
+#' @title Order
+#' @description Returns ordered collection.
+#' @param x Input collection.
+#' @return Ordered \code{x}
+#' @export
+Order <- function(x) {
+    x[order(x)]
+}
+
+#' @title WithinL
+#' @description Returns \code{TRUE}/\code{FALSE} vector indicating
+#' which elements are within the range.
+#' @param x Input collection.
+#' @param low Lower boundary.
+#' @param upp Upper boundary.
+#' @return Logical vector.
+#' @export
+WithinL <- function(x, low, upp) {
+    x >= low & x <= upp
+}
+
+#' @title Log10Floor
+#' @param x Input numeric vector.
+#' @return Closest power of 10 that is smaller than or equal to the number.
+#' @import dplyr
+#' @export
+Log10Floor <- function(x) {
+    x %>% log10 %>% floor %>% raise(10)
+}
+
+#' @title Log10Ceiling
+#' @param x Input numeric vector.
+#' @return Closest power of 10 that is greater than or equal to the number.
+#' @import dplyr
+#' @export
+Log10Ceiling <- function(x) {
+    x %>% log10 %>% ceiling %>% raise(10)
+}
+
+#' @title RoundIntervalTo
+#' @param x An input oredered vector of size 2 (Interval lims).
+#' @param rnd Rounding base.
+#' @return A vector of size 2, both limits of which are powers of \code{rnd}
+#' @export
+RoundIntervalTo <- function(x, rnd) {
+    rnd * c(floor(x[1] / rnd), ceiling(x[2] / rnd))
+}
+
+#' @title GenerateLog10Breaks
+#' @param ylim Axis limit.
+#' @return log10 breaks.
+#' @import dplyr
+#' @export
+GenerateLog10Breaks <- function(ylim) {
+
+    if (ylim %>% log10 %>% diff %>% `<=`(1)) {
+        mult <- ylim %>% min %>% Log10Floor
+        yInt <- ylim / mult
+
+        lStep <- yInt %>% FancyStep(4)
+        sStep <- 0.1 * lStep
+
+        yRng <- yInt %>% RoundIntervalTo(lStep)
+
+        breaks <- list(
+            Large = seq(yRng[1], yRng[2], by = lStep),
+            Small = seq(yRng[1], yRng[2], by = sStep))
+
+        inds <- Intersect(breaks$Large, breaks$Small, tol = 0.5 * sStep) %>%
+            `[[`(2)
+
+        breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
+
+        breaks <- breaks %>%
+            lapply(Within, range = yInt) %>%
+            lapply(`*`, mult)
+
+    } else {
+
+        breaks <- ylim %>% log10 %>%
+        GenerateBreaks(largeStep = 1,
+            ticks = log10(1:9), op = `+`)
+
+        breaks$Large <- breaks$Large %>%
+            lapply(function(x)
+                log10(c(0.2, 0.5, 1, 2, 5)) + x) %>%
+            unlist %>%
+            unique %>%
+            Within(range = log10(ylim))
+
+        inds <- Intersect(breaks$Large, breaks$Small, tol = 1e-4)[[2]]
+
+        breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
+
+        breaks <- breaks %>%
+            lapply(Within, range = log10(ylim)) %>%
+            sapply(raise, 10)
+    }
+
+    return(breaks)
+}
+
+#' @title Clamp
+#' @param ... Parameter.
+#' @return Clamped numerics.
+#' @export
+Clamp <- function(...) {
+    UseMethod("Clamp")
+}
+
+#' @title Clamp.numeric
+#' @param ... Input parameters.
+#' @return Clamps vector.
+#' @export
+Clamp.numeric <- function(...) {
+    args <- list(...)
+    x <- args[[1]]
+    lower <- args[[2]]
+    upper <- args[[3]]
+    if (!missing(lower))
+        x[x < lower] <- lower
+    if (!missing(upper))
+        x[x > upper] <- upper
+
+    return(x)
+}
+
+#' @title Clamp.data.frame
+#' @param .data Input \code{data.frame} or \code{tibble}.
+#' @param .var Variable to clamp.
+#' @param .range Clamp range.
+#' @return \code{.data} whith clamped within \code{.range} column \code{.var}.
+#' @importFrom dplyr mutate %>% if_else
+#' @importFrom rlang enquo quo_squash !! :=
+#' @export
+Clamp.data.frame <- function(.data, .var, .range) {
+    expr <- quo_squash(enquo(.var))
+
+    .data %>%
+        mutate(!!expr := if_else(!!expr > .range[2], .range[2], !!expr)) %>%
+        mutate(!!expr := if_else(!!expr < .range[1], .range[1], !!expr))
+}
+
+#' @title Expand
+#' @param x Input interval.
+#' @param factor How large the expansion is.
+#' 1 corresponds to 100\% increase in size.
+#' @param direction In which way to expand.
+#' @return Expanded interval.
+#' @export
+Expand <- function(x, factor = 1, direction = c(1, 1)) {
+    # Expands provided interval x factor times,
+    # preserving the center of the interval
+    # Args :
+    #   x      : input interval
+    #   factor : expanding factor
+    # Returns :
+    #   Expanded interval
+
+    center <- mean(x)
+
+    halfSize <- (diff(x)) / 2
+
+    return(center + (c(-1, 1) * (1 + factor * direction)) * halfSize)
+}
+
+#' @title a_ch
+#' @description A shortcut to \code{as.character}.
+#' @param ... Arguments to convert.
+#' @return Character representation of arguments.
+#' @importFrom purrr map_chr
+#' @export
+a_ch <- function(...) map_chr(list(...), as.character)
+
+#' @title Lin
+#' @param x0 Where to interpolate.
+#' @param x Arguments (size 2).
+#' @param y Values (size 2).
+#' @return Interpolated value between two provided.
+#' @importFrom purrr map_dbl
+#' @importFrom magrittr %<>%
+#' @export
+Lin <- function(x0, x, y) {
+    x %<>% unlist %>% as.numeric
+    y %<>% unlist %>% as.numeric
+
+    map_dbl(x0, ~ y[1] + diff(y) / diff(x) * (. - x[1]))
+}
+
+#' @title UniqueWhichTol
+#' @param x Vector to check.
+#' @param tol Tolerance level for comparisons.
+#' @return Indices of unique elements within given tlerance.
+#' @importFrom dplyr %>%
+#' @importFrom magrittr subtract is_less_than extract
+#' @importFrom purrr map map2 map_lgl
+#' @export
+UniqueWhichTol <- function(x, tol = .Machine$double.eps) {
+    x %>%
+        outer(x, subtract) %>%
+        abs %>%
+        is_less_than(tol) %>% {
+            map(seq_int_len(length(x)),
+                function(x) extract(., x,))
+        } %>%
+        map2(seq_int_len(length(x)), ~ c(.y, which(.x))) %>%
+        map_lgl(~.x[2] == .x[1]) %>%
+        which
+}
+
+#' @title UniqueTol
+#' @param x Vector to check.
+#' @param tol Tolerance level for comparisons.
+#' @return Unique elements of the vector.
+#' @importFrom dplyr %>%
+#' @importFrom magrittr extract
+#' @export
+UniqueTol <- function(x, tol = .Machine$double.eps) {
+    x %>%
+        extract(UniqueWhichTol(., tol))
+}
+
+#' @title BetweenWhich
+#' @param x Ordered vector.
+#' @param x0 Value to find.
+#' @importFrom purrr map_lgl map
+#' @importFrom rlang is_empty
+#' @importFrom dplyr %>%
+#' @export
+BetweenWhich <- function(x, x0) {
+    1:(length(x) - 1) %>%
+        map_lgl(~(x[.x] <= x0 & x0 < x[.x + 1]) |
+                 (x[.x + 1] < x0 & x0 <= x[.x])) %>%
+        which %>% {
+            if (is_empty(.))
+                NA
+            else
+                map(., ~ .x + 0:1)
+            }
+}
+
+#' @title FitlerRange
+#' @param .data Input table.
+#' @param .var Column to filter.
+#' @param .range Limits on the column.
+#' @return FIltered table.
+#' @importFrom rlang enquo quo_squash !!
+#' @importFrom dplyr %>% filter
+#' @export
+FilterRange <- function(.data, .var, .range) {
+    expr <- quo_squash(enquo(.var))
+
+    .data %>%
+        filter(!!expr >= .range[1] & !!expr <= .range[2])
 }

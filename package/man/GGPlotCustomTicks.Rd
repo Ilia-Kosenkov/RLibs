@@ -37,4 +37,3 @@ Affects rendering of the labels.}
 Creates custom ticks with labels. Requires a finished ggproto object.
 Can be piped with %>%.
 }
-

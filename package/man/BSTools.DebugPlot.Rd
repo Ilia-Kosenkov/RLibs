@@ -25,4 +25,3 @@ Plots results of JAGS simulation obtained from \code{BSTools.Run2}.
 Result is similar to calling \code{plot} on the direct result of
 \code{coda.samples}
 }
-

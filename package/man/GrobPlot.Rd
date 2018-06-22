@@ -16,4 +16,3 @@ of \code{grid::grid.draw(...)}.}
 \description{
 Plots provide \code{gTable} objects, one per page
 }
-

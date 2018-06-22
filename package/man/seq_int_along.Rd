@@ -12,4 +12,6 @@ seq_int_along(along.with)
 \value{
 Sequence of ints.
 }
-
+\description{
+seq_int_along
+}

@@ -1,6 +1,6 @@
 Package: RLibs
 Title: RLibs
-Version: 0.2.6
+Version: 0.3.0
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
 Description: Auxilary functions for data analysis.
 Depends:
@@ -18,8 +18,13 @@ Imports:
     ggplot2,
     foreach,
     gridExtra,
-    RColorBrewer
-RoxygenNote: 5.0.1
+    RColorBrewer,
+    rlang,
+    purrr,
+    magrittr,
+    tidyr
+RoxygenNote: 6.0.1.9000
+ByteCompile: true
 License: MIT + file LICENSE
 Suggests:
     testthat
