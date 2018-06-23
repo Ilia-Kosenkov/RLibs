@@ -15,20 +15,21 @@ Str2Deg <- function(x, sep, denoms){
                 setNames(c("Str", "Sgn", "Fst", "Snd", "Thd"))) %>%
         reduce(bind_rows, .init = tbl) %>%
         select(-1) %>%
-        setNames(nm = c("Sgn", "Deg", "Min", "Sec")) %>%
         mutate_at(vars(-Sgn), as.numeric) %>%
         mutate(Sgn = if_else(nzchar(Sgn), Sgn, "+")) %>%
-        mutate(Comb = (Deg / denoms[1] + Min / denoms[2] + Sec / denoms[3]) *
+        mutate(Comb = (Fst / denoms[1] + Snd / denoms[2] + Thd / denoms[3]) *
                if_else(Sgn == "-", -1, +1)) -> result
     return(result)
 }
 
 Dec2Degrees <- function(x, sep = "\ ") {
-   Str2Deg(x, sep, c(1.0, 60.0, 3600.0))
+    Str2Deg(x, sep, c(1.0, 60.0, 3600.0)) %>%
+        rename(Deg = Fst, Min = Snd, Sec = Thd)
 }
 
 Hour2Degrees <- function(x, sep = "\ ") {
-    Str2Deg(x, sep, c(1.0, 60.0, 3600.0)/ 15.0)
+    Str2Deg(x, sep, c(1.0, 60.0, 3600.0) / 15.0) %>%
+        rename(Hr = Fst, Min = Snd, Sec = Thd)
 }
-#Dec2Degrees(c("+07 11 07.296", "-10 22 50.344", "10 30 55")) %T>% print
-#Hour2Degrees(c("12 00 00", "00 30 00")) %T>% { print(pull(., Comb)) }
+Dec2Degrees(c("+07 11 07.296", "-10 22 50.344", "10 30 55")) %T>% print
+Hour2Degrees(c("12 00 00", "-00 30 00")) %T>% print
