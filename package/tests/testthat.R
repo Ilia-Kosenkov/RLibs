@@ -21,7 +21,10 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-library(testthat)
-library(RLibs)
-
-test_check("RLibs")
+if (!interactive()) {
+    library(testthat)
+    library(RLibs)
+    test_check("RLibs")
+} else {
+    testthat::test_dir(file.path("package", "tests", "testthat"))
+}

@@ -22,3 +22,10 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 modelStr <- paste("model", "{", "a ~ dnorm(0, 1)", "}", sep = "\r\n")
+
+if (interactive()) {
+    library(dplyr)
+    library(rjags)
+    library(tibble)
+    source(file.path("..", "..", "R", "BSTools.R"))
+}
