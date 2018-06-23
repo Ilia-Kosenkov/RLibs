@@ -22,14 +22,34 @@ Str2Deg <- function(x, sep, denoms){
     return(result)
 }
 
+Deg2Str <- function(x, sep, denoms, plus = "+", dig = 3) {
+    sgn <- sign(x)
+    sgnSymb <- sgn %>% equals(1) %>% sapply(ifelse, plus, "-")
+    x <- abs(x)
+    fst <- floor(x * denoms[1])
+    snd <- floor((x - fst / denoms[1]) * denoms[2])
+    thd <- (x - fst / denoms[1] - snd / denoms[2]) * denoms[3]
+    frmt <- sprintf("%%2$1s%%3$02d%%1$s%%4$02d%%1$s%%5$02.%df", dig)
+    result <- sprintf(frmt, sep, sgnSymb, fst, snd, thd)
+    return(result)
+}
+
 Dec2Degrees <- function(x, sep = "\ ") {
     Str2Deg(x, sep, c(1.0, 60.0, 3600.0)) %>%
         rename(Deg = Fst, Min = Snd, Sec = Thd)
 }
 
-Hour2Degrees <- function(x, sep = "\ ") {
+Ra2Degrees <- function(x, sep = "\ ") {
     Str2Deg(x, sep, c(1.0, 60.0, 3600.0) / 15.0) %>%
         rename(Hr = Fst, Min = Snd, Sec = Thd)
 }
-Dec2Degrees(c("+07 11 07.296", "-10 22 50.344", "10 30 55")) %T>% print
-Hour2Degrees(c("12 00 00", "-00 30 00")) %T>% print
+
+Degrees2Dec <- function(x, sep = "\ ", dig = 3) {
+    Deg2Str(x, sep, denoms = c(1.0, 60.0, 3600.0), "+", dig)
+}
+
+Degrees2Ra <- function(x, sep = "\ ", dig = 3) {
+    Deg2Str(x, sep, c(1.0, 60.0, 3600.0) / 15.0, "", dig)
+}
+
+Degrees2Ra(c(-37.511, 45.52)) %T>% print
