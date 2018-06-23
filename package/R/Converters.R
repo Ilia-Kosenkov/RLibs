@@ -34,14 +34,24 @@ Deg2Str <- function(x, sep, denoms, plus = "+", dig = 3) {
     return(result)
 }
 
-Dec2Degrees <- function(x, sep = "\ ") {
+Dec2Degrees <- function(x, sep = "\ ", simple = TRUE) {
     Str2Deg(x, sep, c(1.0, 60.0, 3600.0)) %>%
-        rename(Deg = Fst, Min = Snd, Sec = Thd)
+        rename(Deg = Fst, Min = Snd, Sec = Thd) %>% {
+            if (simple)
+                pull(., Comb)
+            else
+                .
+        }
 }
 
-Ra2Degrees <- function(x, sep = "\ ") {
+Ra2Degrees <- function(x, sep = "\ ", simple = TRUE) {
     Str2Deg(x, sep, c(1.0, 60.0, 3600.0) / 15.0) %>%
-        rename(Hr = Fst, Min = Snd, Sec = Thd)
+        rename(Hr = Fst, Min = Snd, Sec = Thd) %>% {
+            if (simple)
+                pull(., Comb)
+            else
+                .
+        }
 }
 
 Degrees2Dec <- function(x, sep = "\ ", dig = 3) {
@@ -52,4 +62,4 @@ Degrees2Ra <- function(x, sep = "\ ", dig = 3) {
     Deg2Str(x, sep, c(1.0, 60.0, 3600.0) / 15.0, "", dig)
 }
 
-Degrees2Ra(c(-37.511, 45.52)) %T>% print
+Degrees2Ra(c(-37.511, 45.52)) %>% Ra2Degrees %T>% print
