@@ -1,3 +1,6 @@
+utils::globalVariables(c("Fst", "Snd", "Thd", "Sgn", "Comb"))
+
+#' @importFrom stringr str_match
 Str2Deg <- function(x, sep, denoms){
     pattern <-
         sprintf("([+-]?)([0-9]{1,2})%1$s([0-9]{1,2})%1$s([0-9\\.]+)", sep)
@@ -34,6 +37,15 @@ Deg2Str <- function(x, sep, denoms, plus = "+", dig = 3) {
     return(result)
 }
 
+#' @title Dec2Degrees
+#' @description Converts \code{DEC}lination to degrees.
+#' @param x Vector of values.
+#' @param sep Separator between degrees, minutes and seconds.
+#' @param simple If \code{TRUE}, return vector of converted values.
+#' If \code{FALSE}, returns a \code{tibble} with more detatiled infomration.
+#' @return Either a vector of length \code{n} o a tibble \code{n x 5}.
+#' @importFrom dplyr %>% rename pull
+#' @export
 Dec2Degrees <- function(x, sep = "\ ", simple = TRUE) {
     Str2Deg(x, sep, c(1.0, 60.0, 3600.0)) %>%
         rename(Deg = Fst, Min = Snd, Sec = Thd) %>% {
@@ -44,6 +56,15 @@ Dec2Degrees <- function(x, sep = "\ ", simple = TRUE) {
         }
 }
 
+#' @title Ra2Degrees
+#' @description Converts \code{R}ight \code{A}scention to degrees.
+#' @param x Vector of values.
+#' @param sep Separator between hours, minutes and seconds.
+#' @param simple If \code{TRUE}, return vector of converted values.
+#' If \code{FALSE}, returns a \code{tibble} with more detatiled infomration.
+#' @return Either a vector of length \code{n} o a tibble \code{n x 5}.
+#' @importFrom dplyr %>% rename pull
+#' @export
 Ra2Degrees <- function(x, sep = "\ ", simple = TRUE) {
     Str2Deg(x, sep, c(1.0, 60.0, 3600.0) / 15.0) %>%
         rename(Hr = Fst, Min = Snd, Sec = Thd) %>% {
@@ -54,12 +75,26 @@ Ra2Degrees <- function(x, sep = "\ ", simple = TRUE) {
         }
 }
 
+#' @title Degrees2Deg
+#' @description Converts numerical degrees to string representation
+#' of \code{DEC}lination.
+#' @param x Vector of values.
+#' @param sep Separator between degrees, minutes and seconds.
+#' @param dig Number of decimal digits in seconds.
+#' @return A string vector.
+#' @export
 Degrees2Dec <- function(x, sep = "\ ", dig = 3) {
     Deg2Str(x, sep, denoms = c(1.0, 60.0, 3600.0), "+", dig)
 }
 
+#' @title Degrees2Ra
+#' @description Converts numerical degrees to string representation
+#' of \code{R}ight \code{A}scention.
+#' @param x Vector of values.
+#' @param sep Separator between hours, minutes and seconds.
+#' @param dig Number of decimal digits in seconds.
+#' @return A string vector.
+#' @export
 Degrees2Ra <- function(x, sep = "\ ", dig = 3) {
     Deg2Str(x, sep, c(1.0, 60.0, 3600.0) / 15.0, "", dig)
 }
-
-Degrees2Ra(c(-37.511, 45.52)) %>% Ra2Degrees %T>% print
