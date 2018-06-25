@@ -50,13 +50,17 @@ Str2Deg <- function(x, sep, denoms){
 
 Deg2Str <- function(x, sep, denoms, plus = "+", dig = 3) {
     sgn <- sign(x)
-    sgnSymb <- sgn %>% equals(1) %>% sapply(ifelse, plus, "-")
+    sgnSymb <- sgn %>%
+        is_weakly_greater_than(0) %>%
+        sapply(ifelse, plus, "-")
     x <- abs(x)
     fst <- floor(x * denoms[1])
     snd <- floor((x - fst / denoms[1]) * denoms[2])
     thd <- (x - fst / denoms[1] - snd / denoms[2]) * denoms[3]
-    frmt <- sprintf("%%2$1s%%3$02d%%1$s%%4$02d%%1$s%%5$02.%df", dig)
-    result <- sprintf(frmt, sep, sgnSymb, fst, snd, thd)
+    frmt <- sprintf("%%2$1s%%3$02d%%1$s%%4$02d%%1$s%%5$02d.%%6$0%d.0f", dig)
+    result <- sprintf(frmt, sep, sgnSymb,
+                      fst, snd, floor(thd),
+                      10 ^ dig * (thd - floor(thd)))
     return(result)
 }
 
