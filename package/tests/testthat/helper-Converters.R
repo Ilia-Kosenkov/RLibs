@@ -22,5 +22,8 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 if (interactive()) {
+    library(tidyverse)
+    library(stringr)
+    library(magrittr)
     source(file.path("..", "..", "R", "Converters.R"))
 }
