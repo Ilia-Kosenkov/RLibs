@@ -24,6 +24,11 @@
 utils::globalVariables(c("Fst", "Snd", "Thd", "Sgn", "Comb"))
 
 #' @importFrom stringr str_match
+#' @importFrom tibble tibble
+#' @importFrom dplyr %>% mutate mutate_at bind_rows if_else select vars
+#' @importFrom purrr map reduce
+#' @importFrom magrittr extract
+#' @importFrom stats setNames
 Str2Deg <- function(x, sep, denoms){
     pattern <-
         sprintf("([+-]?)([0-9]{1,2})%1$s([0-9]{1,2})%1$s([0-9\\.]+)", sep)
@@ -36,18 +41,20 @@ Str2Deg <- function(x, sep, denoms){
                   Fst = character(0),
                   Snd = character(0),
                   Thd = character(0))
-    1:nrow(matches) %>% map(~matches %>%
+    result <- 1:nrow(matches) %>% map(~matches %>%
                 extract(.x,) %>%
                 setNames(c("Str", "Sgn", "Fst", "Snd", "Thd"))) %>%
         reduce(bind_rows, .init = tbl) %>%
         select(-1) %>%
         mutate_at(vars(-Sgn), as.numeric) %>%
-        mutate(Sgn = if_else(nzchar(Sgn), Sgn, "+")) %>%
-        mutate(Comb = (Fst / denoms[1] + Snd / denoms[2] + Thd / denoms[3]) *
-               if_else(Sgn == "-", -1, +1)) -> result
+        mutate(Sgn = if_else(nzchar(Sgn), Sgn, "+"))
+    result <- result %>%
+        mutate(Comb = (Fst / denoms[1] + Snd / denoms[2] + Thd / denoms[3])) %>%
+        mutate(Comb = if_else(Sgn == "-", - Comb, Comb))
     return(result)
 }
 
+#' @importFrom magrittr is_weakly_greater_than
 Deg2Str <- function(x, sep, denoms, plus = "+", dig = 3) {
     sgn <- sign(x)
     sgnSymb <- sgn %>%
