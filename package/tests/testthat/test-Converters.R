@@ -95,3 +95,4 @@ test_that("Back and forth conversion preserves value", {
     expect_equal(round(raAngls, 5), round(angls, 5))
     expect_equal(round(decAngls, 6), round(angls, 6))
 })
+
