@@ -21,7 +21,10 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-utils::globalVariables(c(".", "Key", "Val"))
+utils::globalVariables(c(".", "Key", "Val",
+    "lbl", "xmn", "xmx",
+    "g", "ymn", "ymx",
+    "hjst", "vjst"))
 
 #' @export
 Lookup <- function(object, ...) UseMethod("Lookup")
@@ -734,4 +737,54 @@ Segments2Points <- function(.dt, x, y, xend, yend) {
         spread(Key, Val) %>%
         select(-ID) %>%
         slice(UniqueWhichTol(!!nx))
+}
+
+#' @title GGCustomTextAnnotation
+#' @param labels Labels.
+#' @param xmin,xmax X coordinates of labels.
+#' @param ymin,ymax Y coordinates of labels.
+#' @param vjust Vertical justification.
+#' @param hjust Horizontal justification.
+#' @param gp Additional graphical parameters.
+#' @return List of \code{annotation_custom} objects.
+#' @importFrom foreach foreach %do%
+#' @importFrom ggplot2 annotation_custom
+#' @importFrom grid textGrob gpar
+#' @export
+GGCustomTextAnnotation <- function(labels, x, y,
+                                   xmin = x, xmax = x,
+                                   ymin = y, ymax = y,
+                                   vjust = 0, hjust = 0,
+                                   gp = list(gpar())) {
+    n <- length(labels)
+
+    if (length(xmin) == 1L && n != 1L)
+        xmin <- rep(xmin[1], n)
+    if (length(xmax) == 1L && n != 1L)
+        xmax <- rep(xmax[1], n)
+    if (length(ymin) == 1L && n != 1L)
+        ymin <- rep(ymin[1], n)
+    if (length(ymax) == 1L && n != 1L)
+        ymax <- rep(ymax[1], n)
+    if (length(vjust) == 1L && n != 1L)
+        vjust <- rep(vjust[1], n)
+    if (length(hjust) == 1L && n != 1L)
+        hjust <- rep(hjust[1], n)
+    if (class(gp) == "gpar")
+        gp <- rep(list(gp), n)
+    else if (length(gp) == 1L && n != 1L)
+        gp <- rep(gp[1], n)
+
+    foreach(lbl = labels,
+            xmn = xmin, xmx = xmax,
+            ymn = ymin, ymx = ymax,
+            vjst = vjust,
+            hjst = hjust,
+            g = gp) %do% {
+                annotation_custom(textGrob(lbl,
+                        hjust = hjst,
+                        vjust = vjst,
+                        gp = g),
+                    xmn, xmx, ymn, ymx)
+            }
 }
