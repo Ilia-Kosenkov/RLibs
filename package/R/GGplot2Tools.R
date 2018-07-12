@@ -310,6 +310,7 @@ GGCustomLargeTicks <- function(side, breaks, labels,
                                start, end, delta = 0) {
     lb <- NULL
     br <- NULL
+    warning("`GGCustomLargeTicks` is deprecated. Use `GGPlotCustromTicks`.")
 
     if (length(breaks) != length(labels) && length(labels) > 1)
         stop("Length of [breaks] and [labels] should be equal.")
