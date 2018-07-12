@@ -229,7 +229,8 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
 #' @import ggplot2 grid
 GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
                               trnsf = identity, gp = gpar(),
-                              rot = 0, deltaH = 0, deltaV = 0) {
+                              rot = 0, deltaH = 0, deltaV = 0,
+                              tickGp = gpar()) {
     lb <- NULL
     br <- NULL
 
@@ -253,7 +254,8 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
             annotation_custom(
                 grob = segmentsGrob(
                     x0 = breaks, x1 = breaks,
-                    y0 = 0, y1 = tckSz))
+                    y0 = 0, y1 = tckSz,
+                    gp = tickGp))
     }
     else if (side == 3 ||
              side == "t" ||
@@ -268,7 +270,8 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
             annotation_custom(
                 grob = segmentsGrob(
                     x0 = breaks, x1 = breaks,
-                    y0 = 1, y1 = 1 - tckSz))
+                    y0 = 1, y1 = 1 - tckSz,
+                    gp = tickGp))
     }
     else if (side == 2 ||
              side == "l" ||
@@ -283,7 +286,8 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
             annotation_custom(
                 grob = segmentsGrob(
                     x0 = 0, x1 = tckSz,
-                    y0 = breaks, y1 = breaks))
+                    y0 = breaks, y1 = breaks,
+                    gp = tickGp))
     }
     else if (side == 4 ||
              side == "r" ||
@@ -298,7 +302,8 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
             annotation_custom(
                 grob = segmentsGrob(
                     x0 = 1, x1 = 1 - tckSz,
-                    y0 = breaks, y1 = breaks))
+                    y0 = breaks, y1 = breaks,
+                    gp = tickGp))
     }
     else
         stop(sprintf("Unknown axis %s", as.character(side)))
