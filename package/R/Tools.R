@@ -833,6 +833,10 @@ sec_len <- function(x)
 #' @param file Path to a file
 #' @description Reads specifically formatted sequences of integers from a file.
 #' @return A list of indexes generated from file
+#' @importFrom stringr str_split str_match str_detect str_replace_all
+#' @importFrom purrr some keep map map_if
+#' @importFrom magrittr extract extract2
+#' @importFrom dplyr %>%
 #' @export
 ReadList <- function(file) {
     input <- scan(file, what = "", sep = "\n", quiet = TRUE)

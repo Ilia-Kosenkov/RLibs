@@ -86,6 +86,8 @@ GetMargins <- function(grob, type = c("inner", "outer")) {
 #' @return Modified grob. Can be piped e.g. with \code{dplyr::%>%}.
 #' @export
 #' @import grid
+#' @importFrom purrr map
+#' @importFrom dplyr %>%
 SetMargins <- function(grob, type, margins) {
     worker <- function(g, txtX, txtY) {
         ax.lr <- Lookup(g, paste(txtX, c("l", "r"), sep = "-"))
