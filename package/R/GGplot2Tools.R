@@ -78,12 +78,18 @@ GetMargins <- function(grob, type = c("inner", "outer")) {
 
 }
 
+#' @title SetMargins
+#' @param grob Grob to process.
+#' @param type Type of the margin. 
+#' Allowed values: \code{"inner"} and \code{"outer"}.
+#' @param margins Values of margins.
+#' @return Modified grob. Can be piped e.g. with \code{dplyr::%>%}.
 #' @export
 #' @import grid
 SetMargins <- function(grob, type, margins) {
-    worker <- function(txtX, txtY) {
-        ax.lr <- Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
-        ax.tb <- Lookup(grob, paste(txtY, c("t", "b"), sep = "-"))
+    worker <- function(g, txtX, txtY) {
+        ax.lr <- Lookup(g, paste(txtX, c("l", "r"), sep = "-"))
+        ax.tb <- Lookup(g, paste(txtY, c("t", "b"), sep = "-"))
         inds.lr <- ax.lr$GrobDesc$l
         inds.tb <- ax.tb$GrobDesc$t
         return(list(t = inds.tb[1], r = inds.lr[2],
@@ -91,25 +97,49 @@ SetMargins <- function(grob, type, margins) {
 
     }
 
+    isUnit <- ("unit" %in% class(margins)) ||
+        (("list" %in% class(margins)) && (
+            margins %>%
+                map(class) %>%
+                map(~"unit" %in% .x) %>%
+                unlist %>%
+                all))
+
+    if (!isUnit)
+        stop("`margins` should be at least of class `unit`.")
+
+    if ("margin" %in% class(margins))
+        rawMargins <- list(
+            t = margins[1],
+            r = margins[2],
+            b = margins[3],
+            l = margins[4])
+    else
+        rawMargins <- margins
+
+
     if (all(type == "inner"))
-        inds <- worker("axis", "axis")
+        inds <- worker(grob, "axis", "axis")
     else if (all(type == "outer"))
-        inds <- worker("ylab", "xlab")
+        inds <- worker(grob, "ylab", "xlab")
     else
         stop("Wrong `type`.")
 
     if (!is.null(margins$t))
-        grob$heights[inds$t] <- margins$t
+        grob$heights[inds$t] <- rawMargins$t
     if (!is.null(margins$b))
-        grob$heights[inds$b] <- margins$b
+        grob$heights[inds$b] <- rawMargins$b
     if (!is.null(margins$l))
-        grob$widths[inds$l] <- margins$l
+        grob$widths[inds$l] <- rawMargins$l
     if (!is.null(margins$r))
-        grob$widths[inds$r] <- margins$r
+        grob$widths[inds$r] <- rawMargins$r
 
     return(grob)
 }
 
+#' @title DefaultTheme
+#' @description Generates default theme used in scientific publications.
+#' @return A theme object.
 #' @export
 #' @import ggplot2
 DefaultTheme <- function() {
@@ -311,84 +341,9 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
 
 #' @export
 #' @import ggplot2 foreach
-GGCustomLargeTicks <- function(side, breaks, labels,
-                               start, end, delta = 0) {
-    lb <- NULL
-    br <- NULL
-    warning("`GGCustomLargeTicks` is deprecated. Use `GGPlotCustromTicks`.")
+GGCustomLargeTicks <- function(...)
+    stop("GGCustomLargeTicks is deprecated. Use GGPlotCustomTicks")
 
-    if (length(breaks) != length(labels) && length(labels) > 1)
-        stop("Length of [breaks] and [labels] should be equal.")
-    if (length(labels) == 1)
-        labels <- rep(labels, length(breaks))
-
-    if (side == 1 ||
-        side == "b" ||
-        regexpr("bot", side) > 0) {
-        append(
-            foreach(br = breaks,
-                    lb = labels) %do% {
-                annotation_custom(
-                            grob = textGrob(label = lb,
-                                hjust = 0.5, vjust = 1.5 + delta),
-                            xmin = br, xmax = br,
-                            ymin = -Inf, ymax = -Inf)
-            },
-            annotate(geom = "segment",
-                            x = breaks, xend = breaks,
-                            y = start, yend = end))
-    }
-    else if (side == 3 ||
-             side == "t" ||
-             regexpr("top", side) > 0) {
-        append(
-            foreach(br = breaks,
-                    lb = labels) %do% {
-                annotation_custom(
-                            grob = textGrob(label = lb,
-                                hjust = 0.5, vjust = -0.7 + delta),
-                            xmin = br, xmax = br,
-                            ymin = Inf, ymax = Inf)
-            },
-            annotate(geom = "segment",
-                            x = breaks, xend = breaks,
-                            y = end, yend = start))
-    }
-    else if (side == 2 ||
-             side == "l" ||
-             regexpr("lef", side) > 0) {
-        append(
-            foreach(br = breaks,
-                    lb = labels) %do% {
-                annotation_custom(
-                            grob = textGrob(label = lb,
-                                hjust = 1.5 + delta, vjust = 0.5),
-                            xmin = -Inf, xmax = -Inf,
-                            ymin = br, ymax = br)
-            },
-            annotate(geom = "segment",
-                            x = start, xend = end,
-                            y = breaks, yend = breaks))
-    }
-    else if (side == 4 ||
-             side == "r" ||
-             regexpr("rig", side) > 0) {
-        append(
-            foreach(br = breaks,
-                    lb = labels) %do% {
-            annotation_custom(
-                            grob = textGrob(label = lb,
-                                hjust = -0.4 + delta, vjust = 0.5),
-                            xmin = Inf, xmax = Inf,
-                            ymin = br, ymax = br)
-            },
-            annotate(geom = "segment",
-                            x = end, xend = start,
-                            y = breaks, yend = breaks))
-    }
-    else
-        stop(sprintf("Unknown axis %s", as.character(side)))
-    }
 
 #' @title GGPlot2Grob
 #' @description
