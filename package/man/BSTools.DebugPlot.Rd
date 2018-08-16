@@ -4,7 +4,8 @@
 \alias{BSTools.DebugPlot}
 \title{BSTools.DebugPlot}
 \usage{
-BSTools.DebugPlot(data, traceLen = 1000L, densLen = 10000L, nPltRow = 3L)
+BSTools.DebugPlot(data, traceLen = 1000L, densLen = 10000L,
+  nPltRow = 3L)
 }
 \arguments{
 \item{data}{A list of tibbles - one per each simulated chain.}
