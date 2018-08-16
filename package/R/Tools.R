@@ -821,3 +821,67 @@ FilterRange <- function(.data, .var, .range) {
     .data %>%
         filter(!!expr >= .range[1] & !!expr <= .range[2])
 }
+
+#' @title sec_len
+#' @param x Object of some length (a list, a vector, etc)
+#' @return Integer sequence from 1 to \code{length(x)}
+#' @export
+sec_len <- function(x)
+    seq.int(length.out = length(x))
+
+#' @title ReadList
+#' @param file Path to a file
+#' @description Reads specifically formatted sequences of integers from a file.
+#' @return A list of indexes generated from file
+#' @export
+ReadList <- function(file) {
+    input <- scan(file, what = "", sep = "\n", quiet = TRUE)
+
+    parse <- function(x) {
+        str_split(x, ":") %>%
+            extract2(1) %>% {
+                if (length(.) == 1L)
+                    as.numeric(.)
+                else if (length(.) == 2L)
+                    seq(as.numeric(.[1]), as.numeric(.[2]))
+                else
+                    stop("Failed to parse.")
+                }
+    }
+
+
+    input %>%
+        map(str_match,
+            pattern = "([[[:alnum:]][[:punct:]]^:]*?)\\ *?:?\\ +?(.*)") %>%
+        map(~list(extract(.x,, 2), extract(.x,, 3))) %>%
+        map(function(x) {
+            x[[2]] <- str_split(x[[2]], " ")[[1]]
+            x[[2]] <- x[[2]] %>% extract(nzchar(.))
+            if (x[[2]] %>% some(~str_detect(.x, "\"")))
+                x[[2]] %<>%
+                    str_replace_all("\"", "")
+            else
+                x[[2]] %<>% map(parse) %>% unlist
+
+            return(x)
+        }) %>%
+        map(function(x) {
+            if (str_detect(x[[1]], "\""))
+                x[[1]] %<>% str_replace_all("\"", "")
+            else
+                x[[1]] %<>% parse
+
+            return(x)
+        }) %>%
+        map_if(~length(.x) > 1, function(x) {
+            negInds <- x[[2]] %>% keep(~.x < 0)
+            x[[2]] %<>% keep(~.x >= 0) %<>% setdiff(abs(negInds))
+            x
+        }) -> parsed
+
+    result <- parsed %>%
+        map(function(x) if (length(x) > 1) extract2(x, 2) else NA) %>%
+        setNames(parsed %>% map_chr(~extract(.x, 1) %>% as.character))
+
+    return(result)
+}
