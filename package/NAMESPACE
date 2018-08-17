@@ -3,6 +3,7 @@
 S3method(Clamp,data.frame)
 S3method(Clamp,numeric)
 export("%??%")
+export("%is%")
 export()
 export(.Parallel.Packages)
 export(AsSegments)

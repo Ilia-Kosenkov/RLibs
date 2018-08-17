@@ -889,3 +889,12 @@ ReadList <- function(file) {
 
     return(result)
 }
+
+#' @title \code{is} interfix operator
+#' @param object Object to test.
+#' @param class \code{character} name of the class.
+#' @description An interfix version of \link{is} method.
+#' @return \code{logical} \code{TRUE} if
+#' \code{object} is of class \code{class}, \code{FALSE} otherwise.
+#' @export
+`%is%` <- function(object, class) is(object, class)

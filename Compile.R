@@ -31,7 +31,9 @@ if (interactive()) {
 
     p <- ggplot(mtcars, aes(cyl, wt)) + geom_point() + DefaultTheme()
 
-    p %>% list %>% GGPlot2Grob(innerMar = margin(1, 1, 3, 1, unit = "cm")) %>% GrobPlot
+    p %>% list %>%
+        GGPlot2Grob(innerMar = margin(1, 1, 3, 1, unit = "cm")) %>%
+        GrobPlot
 } else {
 
     message("Running `roxygen2::roxygenize`...")
