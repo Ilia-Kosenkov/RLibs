@@ -357,26 +357,35 @@ GGCustomLargeTicks <- function(...)
 #' (affects custom tick labels and so on), otherwise, allows contents outside 
 #' of the plot area.
 #' @return A collection of \code{grobs}.
-#' @import ggplot2 foreach
 #' @importFrom stats setNames
+#' @importFrom purrr map
+#' @importFrom dplyr %>%
+#' @importFrom ggplot2 ggplot_gtable ggplot_build
 #' @export
 GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
-    p <- NULL
-    grobs <- foreach(p = plots,
-        .final = function(x) setNames(x, names(plots))) %do% {
 
+    worker <- function(p, setInner, setOuter) {
         grob <- ggplot_gtable(ggplot_build(p))
 
         grob$layout$clip[grob$layout$name == "panel"] <-
             ifelse(clip, "on", "off")
 
-        if (!missing(innerMar))
+        if (setInner)
             grob <- SetMargins(grob, "inner", innerMar)
-        if (!missing(outerMar))
+        if (setOuter)
             grob <- SetMargins(grob, "outer", outerMar)
 
         return(grob)
     }
+
+    setInner <- !missing(innerMar)
+    setOuter <- !missing(outerMar)
+
+    if (plots %is% list)
+        return(plots %>%
+            map(~worker(.x, setInner, setOuter)))
+    else
+        worker(plots, setInner, setOuter)
 }
 
 #' @title GrobPlot
