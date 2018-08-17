@@ -32,10 +32,6 @@ SuppressNotes(c("IsRegistered", "IsDisposed", "ID", "ClusterDesc"))
 # Packages required for execution
 #' @export
 .Parallel.Packages <- c("foreach", "parallel", "doSNOW")
-# Symbols (latin upper/lower-case letters & numbers 
-# used to generate cluster UIDs
-#' @export
-.Parallel.symbs <- c(97:122, 65:90, 48:57)
 
 #' @export
 #' @importFrom utils installed.packages
@@ -47,6 +43,14 @@ Parallel.Available <- function()
 setOldClass("cluster")
 setOldClass("SOCKcluster")
 
+#' @title Cluster
+#' @description RefClass representing cluster for parallel execution.
+#' @field ClusterDesc A \code{SOCKcluster} underkying object.
+#' @field IsRegistered A \code{logical} flag indicating
+#'    whether the cluster was registered.
+#' @field IsDisposed A \code{logical} flag indicating
+#'    whrther cluster resources were disposed.
+#' @field ID A 'unique' id of the cluster, hex string.
 #' @export Cluster
 #' @exportClass Cluster
 # Cluster class declaration
@@ -60,9 +64,11 @@ Cluster <- setRefClass("Cluster",
 # ID is immutable.
 Cluster$lock("ClusterDesc", "ID")
 
+#' @title new
+#' @description Constructor for \link{Cluster}.
 #' @importFrom snow makeCluster stopCluster
 #' @importFrom parallel detectCores
-# Initialization
+#' @export
 Cluster$methods("initialize" = function(nProcs) {
     # Constructor.
     # Args:
@@ -81,11 +87,10 @@ Cluster$methods("initialize" = function(nProcs) {
     IsRegistered <<- FALSE
     # Not yet disposed
     IsDisposed <<- FALSE
-    # Unique identifier. Dictionary is 62 symbols, 8 symbols are pulled, so probability of
-    # identical IDs is about (1/62)^8 ~ 4.6e-15, providing [sample] has uniform distribution.
-    ID <<- paste("@", rawToChar(as.raw(sample(.Parallel.symbs, 8))), sep = "")
+
+    ID <<- paste(sprintf("%x", sample(0:15, 16, TRUE)), collapse = "")
     # Log message
-    message(sprintf("Cluster %s (%d nodes) was created.", .self$ID, .self$getClusterSize()))
+    message(sprintf("Cluster @%s (%d nodes) was created.", .self$ID, .self$getClusterSize()))
 })
 
 # Accessors:
@@ -116,7 +121,7 @@ Cluster$methods("Register" = function(backend = "SNOW") {
     # Marks cluster as initialzied
     IsRegistered <<- TRUE
     # Log message
-    message(sprintf("Cluster %s (%d nodes) was registered.", .self$ID, .self$getClusterSize()))
+    message(sprintf("Cluster @%s (%d nodes) was registered.", .self$ID, .self$getClusterSize()))
 })
 
 Cluster$methods("Dispose" = function() {
@@ -129,7 +134,7 @@ Cluster$methods("Dispose" = function() {
     IsDisposed <<- TRUE
 
     # Log message
-    message(sprintf("Cluster %s (%d nodes) was disposed.", .self$ID, .self$getClusterSize()))
+    message(sprintf("Cluster @%s (%d nodes) was disposed.", .self$ID, .self$getClusterSize()))
 })
 
 Cluster$methods("finalize" = function() {
