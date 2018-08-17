@@ -30,15 +30,6 @@ if (interactive()) {
     source(file.path("package", "R", "GGplot2Tools.R"))
     source(file.path("package", "R", "Tools.R"))
 
-    p <- ggplot(mtcars, aes(cyl, wt)) + geom_point() + DefaultTheme()
-
-    p %>% list %>%
-        GGPlot2Grob(innerMar = margin(1, 1, 3, 1, unit = "cm")) %>%
-        GrobPlot
-
-    p %>% list %>%
-        GGPlot2Grob(innerMar = list(b = unit(3, "cm"))) %>%
-    GrobPlot
 
 } else {
 
@@ -52,7 +43,7 @@ if (interactive()) {
     cmd_1 <- sprintf("R%s CMD build ./package", sfx)
 
     message(paste("Executing:", cmd_1))
-    if(isWin)
+    if (isWin)
         shell(cmd_1, mustWork = TRUE)
     else
         system(cmd_1)
@@ -73,10 +64,11 @@ if (interactive()) {
 
 
     cmd_2 <- sprintf("R%s CMD check %s", sfx, latestPckg)
-    #command <- sprintf("cmd /k \"R.exe CMD build ./package && R.exe CMD check %s && exit\"",
-        #latestPckg)
+    #command <-
+            #sprintf("cmd /k \"R.exe CMD build ./package && %s %s && %s \"",
+                #"R.exe CMD check", latestPckg,"exit")
     message(paste("Executing:", cmd_2))
-    if(isWin)
+    if (isWin)
         shell(cmd_2, mustWork = TRUE)
     else
         system(cmd_2)

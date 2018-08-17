@@ -396,13 +396,17 @@ GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
 #' if \code{grid::grid.newage()} is called before first call
 #' of \code{grid::grid.draw(...)}.
 #' @importFrom grid grid.newpage grid.draw
+#' @importFrom dplyr %>%
+#' @importFrom purrr every
+#' @importFrom rlang !!
 #' @export
 GrobPlot <- function(grobs, noNewPageDevList = c("pdf")) {
     # Typical classes of passed grob
     grobClassIds <- c("gtable", "gTree", "grob", "gDesc")
     # If there is a match, then received one grob (not list of grobs)
-    isStandAloneGrob <- any(sapply(grobClassIds, grepl,
-        x = class(grobs), ignore.case = TRUE))
+
+    isStandAloneGrob <- grobClassIds %>%
+        every(~grobs %is% !!.x)
 
     # If current device is part of the list, than
     # no first page should be drawn.
