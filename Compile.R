@@ -23,7 +23,15 @@
 
 if (interactive()) {
     # If is in interactive session, run debug code
+    library(tidyverse)
+    library(grid)
+    library(gridExtra)
+    library(magrittr)
+    source(file.path("package", "R", "GGplot2Tools.R"))
 
+    p <- ggplot(mtcars, aes(cyl, wt)) + geom_point() + DefaultTheme()
+
+    p %>% list %>% GGPlot2Grob(innerMar = margin(1, 1, 3, 1, unit = "cm")) %>% GrobPlot
 } else {
 
     message("Running `roxygen2::roxygenize`...")
