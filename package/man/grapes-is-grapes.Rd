@@ -9,7 +9,7 @@ object \%is\% class
 \arguments{
 \item{object}{Object to test.}
 
-\item{class}{\code{character} name of the class.}
+\item{class}{Target type (supports \code{rlang} quosure).}
 }
 \value{
 \code{logical} \code{TRUE} if

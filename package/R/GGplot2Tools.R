@@ -99,18 +99,15 @@ SetMargins <- function(grob, type, margins) {
 
     }
 
-    isUnit <- ("unit" %in% class(margins)) ||
-        (("list" %in% class(margins)) && (
-            margins %>%
-                map(class) %>%
-                map(~"unit" %in% .x) %>%
-                unlist %>%
-                all))
+    isUnit <- (margins %is% unit) ||
+        ((margins %is% list) &&
+            (margins %>% every(~.x %is% unit)))
+
 
     if (!isUnit)
         stop("`margins` should be at least of class `unit`.")
 
-    if ("margin" %in% class(margins))
+    if (margins %is% margin)
         rawMargins <- list(
             t = margins[1],
             r = margins[2],

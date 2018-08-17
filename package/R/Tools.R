@@ -892,9 +892,17 @@ ReadList <- function(file) {
 
 #' @title \code{is} interfix operator
 #' @param object Object to test.
-#' @param class \code{character} name of the class.
+#' @param class Target type (supports \code{rlang} quosure).
 #' @description An interfix version of \link{is} method.
 #' @return \code{logical} \code{TRUE} if
 #' \code{object} is of class \code{class}, \code{FALSE} otherwise.
+#' @importFrom rlang quo_squash enquo
 #' @export
-`%is%` <- function(object, class) is(object, class)
+`%is%` <- function(object, class) {
+    nm <- quo_squash(enquo(class))
+    if (is.null(nm))
+        className <- "NULL"
+    else
+        className <- a_ch(nm)
+    return(is(object, className))
+}
