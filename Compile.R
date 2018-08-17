@@ -30,6 +30,19 @@ if (interactive()) {
     source(file.path("package", "R", "GGplot2Tools.R"))
     source(file.path("package", "R", "Tools.R"))
 
+    #p <- ggplot(mtcars, aes(cyl, wt)) + geom_point() + DefaultTheme()
+
+    #p %>%
+        #GGPlot2Grob(innerMar = margin(1, 1, 3, 1, unit = "cm")) %>%
+        #GrobPlot
+
+    #p %>% list %>%
+        #GGPlot2Grob(innerMar = list(b = unit(3, "cm"))) %>%
+    #GrobPlot
+
+    #c("list", "numeric") %>% map(~list() %is% !!.x) %T>% print
+
+    letters %+% LETTERS %T>% print
 
 } else {
 
