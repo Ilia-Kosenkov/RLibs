@@ -32,6 +32,8 @@ Affects rendering of the labels.}
 \item{deltaH}{Additional horizontal text shift. If affected by \code{rot}.}
 
 \item{deltaV}{Additional vertical text shift. Is affected by \code{rot}.}
+
+\item{tickGp}{\code{gpar} that controls ticks.}
 }
 \description{
 Creates custom ticks with labels. Requires a finished ggproto object.

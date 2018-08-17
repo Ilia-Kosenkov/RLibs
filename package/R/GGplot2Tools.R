@@ -127,13 +127,14 @@ SetMargins <- function(grob, type, margins) {
     else
         stop("Wrong `type`.")
 
-    if (!is.null(margins$t))
+
+    if (!is.null(rawMargins$t))
         grob$heights[inds$t] <- rawMargins$t
-    if (!is.null(margins$b))
+    if (!is.null(rawMargins$b))
         grob$heights[inds$b] <- rawMargins$b
-    if (!is.null(margins$l))
+    if (!is.null(rawMargins$l))
         grob$widths[inds$l] <- rawMargins$l
-    if (!is.null(margins$r))
+    if (!is.null(rawMargins$r))
         grob$widths[inds$r] <- rawMargins$r
 
     return(grob)
@@ -257,6 +258,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
 #' @param rot Rotation of labels, deg.
 #' @param deltaH Additional horizontal text shift. If affected by \code{rot}.
 #' @param deltaV Additional vertical text shift. Is affected by \code{rot}.
+#' @param tickGp \code{gpar} that controls ticks.
 #' @export
 #' @import ggplot2 grid
 GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
