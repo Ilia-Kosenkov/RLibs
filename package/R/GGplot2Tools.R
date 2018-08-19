@@ -80,10 +80,10 @@ GetMargins <- function(grob, type = c("inner", "outer")) {
 
 #' @title SetMargins
 #' @param grob Grob to process.
-#' @param type Type of the margin. 
+#' @param type Type of the margin.
 #' Allowed values: \code{"inner"} and \code{"outer"}.
 #' @param margins Values of margins.
-#' @return Modified grob. Can be piped e.g. with \code{dplyr::%>%}.
+#' @return Modified grob. Can be piped e.g. with \code{dplyr::`%>%`}.
 #' @export
 #' @import grid
 #' @importFrom purrr map

@@ -9,7 +9,7 @@ SetMargins(grob, type, margins)
 \arguments{
 \item{grob}{Grob to process.}
 
-\item{type}{Type of the margin. 
+\item{type}{Type of the margin.
 Allowed values: \code{"inner"} and \code{"outer"}.}
 
 \item{margins}{Values of margins.}
