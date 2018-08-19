@@ -21,7 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+#' @export
 Scargle.Tau = function(w, t)
 {
     # Determines phase correction to Scargle periodogram
@@ -39,6 +39,7 @@ Scargle.Tau = function(w, t)
     return(sapply(w, worker, t))
 }
 
+#' @export
 Scargle.Periodogram = function(w, t, x, tau = NA)
 {
     # Calculates scargle periodogram
