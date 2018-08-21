@@ -115,6 +115,7 @@ Tools.AverageAndScatter = function(x, dx, limits = c(0.16, 0.84), nRuns = 1000, 
 #' @importFrom grDevices contourLines
 #' @importFrom purrr map map_dbl map2
 #' @importFrom MASS kde2d
+#' @export
 JointDistributionContours <- function(x, y, prob, n = 30) {
     # Calculates contours for a given 2D distribution (pairs of [x_i, y_i])
     # and given probabilities (vectorized over latter).
