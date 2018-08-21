@@ -115,6 +115,7 @@ Tools.AverageAndScatter = function(x, dx, limits = c(0.16, 0.84), nRuns = 1000, 
 #' @importFrom grDevices contourLines
 #' @importFrom purrr map map_dbl map2
 #' @importFrom MASS kde2d
+#' @importFrom dplyr tibble %>% bind_rows
 #' @export
 JointDistributionContours <- function(x, y, prob, n = 30) {
     # Calculates contours for a given 2D distribution (pairs of [x_i, y_i])
@@ -167,17 +168,13 @@ JointDistributionContours <- function(x, y, prob, n = 30) {
 
 
     # Generates contour lines at appropriate levels
-    cntrs <- contourLines(dens, levels = levels)
-
-    ordInds <- cntrs %>%
-        map_dbl(extract2, "level") %>%
-        order
-
-    cntrs <- cntrs %>%
-        map2(ordInds, function(cnt, ind) {
-            cnt$prob <- prob[ind]
-            return (cnt)
-        })
+    cntrs <- map2(levels, seq_len(length(levels)), function(l, prId) {
+        contourLines(dens, levels = l) %>%
+        map2(seq_len(length(.)),
+            ~ tibble(x = .x$x, y = .x$y, prId = prId, lnId = .y)) %>%
+            bind_rows
+    }) %>%
+    bind_rows
 
     return(cntrs)
 }
