@@ -14,6 +14,9 @@ Allowed values: \code{"inner"} and \code{"outer"}.}
 
 \item{margins}{Values of margins.}
 }
+\value{
+Modified grob. Can be piped e.g. with \code{dplyr::`\%>\%`}.
+}
 \description{
 SetMargins
 }
