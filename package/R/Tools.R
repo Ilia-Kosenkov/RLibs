@@ -172,7 +172,8 @@ JointDistributionContours <- function(x, y, prob, n = 30) {
         contourLines(dens, levels = l) %>%
         map2(seq_len(length(.)),
             ~ tibble(x = .x$x, y = .x$y, prId = prId, lnId = .y)) %>%
-            bind_rows
+        map(~AsSegments(.x, x, y)) %>%
+        bind_rows
     }) %>%
     bind_rows
 
