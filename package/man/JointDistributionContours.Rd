@@ -4,7 +4,8 @@
 \alias{JointDistributionContours}
 \title{JointDistributionContours}
 \usage{
-JointDistributionContours(x, y, prob, n = 30)
+JointDistributionContours(x, y, prob, n = 30, lims = c(range(x),
+  range(y)))
 }
 \arguments{
 \item{x}{First variable.}
@@ -14,6 +15,8 @@ JointDistributionContours(x, y, prob, n = 30)
 \item{prob}{Vector of probabilities in (0, 1).}
 
 \item{n}{Size of the \code{MASS::kde2d} estimator's grid.}
+
+\item{lims}{Explicit lims passed to \code{kde2d}.}
 }
 \value{
 List of contours, one per each probability.
