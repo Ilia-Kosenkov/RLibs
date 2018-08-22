@@ -38,9 +38,9 @@ SuppressNotes(c("Label", "NTicks", "Breaks", "TickLabels", "TransformFunc",
 .Plot.X.Axis.N.Ticks = 8
 .Plot.Y.Axis.N.Ticks = 6
 .Plot.Y.Axis.Tick.Offset.Inch = 0
-.Plot.Y.Axis.Lab.Offset.Inch = 0.8 * par()$mai[[2]]
+.Plot.Y.Axis.Lab.Offset.Inch = 0.8 #* par()$mai[[2]]
 .Plot.X.Axis.Tick.Offset.Inch = 0
-.Plot.Xc.Axis.Lab.Offset.Inch = 0.5 * par()$mai[[1]]
+.Plot.Xc.Axis.Lab.Offset.Inch = 0.5# * par()$mai[[1]]
 
 PlotAPI.IsTikzDevice = function(dev = dev.cur()) {
     # Checks if current device is Tikz device (and therefore supports LaTeX)
