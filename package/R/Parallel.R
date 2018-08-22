@@ -20,6 +20,7 @@
 #   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#' @import parallel
 
 SuppressNotes <- function(args) {
     for (var in args) {
@@ -65,6 +66,7 @@ Cluster <- setRefClass("Cluster",
 Cluster$lock("ClusterDesc", "ID")
 
 #' @title new
+#' @name new
 #' @description Constructor for \link{Cluster}.
 #' @importFrom snow makeCluster stopCluster
 #' @importFrom parallel detectCores

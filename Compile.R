@@ -27,22 +27,15 @@ if (interactive()) {
     library(grid)
     library(gridExtra)
     library(magrittr)
-    source(file.path("package", "R", "GGplot2Tools.R"))
-    source(file.path("package", "R", "Tools.R"))
+    library(rlang)
 
-    #p <- ggplot(mtcars, aes(cyl, wt)) + geom_point() + DefaultTheme()
+    src <- dir(file.path("package", "R"),
+        full.names = TRUE, recursive = TRUE)
 
-    #p %>%
-        #GGPlot2Grob(innerMar = margin(1, 1, 3, 1, unit = "cm")) %>%
-        #GrobPlot
+    src %>% walk(source)
 
-    #p %>% list %>%
-        #GGPlot2Grob(innerMar = list(b = unit(3, "cm"))) %>%
-    #GrobPlot
-
-    #c("list", "numeric") %>% map(~list() %is% !!.x) %T>% print
-
-    letters %+% LETTERS %T>% print
+    source(file.path("package", "tests", "testthat.R"))
+    #devtools::check(file.path("package"))
 
 } else {
 

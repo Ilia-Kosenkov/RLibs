@@ -22,7 +22,8 @@ Imports:
     rlang,
     purrr,
     magrittr,
-    tidyr
+    tidyr,
+	parallel
 RoxygenNote: 6.1.0
 ByteCompile: true
 License: MIT + file LICENSE

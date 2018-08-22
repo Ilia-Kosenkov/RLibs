@@ -370,3 +370,31 @@ Lin <- function(x0, x, y) {
 
     map_dbl(x0, ~ y[1] + diff(y) / diff(x) * (. - x[1]))
 }
+
+#' @title pforeach
+#' @param .data An implicit argument passed by a pipe operatpr \code{\%>\%}.
+#' @param ... Additional parameters passed to \code{foreach} as is.
+#' @return Output of \code{foreach} function that can be piped using
+#' operators like \code{%%do%%} and \code{%%dopar%%}.
+#' @importFrom foreach foreach
+#' @export
+pforeach <- function(.data, ...) {
+    # Evaluates first (implicit) argument (`dot`)
+    # Value of `dot` is reassigned to `dot` to create
+    # a `dot` name in the current environment.
+    . <- eval(.data)
+    # Extracts all additional arguments and evaluates it.
+    # All references to `dot` are resolved because `dot`
+    # is defiend above
+    ._args <- list(...)
+
+    # Constructs a named argument list, first
+    # argument is `x` = `input collection`
+    ._args <- append(list(x = .), ._args)
+
+    # Executes foreach using do.call and named argument list (all evaluated)
+    # foreach generates a descriptor of what to do.
+    # Operators like %do% and %dopar% can then process data in accordance to
+    # this decription.
+    do.call(foreach, ._args)
+}

@@ -21,12 +21,52 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if (!interactive()) {
-    library(testthat)
-    library(RLibs)
-    test_check("RLibs")
-} else {
+context("Piped-foreach tests")
 
-    testthat::test_dir(
-        file.path("package", "tests", "testthat"))
-}
+test_that("Test sequential pipe", {
+    res <- 1:10 %>% pforeach %do% { x } %>% unlist
+
+    expect_equal(res, 1:10)
+})
+
+test_that("Test sequential pipe with extra named argument", {
+
+    a <- rnorm(100)
+    b <- rnorm(100)
+
+    res <- a %>% pforeach(y = b) %do% {x * y} %>% unlist
+
+    expect_equal(res, a * b)
+})
+
+test_that("Test sequential pipe with unnamened shorter argument", {
+
+    a <- rnorm(100)
+    n <- 10
+    res <- a %>% pforeach(1:n) %do% { x } %>% unlist
+
+    expect_equal(res, a[1:n])
+})
+
+test_that("Test sequential pipe with unnamened shorter argument", {
+
+    a <- rnorm(100)
+
+    res <- a %>% pforeach(.combine = c) %do% { x }
+
+    expect_true(res %is% numeric && res == a)
+})
+
+test_that("Test sequential pipe with complex binding", {
+    p <- 1:100
+    q <- 100:1 - 1
+
+    p %>% pforeach(y = q, .combine = bind_rows) %do% {
+        c("p" = x, "q" = y)
+    } -> res
+
+    expect_true(res %is% data.frame &&
+          ncol(res) == 2 &&
+          all(c("p", "q") %in% names(res)) &&
+          sum(res$p + res$q) == sum(p + q))
+})

@@ -21,12 +21,15 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if (!interactive()) {
-    library(testthat)
-    library(RLibs)
-    test_check("RLibs")
-} else {
+if (interactive()) {
+    library(tidyverse)
+    library(stringr)
+    library(magrittr)
+    library(foreach)
+    library(doSNOW)
+    library(parallel)
 
-    testthat::test_dir(
-        file.path("package", "tests", "testthat"))
+    source(file.path("..", "..", "R", "Parallel.R"))
+
+    source(file.path("..", "..", "R", "Tools.R"))
 }
