@@ -21,53 +21,54 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#' @export
-Const.c <- 2.99792458e10
-#' @export
-Const.h <- 6.6260755e-27
-#' @export
-Const.h_bar <- 1.05457266e-27
-#' @export
-Const.G <- 6.67259e-8
-#' @export
-Const.K <- 1.380658e-16
-#' @export
-Const.m_e <- 9.10938356e-28
-#' @export
-Const.m_H <- 1.6737236e-24
+#' @rawNamespace export(Const.c)
+makeActiveBinding("Const.c", function() 2.99792458e10, env = environment())
 
-#' @export
-Const.m_Sun <- 1.98855e33
-#' @export
-Const.L_Sun <- 3.828e33
-#' @export
-Const.R_Sun <- 6.95700e10
+#' @rawNamespace export(Const.h)
+makeActiveBinding("Const.h", function() 6.6260755e-27, env = environment())
 
-#' @export
-Const.Sigm_SB <- 5.67036713e-5
-#' @export
-Const.Sigm_Th <- 6.6524587158e-25
-#' @export
-Const.g <- 9.80665e2
-#' @export
-Const.R_gas <- 8.314459848e7
+#' @rawNamespace export(Const.h_bar)
+makeActiveBinding("Const.h_bar", function() 1.05457266e-27,
+                env = environment())
 
+#' @rawNamespace export(Const.G)
+makeActiveBinding("Const.G", function() 6.67259e-8, env = environment())
+
+#' @rawNamespace export(Const.K)
+makeActiveBinding("Const.K", function() 1.380658e-16, env = environment())
+
+#' @rawNamespace export(Const.m_e)
+makeActiveBinding("Const.m_e", function() 9.10938356e-28, env = environment())
+
+#' @rawNamespace export(Const.m_H)
+makeActiveBinding("Const.m_H", function() 1.6737236e-24, env = environment())
+
+
+#' @rawNamespace export(Const.m_Sun)
+makeActiveBinding("Const.m_Sun", function() 1.98855e33, env = environment())
+
+#' @rawNamespace export(Const.L_Sun)
+makeActiveBinding("Const.L_Sun", function() 3.828e33, env = environment())
+
+#' @rawNamespace export(Const.R_Sun)
+makeActiveBinding("Const.R_Sun", function() 6.95700e10, env = environment())
+
+
+#' @rawNamespace export(Const.Sigm_SB)
+makeActiveBinding("Const.Sigm_SB", function() 5.67036713e-5,
+                env = environment())
+
+#' @rawNamespace export(Const.Sigm_Th)
+makeActiveBinding("Const.Sigm_Th", function() 6.6524587158e-25,
+                env = environment())
+
+#' @rawNamespace export(Const.g)
+makeActiveBinding("Const.g", function() 9.80665e2, env = environment())
+
+#' @rawNamespace export(Const.R_gas)
+makeActiveBinding("Const.R_gas", function() 8.314459848e7, env = environment())
 
 # Unit conversions
-#' @export
-Const.Jy2CGS <- 1e-23
 
-makeActiveBinding("Const.Jy2CGC", function() {
-    warning("`Const.Jy2CGC` is deprecated due to the typo. Use `Const.Jy2CGS`.")
-    return(Const.Jy2CGS)
-}, environment())
-
-#' @rawNamespace export(Const.Jy2CGC)
-
-# Alias
-#' @export
-Const.SB_sigm <- Const.Sigm_SB
-#' @export
-Const.Th_sigm <- Const.Sigm_Th
-#' @export
-Const.M_Sun <- Const.m_Sun
+#' @rawNamespace export(Const.Jy2CGS)
+makeActiveBinding("Const.Jy2CGS", function() 1e-23, env = environment())
