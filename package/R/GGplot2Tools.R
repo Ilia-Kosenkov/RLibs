@@ -764,3 +764,75 @@ GGCustomTextAnnotation <- function(labels, x, y,
                     xmn, xmx, ymn, ymx)
             }
 }
+
+
+
+GrobSizeGet <- function(grob, name, id) {
+    if (!missing(name))
+        id <- (grob$layout$name %in% name)
+
+    layout <- grob$layout[id, ]
+
+    result <- list(Width = NULL, Height = NULL)
+
+    if (nrow(layout) != 1)
+        return(result)
+
+    if (layout$t == layout$b)
+        result$Height <- grob$heights[layout$t]
+
+    if (layout$r == layout$l)
+        result$Width <- grob$widths[layout$r]
+
+    return(result)
+}
+
+GrobSizeSet <- function(grob, name, width = NULL, height = NULL, id) {
+    if (!missing(name))
+        id <- (grob$layout$name %in% name)
+
+    layout <- grob$layout[id, ]
+
+    result <- list(Width = NULL, Height = NULL)
+
+    if (nrow(layout) != 1)
+        stop("Cannot identify a single grob using provided name/id.")
+
+    if (!is.null(width)) {
+        if (layout$r != layout$l)
+            stop("The grob spans over multiple grid cells.")
+        grob$widths[layout$r] <- width
+    }
+    if (!is.null(height)) {
+        if (layout$t != layout$b)
+            stop("The grob spans over multiple grid cells.")
+        grob$heights[layout$t] <- height
+    }
+
+    return(grob)
+}
+
+GrobMarginSet <- function(grob,
+    tLab, rLab, bLab, lLab,
+    tAxis, rAxis, bAxis, lAxis) {
+
+    if (!missing(tLab))
+        grob %<>% GrobSizeSet("xlab-t", height = tLab)
+    if (!missing(rLab))
+        grob %<>% GrobSizeSet("ylab-r", width = rLab)
+    if (!missing(bLab))
+        grob %<>% GrobSizeSet("xlab-b", height = bLab)
+    if (!missing(lLab))
+        grob %<>% GrobSizeSet("ylab-l", height = lLab)
+
+    if (!missing(tAxis))
+        grob %<>% GrobSizeSet("axis-t", height = tAxis)
+    if (!missing(rAxis))
+        grob %<>% GrobSizeSet("axis-r", width = rAxis)
+    if (!missing(bAxis))
+        grob %<>% GrobSizeSet("axis-b", height = bAxis)
+    if (!missing(lAxis))
+        grob %<>% GrobSizeSet("axis-l", width = lAxis)
+
+    return(grob)
+}
