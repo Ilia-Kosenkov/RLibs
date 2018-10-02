@@ -398,3 +398,38 @@ pforeach <- function(.data, ...) {
     # this decription.
     do.call(foreach, ._args)
 }
+
+
+TangentAndNorm <- function(dt, xcol, ycol, t) {
+    f <- 1
+    xcol <- quo_squash(enquo(xcol))
+    ycol <- quo_squash(enquo(ycol))
+    t <- quo_squash(enquo(t))
+
+    xData <- dt %>% pull(!!xcol)
+    yData <- dt %>% pull(!!ycol)
+    tData <- dt %>% pull(!!t)
+
+    n <- nrow(dt)
+    dx <- c((xData[2] - xData[1]) / (tData[2] - tData[1]),
+      (xData[3:n] - xData[1:(n - 2)]) / (tData[3:n] - tData[1:(n - 2)]),
+      (xData[n] - xData[n - 1]) / (tData[n] - tData[n - 1]))
+
+    dy <- c((yData[2] - yData[1]) / (tData[2] - tData[1]),
+      (yData[3:n] - yData[1:(n - 2)]) / (tData[3:n] - tData[1:(n - 2)]),
+      (yData[n] - yData[n - 1]) / (tData[n] - tData[n - 1]))
+
+    dt %>%
+        mutate(Dx = dx / sqrt(dx ^ 2 + dy ^ 2),
+               Dy = dy / sqrt(dx ^ 2 + dy ^ 2)) %>%
+        mutate(slope = Dy / Dx) %>%
+        mutate(x_tn = !!xcol - f * Dx,
+               y_tn = !!ycol - f * Dy) %>%
+        mutate(x_tn_end = !!xcol + f * Dx,
+               y_tn_end = !!ycol + f * Dy) %>%
+        mutate(x_nrm = !!xcol + f * Dy,
+               y_nrm = !!ycol - f * Dx) %>%
+        mutate(x_nrm_end = !!xcol - f * Dy,
+               y_nrm_end = !!ycol + f * Dx)
+
+}
