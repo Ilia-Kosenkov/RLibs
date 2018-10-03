@@ -11,6 +11,10 @@ pforeach(.data, ...)
 
 \item{...}{Additional parameters passed to \code{foreach} as is.}
 }
+\value{
+Output of \code{foreach} function that can be piped using
+operators like \code{\%do\%} and \code{\%dopar\%}.
+}
 \description{
 pforeach
 }

@@ -90,6 +90,7 @@ GetMargins <- function(grob, type = c("inner", "outer")) {
 #' @importFrom purrr map
 #' @importFrom dplyr %>%
 SetMargins <- function(grob, type, margins) {
+    warning("This function is obsolete. Use [GrobMarginSet].")
     worker <- function(g, txtX, txtY) {
         ax.lr <- Lookup(g, paste(txtX, c("l", "r"), sep = "-"))
         ax.tb <- Lookup(g, paste(txtY, c("t", "b"), sep = "-"))
@@ -364,7 +365,7 @@ GGCustomLargeTicks <- function(...)
 #' @importFrom ggplot2 ggplot_gtable ggplot_build
 #' @export
 GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
-
+    warning("This function is obsolete. Use [GGPlot2GrobEx].")
     worker <- function(p, setInner, setOuter) {
         grob <- ggplot_gtable(ggplot_build(p))
 
@@ -766,6 +767,15 @@ GGCustomTextAnnotation <- function(labels, x, y,
 }
 
 
+#' GrobSizeGet
+#'
+#' @param grob Input grob.
+#' @param name Name of the grob.
+#' @param id Alternatively, id of the grob.
+#' Useful when there are multiple grobs of the same name.
+#' @return Size of the grob.
+#' @export
+#'
 
 GrobSizeGet <- function(grob, name, id) {
     if (!missing(name))
@@ -786,6 +796,18 @@ GrobSizeGet <- function(grob, name, id) {
 
     return(result)
 }
+
+#' GrobSizeSet
+#'
+#' @param grob Input grob.
+#' @param name Name of the grob.
+#' @param id Alternatively, id of the grob.
+#' Useful when there are multiple grobs of the same name.
+#' @param width Width to set.
+#' @param height Height to set.
+#' @return Modfied grob.
+#' @export
+#'
 
 GrobSizeSet <- function(grob, name, width = NULL, height = NULL, id) {
     if (!missing(name))
@@ -812,6 +834,22 @@ GrobSizeSet <- function(grob, name, width = NULL, height = NULL, id) {
     invisible(grob)
 }
 
+#' GrobMarginSet
+#'
+#' @param grob Input grob.
+#' @param tLab Top label margin.
+#' @param rLab Right label margin.
+#' @param bLab Bottom label margin.
+#' @param lLab Left label margin.
+#' @param tAxis Top axis margin.
+#' @param rAxis Right axis margin.
+#' @param bAxis Bottom axis margin.
+#' @param lAxis Left axis margin.
+#'
+#' @return Modified grob.
+#' @export
+#'
+
 GrobMarginSet <- function(grob,
     tLab, rLab, bLab, lLab,
     tAxis, rAxis, bAxis, lAxis) {
@@ -837,6 +875,14 @@ GrobMarginSet <- function(grob,
     invisible(grob)
 }
 
+#' GrobZerp
+#'
+#' @param grob Grob collection.
+#' @param name Name of grob to remove.
+#'
+#' @return Modified grob collection.
+#' @export
+#'
 
 GrobZero <- function(grob, name) {
     inds <- which(grob$layout$name %in% name)
@@ -847,6 +893,18 @@ GrobZero <- function(grob, name) {
 
     return(grob)
 }
+
+#' GrobSetGaps
+#'
+#' @param grob Inout grob.
+#' @param top Top gap.
+#' @param right Right gap.
+#' @param bottom Bottom gap.
+#' @param left Left gap.
+#'
+#' @return Grob.
+#' @export
+#'
 
 GrobSetGaps <- function(grob, top, right, bottom, left) {
     if (!missing(top))
@@ -860,6 +918,30 @@ GrobSetGaps <- function(grob, top, right, bottom, left) {
 
     return(grob)
 }
+
+#' GrobsArrange
+#'
+#' @param grobs Input grobs.
+#' @param ncol Number of columns.
+#' @param nrow Number of rows.
+#' @param tLab Top label margin.
+#' @param rLab Right label margin.
+#' @param bLab Bottom label margin.
+#' @param lLab Left label margin.
+#' @param tAxis Top axis margin.
+#' @param rAxis Right axis margin.
+#' @param bAxis Bottom axis margin.
+#' @param lAxis Left axis margin.
+#' @param vGap Vertical gap between plots.
+#' @param hGap Horizontal gap between plots.
+#'
+#' @return GTable of arranged grobs.
+#' @importFrom gridExtra arrangeGrob
+#' @importFrom magrittr %<>%
+#' @importFrom purrr map
+#' @import grid
+#' @export
+#'
 
 GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
     tLab = unit(0.6, "cm"), rLab = unit(0.6, "cm"),
@@ -944,7 +1026,91 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
             convertY(bLab + bAxis + vGap + unit(vSize, "cm"), "cm", TRUE)) /
                 vpHeightCm
 
-    grid.newpage()
-    aGrobs <<- arrangeGrob(grobs = grobs, widths = widths, heights = heights)
-    grid.draw(aGrobs)
+    arrangeGrob(grobs = grobs, widths = widths, heights = heights)
+}
+
+#' GGPlot2GrobEx
+#'
+#' @param plots Input plots.
+#' @param clip Clip flag.
+#'
+#' @return Colelction of grobs.
+#'
+#' @export
+#'
+GGPlot2GrobEx <- function(plots, clip = FALSE) {
+    worker <- function(p) {
+        grob <- ggplot_gtable(ggplot_build(p))
+
+        grob$layout$clip[grob$layout$name == "panel"] <-
+            ifelse(clip, "on", "off")
+
+        return(grob)
+    }
+
+
+    if (plots %is% list)
+        return(plots %>%
+            map(~worker(.x)))
+    else
+        worker(plots)
+    }
+
+#' GGPlotPanelLabs
+#'
+#' @param p Input plots.
+#' @param labels Labels to place on each plot, one per plot.
+#' @param x X cordinates of the labels. Can be +-Inf.
+#' @param y Y cordinates of the labels. Can be +-Inf.
+#' @param hjust Horizontal justification. + moves right.
+#' @param vjust Vertical justification. + moves down.
+#' @param gp Text parameters
+#'
+#' @return Modifed plots.
+#' @import grid gridExtra
+#' @importFrom foreach %do%
+#' @inportFrom dplyr %>%
+#' @export
+GGPlotPanelLabs <- function(p, labels = "X",
+                            x = Inf, y = Inf,
+                            hjust = 1, vjust = 1, gp = gpar()) {
+    if (p %is% list)
+        n <- length(p)
+    else {
+        p <- p + GGCustomTextAnnotation(labels[1],
+            x[1], y[1], vjust = vjust[1], hjust = hjust[1], gp = gp[1])
+
+        return (p)
+    }
+
+
+    FillIfSmaller <- function(val) {
+        if (length(val) != n)
+            val <- rep(val[1], n)
+
+        return(val)
+        }
+
+    labels %<>% FillIfSmaller
+    x %<>% FillIfSmaller
+    y %<>% FillIfSmaller
+    hjust %<>% FillIfSmaller
+    vjust %<>% FillIfSmaller
+    if (gp %is% gpar)
+        gp <- rep(list(gp), n)
+
+    # Initializing `foreach`-local variables to suppress package check warnings
+    lLabs <- NULL
+    lX <- NULL
+    lY <- NULL
+    lHjust <- NULL
+    lVjust <- NULL
+    lGp <- NULL
+    p %>% pforeach(lLabs = labels, lX = x, lY = y,
+                   lHjust = hjust, lVjust = vjust,
+                   lGp = gp) %do% {
+                       x + GGCustomTextAnnotation(lLabs,
+                        lX, lY, vjust = lVjust, hjust = lHjust, gp = lGp)
+                   }
+
 }

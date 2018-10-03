@@ -375,7 +375,7 @@ Lin <- function(x0, x, y) {
 #' @param .data An implicit argument passed by a pipe operatpr \code{\%>\%}.
 #' @param ... Additional parameters passed to \code{foreach} as is.
 #' @return Output of \code{foreach} function that can be piped using
-#' operators like \code{%%do%%} and \code{%%dopar%%}.
+#' operators like \code{\%do\%} and \code{\%dopar\%}.
 #' @importFrom foreach foreach
 #' @export
 pforeach <- function(.data, ...) {
