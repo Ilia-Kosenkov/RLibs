@@ -24,7 +24,7 @@
 utils::globalVariables(c(".", "Key", "Val",
     "lbl", "xmn", "xmx",
     "g", "ymn", "ymx",
-    "hjst", "vjst"))
+    "hjst", "vjst", "rt"))
 
 #' @export
 Lookup <- function(object, ...) UseMethod("Lookup")
@@ -722,6 +722,7 @@ Segments2Points <- function(.dt, x, y, xend, yend) {
 #' @param ymin,ymax Y coordinates of labels.
 #' @param vjust Vertical justification.
 #' @param hjust Horizontal justification.
+#' @param rot Rotation angle.
 #' @param gp Additional graphical parameters.
 #' @return List of \code{annotation_custom} objects.
 #' @importFrom foreach foreach %do%
@@ -732,6 +733,7 @@ GGCustomTextAnnotation <- function(labels, x, y,
                                    xmin = x, xmax = x,
                                    ymin = y, ymax = y,
                                    vjust = 0, hjust = 0,
+                                   rot = 0,
                                    gp = list(gpar())) {
     n <- length(labels)
 
@@ -747,6 +749,8 @@ GGCustomTextAnnotation <- function(labels, x, y,
         vjust <- rep(vjust[1], n)
     if (length(hjust) == 1L && n != 1L)
         hjust <- rep(hjust[1], n)
+    if (length(hjust) == 1L && n != 1L)
+        rot <- rep(rot[1], n)
     if (class(gp) == "gpar")
         gp <- rep(list(gp), n)
     else if (length(gp) == 1L && n != 1L)
@@ -757,10 +761,12 @@ GGCustomTextAnnotation <- function(labels, x, y,
             ymn = ymin, ymx = ymax,
             vjst = vjust,
             hjst = hjust,
+            rt = rot,
             g = gp) %do% {
                 annotation_custom(textGrob(lbl,
                         hjust = hjst,
                         vjust = vjst,
+                        rot = rt,
                         gp = g),
                     xmn, xmx, ymn, ymx)
             }
@@ -1069,7 +1075,7 @@ GGPlot2GrobEx <- function(plots, clip = FALSE) {
 #' @return Modifed plots.
 #' @import grid gridExtra
 #' @importFrom foreach %do%
-#' @inportFrom dplyr %>%
+#' @importFrom dplyr %>%
 #' @export
 GGPlotPanelLabs <- function(p, labels = "X",
                             x = Inf, y = Inf,

@@ -5,7 +5,7 @@
 \title{GGCustomTextAnnotation}
 \usage{
 GGCustomTextAnnotation(labels, x, y, xmin = x, xmax = x, ymin = y,
-  ymax = y, vjust = 0, hjust = 0, gp = list(gpar()))
+  ymax = y, vjust = 0, hjust = 0, rot = 0, gp = list(gpar()))
 }
 \arguments{
 \item{labels}{Labels.}
@@ -17,6 +17,8 @@ GGCustomTextAnnotation(labels, x, y, xmin = x, xmax = x, ymin = y,
 \item{vjust}{Vertical justification.}
 
 \item{hjust}{Horizontal justification.}
+
+\item{rot}{Rotation angle.}
 
 \item{gp}{Additional graphical parameters.}
 }
