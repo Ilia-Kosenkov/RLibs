@@ -967,40 +967,48 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
     tInds <- (1:ncol)
     bInds <- n - (ncol:1) + 1
 
-    grobs[lInds] %<>% map(GrobMarginSet, lLab = lLab, lAxis = lAxis)
+    grobs[lInds] %<>% map(GrobMarginSet, lLab = lLab, lAxis = lAxis) %>%
+        map(GrobSetGaps, left = unit(0, "pt"))
     grobs[-lInds] %<>% map(GrobMarginSet,
                            lLab = unit(0, "cm"), lAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-l", "ylab-l"))
+                       map(GrobZero, c("axis-l", "ylab-l")) %>%
+        map(GrobSetGaps, left = halfHgap)
 
-    grobs[rInds] %<>% map(GrobMarginSet, rLab = rLab, rAxis = rAxis)
+    grobs[rInds] %<>% map(GrobMarginSet, rLab = rLab, rAxis = rAxis) %>%
+        map(GrobSetGaps, right = unit(0, "pt"))
     grobs[-rInds] %<>% map(GrobMarginSet,
                            rLab = unit(0, "cm"), rAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-r", "ylab-r"))
+                       map(GrobZero, c("axis-r", "ylab-r")) %>%
+        map(GrobSetGaps, right = halfHgap)
 
-    grobs[tInds] %<>% map(GrobMarginSet, tLab = tLab, tAxis = tAxis)
+    grobs[tInds] %<>% map(GrobMarginSet, tLab = tLab, tAxis = tAxis) %>%
+        map(GrobSetGaps, top = unit(0, "pt"))
     grobs[-tInds] %<>% map(GrobMarginSet,
                            tLab = unit(0, "cm"), tAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-t", "xlab-t"))
+                       map(GrobZero, c("axis-t", "xlab-t")) %>%
+        map(GrobSetGaps, top = halfVgap)
 
-    grobs[bInds] %<>% map(GrobMarginSet, bLab = bLab, bAxis = bAxis)
+    grobs[bInds] %<>% map(GrobMarginSet, bLab = bLab, bAxis = bAxis) %>%
+        map(GrobSetGaps, bottom = unit(0, "pt"))
     grobs[-bInds] %<>% map(GrobMarginSet,
                            bLab = unit(0, "cm"), bAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-b", "xlab-b"))
+                       map(GrobZero, c("axis-b", "xlab-b")) %>%
+        map(GrobSetGaps, bottom = halfVgap)
 
-    grobs %<>% map(GrobSetGaps,
-                   right = halfHgap, left = halfHgap,
-                   top = halfVgap, bottom = halfVgap)
+    #grobs %<>% map(GrobSetGaps,
+                   #right = halfHgap, left = halfHgap,
+                   #top = halfVgap, bottom = halfVgap)
 
-
+    grobs <<- grobs
     vpWidthCm <- convertX(current.viewport()$width, "cm", TRUE)
     hExtraSpaceCm <- convertX(lLab + lAxis + rLab + rAxis +
-                            hGap * ncol, "cm", TRUE)
+                            hGap * (ncol - 1), "cm", TRUE)
 
     hSize <- (vpWidthCm - hExtraSpaceCm) / ncol
 
     vpHeightCm <- convertY(current.viewport()$height, "cm", TRUE)
     vExtraSpaceCm <- convertY(tLab + tAxis + bLab + bAxis +
-                            vGap * nrow, "cm", TRUE)
+                            vGap * (nrow - 1), "cm", TRUE)
 
     vSize <- (vpHeightCm - vExtraSpaceCm) / nrow
 
@@ -1008,14 +1016,14 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
         widths <- 1
     else if (ncol == 2)
         widths <- c(
-            convertX(lLab + lAxis + hGap + unit(hSize, "cm"), "cm", TRUE),
-            convertX(rLab + rAxis + hGap + unit(hSize, "cm"), "cm", TRUE)) /
+            convertX(lLab + lAxis + halfHgap + unit(hSize, "cm"), "cm", TRUE),
+            convertX(rLab + rAxis + halfHgap + unit(hSize, "cm"), "cm", TRUE)) /
                 vpWidthCm
 
     else widths <- c(
-            convertX(lLab + lAxis + hGap + unit(hSize, "cm"), "cm", TRUE),
+            convertX(lLab + lAxis + halfHgap + unit(hSize, "cm"), "cm", TRUE),
             rep(convertX(unit(hSize, "cm") + hGap, "cm", TRUE), ncol - 2),
-            convertX(rLab + rAxis + hGap + unit(hSize, "cm"), "cm", TRUE)) /
+            convertX(rLab + rAxis + halfHgap + unit(hSize, "cm"), "cm", TRUE)) /
                 vpWidthCm
 
 
@@ -1023,13 +1031,13 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
         heights <- 1
     else if (nrow == 2)
         heights <- c(
-            convertY(tLab + tAxis + vGap + unit(vSize, "cm"), "cm", TRUE),
-            convertY(bLab + bAxis + vGap + unit(vSize, "cm"), "cm", TRUE)) /
+            convertY(tLab + tAxis + halfVgap + unit(vSize, "cm"), "cm", TRUE),
+            convertY(bLab + bAxis + halfVgap + unit(vSize, "cm"), "cm", TRUE)) /
                 vpHeightCm
     else heights <- c(
-            convertY(tLab + tAxis + vGap + unit(vSize, "cm"), "cm", TRUE),
+            convertY(tLab + tAxis + halfVgap + unit(vSize, "cm"), "cm", TRUE),
             rep(convertY(unit(vSize, "cm") + vGap, "cm", TRUE), nrow - 2),
-            convertY(bLab + bAxis + vGap + unit(vSize, "cm"), "cm", TRUE)) /
+            convertY(bLab + bAxis + halfVgap + unit(vSize, "cm"), "cm", TRUE)) /
                 vpHeightCm
 
     arrangeGrob(grobs = grobs, widths = widths, heights = heights)
