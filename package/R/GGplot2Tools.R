@@ -232,8 +232,16 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
         result <- append(result, list(Small = Within(temp, range)))
     }
 
-    if (all(names(result) %in% c("Large", "Small")))
-        result$Small <- result$Small[!result$Small %in% result$Large]
+    if (all(names(result) %in% c("Large", "Small"))) {
+        #result$Small <- result$Small[!result$Small %in% result$Large]
+        prod <- outer(result$Small, result$Large, function(x, y) abs(x - y)) <
+            0.5 * mean(diff(result$Small))
+        inds <- prod %>%
+            as.tibble %>%
+            reduce(or) %>%
+            which %>% multiply_by(-1)
+        result$Small <- result$Small[inds]
+    }
 
     return(result)
 }
@@ -749,7 +757,7 @@ GGCustomTextAnnotation <- function(labels, x, y,
         vjust <- rep(vjust[1], n)
     if (length(hjust) == 1L && n != 1L)
         hjust <- rep(hjust[1], n)
-    if (length(hjust) == 1L && n != 1L)
+    if (length(rot) == 1L && n != 1L)
         rot <- rep(rot[1], n)
     if (class(gp) == "gpar")
         gp <- rep(list(gp), n)
