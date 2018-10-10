@@ -232,12 +232,9 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
         result <- append(result, list(Small = Within(temp, range)))
     }
 
-    if (all(names(result)) %in% c("Large")) {
-        rangeSh <- Expand(rangeSh, factor = 0.05)
-        print(result$Large)
+    if (!is.null(result$Large)) {
+        rangeSh <- Expand(range, factor = -0.05)
         result$Large <- Within(result$Large, rangeSh)
-        print(result$Large)
-        cat("\r\n")
     }
 
     if ("Large" %in% names(result)) {
