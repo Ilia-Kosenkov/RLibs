@@ -232,7 +232,15 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
         result <- append(result, list(Small = Within(temp, range)))
     }
 
-    if (all(names(result) %in% c("Large", "Small"))) {
+    if (all(names(result)) %in% c("Large")) {
+        rangeSh <- Expand(rangeSh, factor = 0.05)
+        print(result$Large)
+        result$Large <- Within(result$Large, rangeSh)
+        print(result$Large)
+        cat("\r\n")
+    }
+
+    if ("Large" %in% names(result)) {
         #result$Small <- result$Small[!result$Small %in% result$Large]
         prod <- outer(result$Small, result$Large, function(x, y) abs(x - y)) <
             0.5 * mean(diff(result$Small))
@@ -242,6 +250,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
             which %>% multiply_by(-1)
         result$Small <- result$Small[inds]
     }
+
 
     return(result)
 }
@@ -859,32 +868,43 @@ GrobSizeSet <- function(grob, name, width = NULL, height = NULL, id) {
 #' @param rAxis Right axis margin.
 #' @param bAxis Bottom axis margin.
 #' @param lAxis Left axis margin.
+#' @param labsList When not NULL, is used instead of other label parameters.
+#' @param axisList When not NULL, is used instead of other axis parameters.
 #'
 #' @return Modified grob.
 #' @export
 #'
 
 GrobMarginSet <- function(grob,
-    tLab, rLab, bLab, lLab,
-    tAxis, rAxis, bAxis, lAxis) {
+    tLab = NULL, rLab = NULL, bLab = NULL, lLab = NULL,
+    tAxis = NULL, rAxis = NULL, bAxis = NULL, lAxis = NULL,
+    labsList = NULL, axisList = NULL) {
 
-    if (!missing(tLab))
-        grob %<>% GrobSizeSet("xlab-t", height = tLab)
-    if (!missing(rLab))
-        grob %<>% GrobSizeSet("ylab-r", width = rLab)
-    if (!missing(bLab))
-        grob %<>% GrobSizeSet("xlab-b", height = bLab)
-    if (!missing(lLab))
-        grob %<>% GrobSizeSet("ylab-l", width = lLab)
+    if (all(is.null(labsList)))
+        labsList <- list(top = tLab, right = rLab,
+            bottom = bLab, left = lLab)
 
-    if (!missing(tAxis))
-        grob %<>% GrobSizeSet("axis-t", height = tAxis)
-    if (!missing(rAxis))
-        grob %<>% GrobSizeSet("axis-r", width = rAxis)
-    if (!missing(bAxis))
-        grob %<>% GrobSizeSet("axis-b", height = bAxis)
-    if (!missing(lAxis))
-        grob %<>% GrobSizeSet("axis-l", width = lAxis)
+    if (all(is.null(axisList)))
+        axisList <- list(top = tAxis, right = rAxis,
+            bottom = bAxis, left = lAxis)
+
+    if (!is.null(labsList$top))
+        grob %<>% GrobSizeSet("xlab-t", height = labsList$top)
+    if (!is.null(labsList$right))
+        grob %<>% GrobSizeSet("ylab-r", width = labsList$right)
+    if (!is.null(labsList$bottom))
+        grob %<>% GrobSizeSet("xlab-b", height = labsList$bottom)
+    if (!is.null(labsList$left))
+        grob %<>% GrobSizeSet("ylab-l", width = labsList$left)
+
+    if (!is.null(axisList$top))
+        grob %<>% GrobSizeSet("axis-t", height = axisList$top)
+    if (!is.null(axisList$right))
+        grob %<>% GrobSizeSet("axis-r", width = axisList$right)
+    if (!is.null(axisList$bottom))
+        grob %<>% GrobSizeSet("axis-b", height = axisList$bottom)
+    if (!is.null(axisList$left))
+        grob %<>% GrobSizeSet("axis-l", width = axisList$left)
 
     invisible(grob)
 }
@@ -915,20 +935,26 @@ GrobZero <- function(grob, name) {
 #' @param right Right gap.
 #' @param bottom Bottom gap.
 #' @param left Left gap.
-#'
+#' @param asList When not NULL, used instead of other parameters to set gaps.
 #' @return Grob.
 #' @export
 #'
+GrobSetGaps <- function(grob,
+    top = NULL, right = NULL, bottom = NULL, left = NULL,
+    asList = NULL) {
 
-GrobSetGaps <- function(grob, top, right, bottom, left) {
-    if (!missing(top))
-        grob$heights[1] <- top
-    if (!missing(right))
-        grob$widths[length(grob$widths)] <- right
-    if (!missing(bottom))
-        grob$heights[length(grob$heights)] <- bottom
-    if (!missing(left))
-        grob$widths[1] <- left
+    if (all(is.null(asList)))
+        asList <- list(top = top, right = right,
+            bottom = bottom, left = left)
+
+    if (!is.null(asList$top))
+        grob$heights[1] <- asList$top
+    if (!is.null(asList$right))
+        grob$widths[length(grob$widths)] <- asList$right
+    if (!is.null(asList$bottom))
+        grob$heights[length(grob$heights)] <- asList$bottom
+    if (!is.null(asList$left))
+        grob$widths[1] <- asList$left
 
     return(grob)
 }
@@ -979,28 +1005,28 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
         map(GrobSetGaps, left = unit(0, "pt"))
     grobs[-lInds] %<>% map(GrobMarginSet,
                            lLab = unit(0, "cm"), lAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-l", "ylab-l")) %>%
+                       map(GrobZero, c("ylab-l")) %>%
         map(GrobSetGaps, left = halfHgap)
 
     grobs[rInds] %<>% map(GrobMarginSet, rLab = rLab, rAxis = rAxis) %>%
         map(GrobSetGaps, right = unit(0, "pt"))
     grobs[-rInds] %<>% map(GrobMarginSet,
                            rLab = unit(0, "cm"), rAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-r", "ylab-r")) %>%
+                       map(GrobZero, c("ylab-r")) %>%
         map(GrobSetGaps, right = halfHgap)
 
     grobs[tInds] %<>% map(GrobMarginSet, tLab = tLab, tAxis = tAxis) %>%
         map(GrobSetGaps, top = unit(0, "pt"))
     grobs[-tInds] %<>% map(GrobMarginSet,
                            tLab = unit(0, "cm"), tAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-t", "xlab-t")) %>%
+                       map(GrobZero, c("xlab-t")) %>%
         map(GrobSetGaps, top = halfVgap)
 
     grobs[bInds] %<>% map(GrobMarginSet, bLab = bLab, bAxis = bAxis) %>%
         map(GrobSetGaps, bottom = unit(0, "pt"))
     grobs[-bInds] %<>% map(GrobMarginSet,
                            bLab = unit(0, "cm"), bAxis = unit(0, "cm")) %>%
-                       map(GrobZero, c("axis-b", "xlab-b")) %>%
+                       map(GrobZero, c("xlab-b")) %>%
         map(GrobSetGaps, bottom = halfVgap)
 
     #grobs %<>% map(GrobSetGaps,

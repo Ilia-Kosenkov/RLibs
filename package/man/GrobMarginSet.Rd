@@ -4,7 +4,9 @@
 \alias{GrobMarginSet}
 \title{GrobMarginSet}
 \usage{
-GrobMarginSet(grob, tLab, rLab, bLab, lLab, tAxis, rAxis, bAxis, lAxis)
+GrobMarginSet(grob, tLab = NULL, rLab = NULL, bLab = NULL,
+  lLab = NULL, tAxis = NULL, rAxis = NULL, bAxis = NULL,
+  lAxis = NULL, labsList = NULL, axisList = NULL)
 }
 \arguments{
 \item{grob}{Input grob.}
@@ -24,6 +26,10 @@ GrobMarginSet(grob, tLab, rLab, bLab, lLab, tAxis, rAxis, bAxis, lAxis)
 \item{bAxis}{Bottom axis margin.}
 
 \item{lAxis}{Left axis margin.}
+
+\item{labsList}{When not NULL, is used instead of other label parameters.}
+
+\item{axisList}{When not NULL, is used instead of other axis parameters.}
 }
 \value{
 Modified grob.
