@@ -251,61 +251,6 @@ FancyStep <- function(range,
     largeSteps * modifier[modInd] %>% min
 }
 
-#' @title GenerateLog10Breaks
-#' @param ylim Axis limit.
-#' @return log10 breaks.
-#' @importFrom magrittr is_weakly_less_than extract2 multiply_by add
-#' @import dplyr
-#' @export
-GenerateLog10Breaks <- function(ylim) {
-
-    if (ylim %>% log10 %>% diff %>% is_weakly_less_than(1)) {
-        mult <- ylim %>% min %>% Log10Floor
-        yInt <- ylim / mult
-
-        lStep <- yInt %>% FancyStep(4)
-        sStep <- 0.1 * lStep
-
-        yRng <- yInt %>% RoundIntervalTo(lStep)
-
-        breaks <- list(
-            Large = seq(yRng[1], yRng[2], by = lStep),
-            Small = seq(yRng[1], yRng[2], by = sStep))
-
-        inds <- Intersect(breaks$Large, breaks$Small, tol = 0.5 * sStep) %>%
-            extract2(2)
-
-        breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
-
-        breaks <- breaks %>%
-            lapply(Within, range = yInt) %>%
-            lapply(multiply_by, mult)
-
-    } else {
-
-        breaks <- ylim %>% log10 %>%
-        GenerateBreaks(largeStep = 1,
-            ticks = log10(1:9), op = add)
-
-        breaks$Large <- breaks$Large %>%
-            lapply(function(x)
-                log10(c(0.2, 0.5, 1, 2, 5)) + x) %>%
-            unlist %>%
-            unique %>%
-            Within(range = log10(ylim))
-
-        inds <- Intersect(breaks$Large, breaks$Small, tol = 1e-4)[[2]]
-
-        breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
-
-        breaks <- breaks %>%
-            lapply(Within, range = log10(ylim)) %>%
-            sapply(raise, 10)
-    }
-
-    return(breaks)
-}
-
 #' @title Clamp
 #' @param ... Parameter.
 #' @return Clamped numerics.
