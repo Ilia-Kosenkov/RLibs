@@ -23,11 +23,14 @@
 
 #' @title GenerateLog10Breaks
 #' @param ylim Axis limit.
+#' @param ticks If the limit spans over several orders,
+#' \code{ticks} are used to generate large breaks.
 #' @return log10 breaks.
 #' @importFrom magrittr is_weakly_less_than extract2 multiply_by add
-#' @import dplyr
+#' @importFrom dplyr %>%
+#' @importFrom purrr map
 #' @export
-GenerateLog10Breaks <- function(ylim) {
+GenerateLog10Breaks <- function(ylim, ticks = c(0.2, 0.5, 1, 2, 5)) {
 
     if (ylim %>% log10 %>% diff %>% is_weakly_less_than(1)) {
         mult <- ylim %>% min %>% Log10Floor
@@ -48,8 +51,8 @@ GenerateLog10Breaks <- function(ylim) {
         breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
 
         breaks <- breaks %>%
-            lapply(Within, range = yInt) %>%
-            lapply(multiply_by, mult)
+            map(Within, range = yInt) %>%
+            map(multiply_by, mult)
 
     } else {
 
@@ -58,8 +61,7 @@ GenerateLog10Breaks <- function(ylim) {
             ticks = log10(1:9), op = add)
 
         breaks$Large <- breaks$Large %>%
-            lapply(function(x)
-                log10(c(0.2, 0.5, 1, 2, 5)) + x) %>%
+            map(~log10(ticks) + .x) %>%
             unlist %>%
             UniqueTol(tol = 5 * .Machine$double.eps) %>%
             Within(range = log10(ylim))
@@ -69,8 +71,8 @@ GenerateLog10Breaks <- function(ylim) {
         breaks$Small <- breaks$Small[setdiff(1:length(breaks$Small), inds)]
 
         breaks <- breaks %>%
-            lapply(Within, range = log10(ylim)) %>%
-            sapply(raise, 10)
+            map(Within, range = log10(ylim)) %>%
+            map(raise, 10)
     }
 
     return(breaks)

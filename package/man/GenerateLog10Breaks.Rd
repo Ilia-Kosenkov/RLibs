@@ -4,10 +4,13 @@
 \alias{GenerateLog10Breaks}
 \title{GenerateLog10Breaks}
 \usage{
-GenerateLog10Breaks(ylim)
+GenerateLog10Breaks(ylim, ticks = c(0.2, 0.5, 1, 2, 5))
 }
 \arguments{
 \item{ylim}{Axis limit.}
+
+\item{ticks}{If the limit spans over several orders,
+\code{ticks} are used to generate large breaks.}
 }
 \value{
 log10 breaks.

@@ -34,6 +34,7 @@
 #' \code{op(ticks, break)} small breaks and then limits them to \code{range}
 #' @return A list containing either $Large, $Small
 #' collections of breaks, or both.
+#' @importFrom stats median
 #' @export
 GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
     result <- list()
@@ -54,6 +55,8 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
         temp <- unlist(lapply(sq, function(x) op(ticks, x)))
         result <- append(result, list(Small = Within(temp, range)))
     }
+    else
+        reulst <- NULL
 
     if (!is.null(result$Large)) {
         rangeSh <- Expand(range, factor = -0.05)
@@ -61,16 +64,14 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
     }
 
     if ("Large" %in% names(result)) {
-        #result$Small <- result$Small[!result$Small %in% result$Large]
         prod <- outer(result$Small, result$Large, function(x, y) abs(x - y)) <
-            0.5 * mean(diff(result$Small))
+            0.5 * median(diff(result$Small))
         inds <- prod %>%
             as.tibble %>%
             reduce(or) %>%
             which %>% multiply_by(-1)
         result$Small <- result$Small[inds]
     }
-
 
     return(result)
 }
