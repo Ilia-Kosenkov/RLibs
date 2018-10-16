@@ -50,7 +50,8 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
     tAxis = unit(0.6, "cm"), rAxis = unit(0.6, "cm"),
     bAxis = unit(0.6, "cm"), lAxis = unit(0.6, "cm"),
     vGap = unit(0.1, "cm"), hGap = unit(0.1, "cm"),
-    labsList = NULL, axisList = NULL, extraGrobs = NULL) {
+    labsList = NULL, axisList = NULL, extraGrobs = NULL,
+    topLab = NULL, bottomLab = NULL, leftLab = NULL, rightLab = NULL) {
 
     if (all(is.null(labsList))) {
         labsList <- list()
@@ -120,11 +121,6 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
         map(GrobZero, c("xlab-b")) %>%
         map(GrobSetGaps, bottom = halfVgap)
 
-    #grobs %<>% map(GrobSetGaps,
-    #right = halfHgap, left = halfHgap,
-    #top = halfVgap, bottom = halfVgap)
-
-    #grobs <<- grobs
     vpWidthCm <- convertX(current.viewport()$width, "cm", TRUE)
     hExtraSpaceCm <- convertX(labsList$left + axisList$left +
                               labsList$right + axisList$right +
@@ -139,43 +135,33 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
 
     vSize <- (vpHeightCm - vExtraSpaceCm) / nrow
 
-    if (ncol == 1)
-        widths <- 1
-    else if (ncol == 2)
-        widths <- c(
-            convertX(labsList$left + axisList$left +
-                halfHgap + unit(hSize, "cm"), "cm", TRUE),
-            convertX(labsList$right + axisList$right +
-                halfHgap + unit(hSize, "cm"), "cm", TRUE)) /
-                    vpWidthCm
+    oneWidth <- 1 / ncol * (unit(1, "npc") - (labsList$right + axisList$right +
+        labsList$left + axisList$left + (ncol-1) * hGap))
 
-    else widths <- c(
-            convertX(labsList$left + axisList$left +
-                halfHgap + unit(hSize, "cm"), "cm", TRUE),
-            rep(convertX(unit(hSize, "cm") + hGap, "cm", TRUE), ncol - 2),
-            convertX(labsList$right + axisList$right +
-                halfHgap + unit(hSize, "cm"), "cm", TRUE)) /
-                    vpWidthCm
+    widths <- rep(oneWidth, ncol)
+    widths[1] <- 0.5 * hGap + labsList$left + axisList$left + widths[1]
+    widths[ncol] <- 0.5 * hGap + labsList$right + axisList$right + widths[ncol]
+    for (i in (1 + seq_len(max(ncol - 2, 0))))
+        widths[i] <- hGap + widths[i]
 
 
-    if (nrow == 1)
-        heights <- 1
-    else if (nrow == 2)
-        heights <- c(
-            convertY(labsList$top + axisList$top +
-                halfVgap + unit(vSize, "cm"), "cm", TRUE),
-            convertY(labsList$bottom + axisList$bottom +
-                halfVgap + unit(vSize, "cm"), "cm", TRUE)) /
-                    vpHeightCm
-    else heights <- c(
-            convertY(labsList$top + axisList$top +
-                halfVgap + unit(vSize, "cm"), "cm", TRUE),
-            rep(convertY(unit(vSize, "cm") + vGap, "cm", TRUE), nrow - 2),
-            convertY(labsList$bottom + axisList$bottom +
-                halfVgap + unit(vSize, "cm"), "cm", TRUE)) /
-                    vpHeightCm
+    oneHeight <- 1 / nrow * (unit(1, "npc") - (labsList$top + labsList$bottom +
+        axisList$top + axisList$bottom +
+        (nrow - 1) * vGap))
 
-    grb <- arrangeGrob(grobs = grobs, widths = widths, heights = heights)
+    heights <- rep(oneHeight, nrow)
+    heights[1] <- 0.5 * vGap + labsList$top + axisList$top +
+        heights[1]
+    heights[nrow] <- 0.5 * vGap + labsList$bottom + axisList$bottom +
+        heights[nrow]
+    for (i in (1 + seq_len(max(nrow - 2, 0))))
+        heights[i] <- vGap + heights[i]
+
+
+    grb <- arrangeGrob(grobs = grobs, widths = widths, heights = heights,
+                       top = topLab, bottom = bottomLab,
+                       left = leftLab, right = rightLab)
+
 
     for (g in extraGrobs) {
         grb$grobs %<>% append(list(g))
