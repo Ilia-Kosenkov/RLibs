@@ -50,7 +50,7 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
     tAxis = unit(0.6, "cm"), rAxis = unit(0.6, "cm"),
     bAxis = unit(0.6, "cm"), lAxis = unit(0.6, "cm"),
     vGap = unit(0.1, "cm"), hGap = unit(0.1, "cm"),
-    labsList = NULL, axisList = NULL, extraGrobs = NULL,
+    labsList = NULL, axisList = NULL,
     topLab = NULL, bottomLab = NULL, leftLab = NULL, rightLab = NULL) {
 
     if (all(is.null(labsList))) {
@@ -158,15 +158,34 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
         heights[i] <- vGap + heights[i]
 
 
-    grb <- arrangeGrob(grobs = grobs, widths = widths, heights = heights,
-                       top = topLab, bottom = bottomLab,
-                       left = leftLab, right = rightLab)
+    grb <- arrangeGrob(grobs = grobs, widths = widths, heights = heights)
 
+    if (!all(is.null(topLab) &&
+             is.null(bottomLab) &&
+             is.null(leftLab) &&
+             is.null(rightLab))) {
+        gExtra <- arrangeGrob(topLab, rightLab, bottomLab, leftLab,
+            ncol = 3, nrow = 3)
 
-    for (g in extraGrobs) {
-        grb$grobs %<>% append(list(g))
+        gExtra$grobs %<>% map_if(is.null, ~textGrob(""))
+        gExtra$widths[1] <- labsList$left
+        gExtra$widths[2] <- unit(1, "null")
+        gExtra$widths[3] <- labsList$right
+
+        gExtra$heights[1] <- labsList$top
+        gExtra$heights[2] <- unit(1, "null")
+        gExtra$heights[3] <- labsList$bottom
+
+        gExtra$layout[1, ] <- c(1, 1, 1, 3, 1, "off", "top")
+        gExtra$layout[2, ] <- c(1, 3, 3, 3, 2, "off", "right")
+        gExtra$layout[3 ,] <- c(3, 1, 3, 3, 3, "off", "bottom")
+        gExtra$layout[4 ,] <- c(1, 1, 3, 1, 4, "off", "left")
+
+        grb$grobs %<>% append(list(gExtra))
         grb$layout %<>% rbind(c(1, 1, nrow, ncol,
-            ncol * nrow + 1, "off", "extra"))
+            nrow + ncol + 1, "off", "labs"))
+
+
     }
     return (grb)
 }

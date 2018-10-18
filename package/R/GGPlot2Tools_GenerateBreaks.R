@@ -35,6 +35,7 @@
 #' @return A list containing either $Large, $Small
 #' collections of breaks, or both.
 #' @importFrom stats median
+#' @importFrom magrittr or
 #' @export
 GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`) {
     result <- list()
