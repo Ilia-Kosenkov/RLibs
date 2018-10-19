@@ -23,21 +23,23 @@
 
 
 #' @export
-TrimErrors <- function(.data, x, y, xlim, ylim, lwrPref = "l", uppPref = "u") {
+TrimErrors <- function(.data, x, xlim, lwrPref = "l", uppPref = "u") {
     X <- sym(quo_squash(enquo(x)))
-    Y <- sym(quo_squash(enquo(y)))
 
-    lX <- sym(lwrPref %+% as.character(X))
-    uX <- sym(uppPref %+% as.character(X))
+    lX <- lwrPref %+% as.character(X)
+    uX <- uppPref %+% as.character(X)
 
-    lY <- sym(lwrPref %+% as.character(Y))
-    uY <- sym(uppPref %+% as.character(Y))
+    x1 <- lX %in% names(.data)
+    x2 <- uX %in%  names(.data)
 
     .data %>%
-        FilterRange(!!X, xlim) %>%
-        FilterRange(!!Y, ylim) %>%
-        Clamp(!!lX, xlim) %>%
-        Clamp(!!uX, xlim) %>%
-        Clamp(!!lY, ylim) %>%
-        Clamp(!!uY, ylim)
+        FilterRange(!!X, xlim) %>% {
+            if (lX %in% names(.data))
+                Clamp(., !!sym(lX), xlim)
+            else .
+        } %>% {
+            if (uX %in% names(.data))
+                Clamp(., !!sym(uX), xlim)
+            else .
+        }
 }
