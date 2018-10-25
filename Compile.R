@@ -28,6 +28,7 @@ if (interactive()) {
     library(gridExtra)
     library(magrittr)
     library(rlang)
+    library(glue)
 
     src <- dir(file.path("package", "R"),
         full.names = TRUE, recursive = TRUE)
