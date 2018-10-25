@@ -36,6 +36,16 @@
 #' @param lAxis Left axis margin.
 #' @param vGap Vertical gap between plots.
 #' @param hGap Horizontal gap between plots.
+#' @param labsList Label margins in form of named list.
+#' If not \code{NULL}, used instead of other provided values.
+#' @param axisList Axis margins in form of named list.
+#' If not \code{NULL}, used instead of other provided values.
+#' @param topLab \code{textGrob} which can act as shared top axis label.
+#' @param bottomLab \code{textGrob} which can act as shared bottom axis label.
+#' @param leftLab \code{textGrob} which can act as shared left axis label.
+#' @param rightLab \code{textGrob} which can act as shared right axis label.
+#'
+#'
 #'
 #' @return GTable of arranged grobs.
 #' @importFrom gridExtra arrangeGrob

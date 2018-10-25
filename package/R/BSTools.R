@@ -162,8 +162,10 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
     return(result)
 }
 
+
 #' @importFrom MASS kde2d
 #' @importFrom graphics contour
+#' @importFrom graphics par plot.new mtext
 BSTools.Densities = function(plot = TRUE, rerun = TRUE)
 {
     #require(MASS)
@@ -382,12 +384,13 @@ BSTools.RNGs <- function(n) {
     return(parallel.seeds("lecuyer::RngStream", n))
 }
 
+utils::globalVariables(c(".", "Vars"))
 #' @export
-#' @import dplyr
+#' @importFrom dplyr %>% mutate select summarise_all bind_rows everything funs
+#' @importFrom tibble as.tibble
 #' @importFrom stats pnorm
 BSTools.Analyze1 <- function(input) {
-    . <- NULL
-    Vars <- NULL
+   
     lapply(input,
           function(x)
               x %>%
@@ -406,6 +409,7 @@ BSTools.Analyze1 <- function(input) {
         select(Vars, everything())
 }
 
+utils::globalVariables(c("item", "group", ".Group", "x", "y"))
 #' @title BSTools.DebugPlot
 #' @description
 #' Plots results of JAGS simulation obtained from \code{BSTools.Run2}.
@@ -421,20 +425,17 @@ BSTools.Analyze1 <- function(input) {
 #' computations of densities and plotting.
 #' @param nPltRow Number of plot rows per page. A good value is between 1 and 4.
 #' @export
-#' @import dplyr foreach ggplot2
+#' @importFrom dplyr %>% mutate slice pull rename bind_cols bind_rows
+#' @importFrom foreach foreach %do%
+#' @importFrom ggplot2 ggplot aes_string xlab ylab geom_line scale_color_manual
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom gridExtra grid.arrange
+#' @importFrom grDevices dev.cur
+#' @importFrom rlang !! :=
 BSTools.DebugPlot <- function(data,
                               traceLen = 1000L, densLen = 10000L,
                               nPltRow = 3L) {
 
-    item <- NULL
-    group <- NULL
-    . <- NULL
-    .Group <- NULL
-    `:=` <- NULL
-    x <- NULL
-    y <- NULL
 
     names <- names(data[[1]])
 

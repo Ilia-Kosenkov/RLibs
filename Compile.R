@@ -79,6 +79,4 @@ if (interactive()) {
         shell(cmd_2, mustWork = TRUE)
     else
         system(cmd_2)
-
-
 }

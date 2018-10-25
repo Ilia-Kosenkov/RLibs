@@ -38,6 +38,20 @@ GrobsArrange(grobs, ncol, nrow = length(grobs)\%/\%ncol,
 \item{vGap}{Vertical gap between plots.}
 
 \item{hGap}{Horizontal gap between plots.}
+
+\item{labsList}{Label margins in form of named list.
+If not \code{NULL}, used instead of other provided values.}
+
+\item{axisList}{Axis margins in form of named list.
+If not \code{NULL}, used instead of other provided values.}
+
+\item{topLab}{\code{textGrob} which can act as shared top axis label.}
+
+\item{bottomLab}{\code{textGrob} which can act as shared bottom axis label.}
+
+\item{leftLab}{\code{textGrob} which can act as shared left axis label.}
+
+\item{rightLab}{\code{textGrob} which can act as shared right axis label.}
 }
 \value{
 GTable of arranged grobs.

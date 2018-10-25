@@ -222,7 +222,7 @@ Tools.Norm = function(x) {
 #' @param n Approximate number of desired ticks.
 #' @param modifier Preferred tick placements/
 #' @return Returns the size of the step.
-#' @import dplyr
+#' @importFrom dplyr %>%
 #' @importFrom magrittr multiply_by raise_to_power subtract equals
 #' @export
 FancyStep <- function(range,
@@ -344,7 +344,9 @@ pforeach <- function(.data, ...) {
     do.call(foreach, ._args)
 }
 
-
+utils::globalVariables(c("Dx", "Dy"))
+#' @importFrom rlang enquo quo_squash !!
+#' @importFrom dplyr %>% mutate pull
 TangentAndNorm <- function(dt, xcol, ycol, t) {
     f <- 1
     xcol <- quo_squash(enquo(xcol))

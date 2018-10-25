@@ -21,33 +21,29 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-panelIndex = 1
-panels = c('a', 'b', 'c', 'd', 'e', 'f', 'g')
+#' @title Segments2Points
+#' @param .dt Input table.
+#' @param ... Column names to transform.
+#' @param suffix Suffix of paired column names.
+#' @return Trnasformed table.
+#' @importFrom purrr map
+#' @importFrom rlang enquos quo_squash !!! sym syms
+#' @importFrom dplyr %>% mutate select arrange n distinct
+#' @importFrom tidyr gather spread
+#' @importFrom stringr str_replace
+#' @export
+Segments2PointsEx <- function(.dt, ..., suffix = "2") {
+    cols <- enquos(...) %>% map(quo_squash) %>% syms
+    cols2 <- cols %>% map(~sym(as.character(.x) %+% suffix))
 
-#' @importFrom graphics legend
-PanelIndex = function(advance = TRUE, cex = 1.0)
-{
-    panel = panels[[panelIndex]]
-    if (advance) {
-        pi = panelIndex + 1
-        assign("panelIndex", ifelse(pi > length(panels), 1, pi), envir = .GlobalEnv)
-    }
-    legend("topleft", legend = panel, bty = 'n', cex = cex)
-}
+    joined <- append(cols, cols2)
 
-SetPanelIndex = function(index) 
-{
-    assign("panelIndex", ifelse(index > length(panels), 1, index), envir = .GlobalEnv)
-}
-
-#' @importFrom graphics par
-GetRightAxisPos = function() 
-{
-    L = par()$pin[[1]]
-    l = par()$mai[[4]]
-    sz = par()$usr[1:2]
-
-    x1 = (sz[2] - sz[1]) * (1 + 5*l / (16 * L)) + sz[1]
-    x2 = (sz[2] - sz[1]) * (1 + 3 * l / (4 * L)) + sz[1]
-    return(c(x1, x2))
+    .dt %>%
+        gather("Key__", "Value__", !!!joined) %>%
+        mutate(Key__ = str_replace(Key__, suffix %+% "$", "")) %>%
+        arrange(Key__) %>%
+        mutate(ID__ = rep(seq(1, n() / length(cols)), length(cols))) %>%
+        spread("Key__", "Value__") %>%
+        select(-ID__) %>%
+        distinct(!!!cols, .keep_all = TRUE)
 }

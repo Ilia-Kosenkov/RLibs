@@ -21,33 +21,29 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-panelIndex = 1
-panels = c('a', 'b', 'c', 'd', 'e', 'f', 'g')
+utils::globalVariables(c("Key__", "Val__", "ID__"))
+#' @title Segments2Points
+#' @param .dt Input table.
+#' @param x \code{x} column name.
+#' @param y \code{y} column name.
+#' @param xend \code{x} end column name.
+#' @param yend \code{y} end column name.
+#' @return Trnasformed table.
+#' @importFrom rlang enquo quo_squash !!
+#' @importFrom dplyr %>% mutate select slice row_number if_else n
+#' @importFrom tidyr gather spread
+#' @export
+Segments2Points <- function(.dt, x, y, xend, yend) {
+    nx <- quo_squash(enquo(x))
+    ny <- quo_squash(enquo(y))
+    nx2 <- quo_squash(enquo(xend))
+    ny2 <- quo_squash(enquo(yend))
 
-#' @importFrom graphics legend
-PanelIndex = function(advance = TRUE, cex = 1.0)
-{
-    panel = panels[[panelIndex]]
-    if (advance) {
-        pi = panelIndex + 1
-        assign("panelIndex", ifelse(pi > length(panels), 1, pi), envir = .GlobalEnv)
-    }
-    legend("topleft", legend = panel, bty = 'n', cex = cex)
-}
-
-SetPanelIndex = function(index) 
-{
-    assign("panelIndex", ifelse(index > length(panels), 1, index), envir = .GlobalEnv)
-}
-
-#' @importFrom graphics par
-GetRightAxisPos = function() 
-{
-    L = par()$pin[[1]]
-    l = par()$mai[[4]]
-    sz = par()$usr[1:2]
-
-    x1 = (sz[2] - sz[1]) * (1 + 5*l / (16 * L)) + sz[1]
-    x2 = (sz[2] - sz[1]) * (1 + 3 * l / (4 * L)) + sz[1]
-    return(c(x1, x2))
+    .dt %>%
+        gather(Key__, Val__, !!nx, !!nx2, !!ny, !!ny2) %>%
+        mutate(Key__ = if_else(row_number() <= (n() / 2), a_ch(nx), a_ch(ny)),
+               ID__ = rep(1:(n() / 2), 2)) %>%
+        spread(Key__, Val__) %>%
+        select(-ID__) %>%
+        slice(UniqueWhichTol(!!nx))
 }

@@ -407,7 +407,8 @@ GrobPlot <- function(grobs, noNewPageDevList = c("pdf")) {
 #' @importFrom rlang enquo quo_squash := !! is_empty
 #' @importFrom purrr map reduce
 #' @importFrom magrittr extract is_less_than is_greater_than %<>%
-#' @import dplyr
+#' @importFrom dplyr %>% arrange mutate pull slice row_number
+#' @importFrom tibble tibble
 #' @export
 TrimRibbonData <- function(.data, x, y, xlim, ylim, lwr, upp, ...) {
     .dots <- enquos(...) %>%
@@ -536,7 +537,7 @@ TrimRibbonData <- function(.data, x, y, xlim, ylim, lwr, upp, ...) {
 #' @param .var_y y variable.
 #' @param lim Limits.
 #' @importFrom rlang enquo quo_name !! := sym
-#' @import dplyr
+#' @importFrom dplyr %>% mutate slice n filter
 #' @export
 TrimLineData <- function(.data, .var_x, .var_y, lim) {
     x <- quo_name(enquo(.var_x))
@@ -560,74 +561,6 @@ TrimLineData <- function(.data, .var_x, .var_y, lim) {
             }
 }
 
-#' @title ClipXY
-#' @param .dt Input table.
-#' @param x \code{x} column name.
-#' @param y code{y} column name.
-#' @param xlim Limits on \code{x}.
-#' @param ylim Limits on \code{y}.
-#' @param ... Additional columns to preserve.
-#' @importFrom rlang quo_squash enquo enquos !! := sym
-#' @importFrom magrittr extract
-#' @importFrom purrr map reduce
-#' @import dplyr
-#' @export
-ClipXY <- function(.dt, x, y, xlim, ylim, ...) {
-    .dots <- enquos(...) %>% map(quo_squash)
-    nx <- quo_squash(enquo(x))
-    ny <- quo_squash(enquo(y))
-
-    .dt %<>%
-        arrange(!!nx)
-
-    process <- function(name, val) {
-        .dt %>%
-        pull(a_ch(name)) %>%
-        BetweenWhich(val) %>% {
-            if (all(is.na(.)))
-                tibble(!!nx := numeric(0),
-                       !!ny := numeric(0))
-            else
-                map(., ~ tibble(
-                            !!nx := Lin(val,
-                                .dt %>% extract(.x, a_ch(name)),
-                                .dt %>% extract(.x, a_ch(nx))),
-                            !!ny := Lin(val,
-                                .dt %>% extract(.x, a_ch(name)),
-                                .dt %>% extract(.x, a_ch(ny)))) %>% {
-                reduce(.dots, function(acc, nm)
-                                    acc %>%
-                                        mutate(!!nm :=
-                                            extract(.dt, .x[1], a_ch(nm)) %>%
-                                            unlist),
-                                   .init = .)
-            })
-        } %>%
-        reduce(bind_rows)
-    }
-
-    x_l <- process(nx, xlim[1])
-    x_u <- process(nx, xlim[2])
-    y_l <- process(ny, ylim[1])
-    y_u <- process(ny, ylim[2])
-
-    nx2 <- nx %>% a_ch %>% paste0("2") %>% sym
-    ny2 <- ny %>% a_ch %>% paste0("2") %>% sym
-
-    .dt %>%
-        bind_rows(x_l) %>%
-        bind_rows(x_u) %>%
-        bind_rows(y_l) %>%
-        bind_rows(y_u) %>%
-        filter(!is.na(!!nx)) %>%
-        arrange(!!nx) %>%
-        AsSegments(!!nx, !!ny, suffix = "2") %>%
-        FilterRange(!!nx, xlim) %>%
-        FilterRange(!!nx2, xlim) %>%
-        FilterRange(!!ny, ylim) %>%
-        FilterRange(!!ny2, ylim)
-
-}
 
 #' @title AsSegments
 #' @param .data Input table.
@@ -652,31 +585,7 @@ AsSegments <- function(.data, ..., suffix = "_end") {
     slice(-n())
 }
 
-#' @title Segments2Points
-#' @param .dt Input table.
-#' @param x \code{x} column name.
-#' @param y \code{y} column name.
-#' @param xend \code{x} end column name.
-#' @param yend \code{y} end column name.
-#' @return Trnasformed table.
-#' @importFrom rlang enquo quo_squash !!
-#' @importFrom dplyr %>% mutate select slice row_number if_else n
-#' @importFrom tidyr gather spread
-#' @export
-Segments2Points <- function(.dt, x, y, xend, yend) {
-    nx <- quo_squash(enquo(x))
-    ny <- quo_squash(enquo(y))
-    nx2 <- quo_squash(enquo(xend))
-    ny2 <- quo_squash(enquo(yend))
 
-    .dt %>%
-        gather(Key, Val, !!nx, !!nx2, !!ny, !!ny2) %>%
-        mutate(Key = if_else(row_number() <= (n() / 2), a_ch(nx), a_ch(ny)),
-               ID = rep(1:(n() / 2), 2)) %>%
-        spread(Key, Val) %>%
-        select(-ID) %>%
-        slice(UniqueWhichTol(!!nx))
-}
 
 #' @title GGCustomTextAnnotation
 #' @param labels Labels.
@@ -942,9 +851,10 @@ GGPlot2GrobEx <- function(plots, clip = FALSE) {
 #' @param gp Text parameters
 #'
 #' @return Modifed plots.
-#' @import grid gridExtra
+#' @importFrom grid gpar
 #' @importFrom foreach %do%
 #' @importFrom dplyr %>%
+#' @importFrom magrittr %<>%
 #' @export
 GGPlotPanelLabs <- function(p, labels = "X",
                             x = Inf, y = Inf,

@@ -170,7 +170,7 @@ a_ch <- function(...) map_chr(list(...), as.character)
 #' @title Log10Floor
 #' @param x Input numeric vector.
 #' @return Closest power of 10 that is smaller than or equal to the number.
-#' @import dplyr
+#' @importFrom dplyr %>%
 #' @export
 Log10Floor <- function(x) {
     x %>% log10 %>% floor %>% raise(10)
@@ -179,7 +179,7 @@ Log10Floor <- function(x) {
 #' @title Log10Ceiling
 #' @param x Input numeric vector.
 #' @return Closest power of 10 that is greater than or equal to the number.
-#' @import dplyr
+#' @importFrom dplyr %>%
 #' @export
 Log10Ceiling <- function(x) {
     x %>% log10 %>% ceiling %>% raise(10)
