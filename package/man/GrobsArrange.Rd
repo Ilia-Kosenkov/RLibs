@@ -9,8 +9,8 @@ GrobsArrange(grobs, ncol, nrow = length(grobs)\%/\%ncol,
   "cm"), lLab = unit(0.6, "cm"), tAxis = unit(0.6, "cm"),
   rAxis = unit(0.6, "cm"), bAxis = unit(0.6, "cm"), lAxis = unit(0.6,
   "cm"), vGap = unit(0.1, "cm"), hGap = unit(0.1, "cm"),
-  labsList = NULL, axisList = NULL, topLab = NULL,
-  bottomLab = NULL, leftLab = NULL, rightLab = NULL)
+  labsList = NULL, axisList = NULL, labsMar = NULL, axisMar = NULL,
+  topLab = NULL, bottomLab = NULL, leftLab = NULL, rightLab = NULL)
 }
 \arguments{
 \item{grobs}{Input grobs.}
@@ -44,6 +44,10 @@ If not \code{NULL}, used instead of other provided values.}
 
 \item{axisList}{Axis margins in form of named list.
 If not \code{NULL}, used instead of other provided values.}
+
+\item{labsMar}{A \code{margin} item used instead of \code{labsList}.}
+
+\item{axisMar}{A \code{margin} item used instead of \code{axisList}.}
 
 \item{topLab}{\code{textGrob} which can act as shared top axis label.}
 

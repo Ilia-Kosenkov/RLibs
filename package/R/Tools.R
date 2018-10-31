@@ -380,3 +380,21 @@ TangentAndNorm <- function(dt, xcol, ycol, t) {
                y_nrm_end = !!ycol + f * Dx)
 
 }
+
+#' @importFrom rlang eval_tidy parse_expr
+EvalFormulaRhs <- function(frml, data) {
+    eval_tidy(parse_expr(as.character(frml)), data)
+}
+
+utils::globalVariables("formula")
+#' @importFrom scales is.trans
+EvalTrans <- function(trans, data) {
+    if (is.trans(trans))
+        trans$transform(data)
+    else if (trans %is% formula)
+        EvalFormulaRhs(trans[2], list("." = data))
+    else if (is.function(trans))
+        trans(data)
+    else
+        data
+}

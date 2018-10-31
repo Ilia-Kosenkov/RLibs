@@ -44,8 +44,8 @@
 #' @param bottomLab \code{textGrob} which can act as shared bottom axis label.
 #' @param leftLab \code{textGrob} which can act as shared left axis label.
 #' @param rightLab \code{textGrob} which can act as shared right axis label.
-#'
-#'
+#' @param labsMar A \code{margin} item used instead of \code{labsList}.
+#' @param axisMar A \code{margin} item used instead of \code{axisList}.
 #'
 #' @return GTable of arranged grobs.
 #' @importFrom gridExtra arrangeGrob
@@ -61,7 +61,22 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
     bAxis = unit(0.6, "cm"), lAxis = unit(0.6, "cm"),
     vGap = unit(0.1, "cm"), hGap = unit(0.1, "cm"),
     labsList = NULL, axisList = NULL,
+    labsMar = NULL, axisMar = NULL,
     topLab = NULL, bottomLab = NULL, leftLab = NULL, rightLab = NULL) {
+
+    if (all(!is.null(labsMar)))
+        labsList <- list(
+            top = labsMar[1],
+            right = labsMar[2],
+            bottom = labsMar[3],
+            left = labsMar[4])
+
+    if (all(!is.null(axisMar)))
+        axisList <- list(
+            top = axisMar[1],
+            right = axisMar[2],
+            bottom = axisMar[3],
+            left = axisMar[4])
 
     if (all(is.null(labsList))) {
         labsList <- list()

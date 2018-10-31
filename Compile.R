@@ -36,7 +36,7 @@ if (interactive()) {
     src %>% walk(source)
 
     #source(file.path("package", "tests", "testthat.R"))
-    devtools::check(file.path("package"))
+    #devtools::check(file.path("package"))
 
 } else {
 

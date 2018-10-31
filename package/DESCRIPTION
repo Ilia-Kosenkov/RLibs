@@ -1,6 +1,6 @@
 Package: RLibs
 Title: RLibs
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
 Description: Auxilary functions for data analysis & plotting.
 URL: https://github.com/Ilia-Kosenkov/RLibs
@@ -25,7 +25,8 @@ Imports:
     magrittr,
     tidyr,
 	parallel,
-    glue
+    glue,
+    scales
 RoxygenNote: 6.1.0
 ByteCompile: true
 Encoding: UTF-8

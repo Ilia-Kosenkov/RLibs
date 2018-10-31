@@ -2,7 +2,7 @@
 % Please edit documentation in R/GGplot2Tools.R
 \name{GrobZero}
 \alias{GrobZero}
-\title{GrobZerp}
+\title{GrobZero}
 \usage{
 GrobZero(grob, name)
 }
@@ -15,5 +15,5 @@ GrobZero(grob, name)
 Modified grob collection.
 }
 \description{
-GrobZerp
+GrobZero
 }

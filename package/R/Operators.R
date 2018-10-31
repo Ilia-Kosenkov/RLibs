@@ -31,12 +31,8 @@
 #' @importFrom rlang quo_squash enquo
 #' @export
 `%is%` <- function(object, class) {
-    nm <- quo_squash(enquo(class))
-    if (is.null(nm))
-        className <- "NULL"
-    else
-        className <- a_ch(nm)
-    return(is(object, className))
+    nm <- as.character(quo_squash(enquo(class))) %??% "NULL"
+    return(is(object, nm))
 }
 
 #' @title Concat/add interfix operator.
@@ -63,4 +59,21 @@
             "\r\n[%s]\r\n[%s]\r\nNo rule defined.\r\n"),
             paste(class(x), collapse = ", "),
             paste(class(y), collapse = ", ")))
+}
+
+#' @title Null/empty-coalescing operator
+#' @description Improves the \code{rlang::\%||\%} operator by
+#' handling also cases of zero-length objects.
+#' @param x Left side of the operator. To be tested.
+#' @param y Right side of the operator. Is returned if left side is
+#' null or empty.
+#' @return Either x or y.
+#' @importFrom rlang is_empty is_null
+#' @export
+`%??%` <- function(x, y) {
+    if (is_null(x) ||
+        is_empty(x))
+            y
+    else
+        x
 }
