@@ -35,7 +35,7 @@ GGPlotLims <- function(plt) {
     yNms <- c("y", "yend", "ymin", "ymax")
 
     plt$layers %>%
-        purrr::discard(~is_null(.x$mapping)) %>%
+        discard(~is_null(.x$mapping)) %>%
         map(function(lyr) {
             aes <- lyr$mapping %||% list() %>% flatten
             if (lyr$inherit.aes)
