@@ -22,6 +22,7 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+utils::globalVariables(c("b", "lbl"))
 #' @title GGPlotCustomTicksEx
 #' @description
 #' Creates custom ticks with labels. Requires a finished ggproto object.
@@ -44,8 +45,9 @@
 #' @importFrom grid textGrob segmentsGrob
 #' @export
 GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
+                                trnsf = identity, 
                                 tckSz = unit(7.5, "pt"),
-                                trnsf = identity, gp = gpar(),
+                                gp = gpar(),
                                 rot = 0, deltaH = 0, deltaV = 0,
                                 tickGp = gpar()) {
 
@@ -56,7 +58,7 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
 
     GetScale <- function(side) {
         trnsf <- plt$scales$scales %>%
-            keep(~.x$position == side) %>%
+            keep(~.x$position == side) %??% NULL %>%
             extract2(1)
     }
 
@@ -72,17 +74,19 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
         trans <- GetScale("bottom")$trans
         breaks <- EvalTrans(trans, breaks)
         # Return
-        plt +
-            annotation_custom(
-                grob = textGrob(label = labels, gp = gp, rot = rot,
+
+        plt +  foreach(b = breaks, lbl = labels, .combine = append) %do% {
+            list(annotation_custom(
+                grob = textGrob(label = lbl, gp = gp, rot = rot,
                     hjust = 0.5 + deltaH, vjust = 1.5 + deltaV),
-                xmin = breaks, xmax = breaks,
-                ymin = -Inf, ymax = -Inf) +
+                xmin = b, xmax = b,
+                ymin = -Inf, ymax = -Inf),
             annotation_custom(
                 grob = segmentsGrob(
                     y0 = unit(0, "npc"), y1 = tckSz,
                     gp = tickGp),
-                xmin = breaks, xmax = breaks)
+                xmin = b, xmax = b))
+        }
     }
     else if (side == 3 ||
              side == "t" ||
@@ -92,17 +96,18 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
         breaks <- EvalTrans(trans, EvalTrans(trnsf, breaks))
 
         # Return
-        plt +
-            annotation_custom(
-                grob = textGrob(label = labels, gp = gp, rot = rot,
+        plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
+            list(annotation_custom(
+                grob = textGrob(label = lbl, gp = gp, rot = rot,
                     hjust = 0.5 + deltaH, vjust = -0.7 + deltaV),
-                xmin = breaks, xmax = breaks,
-                ymin = Inf, ymax = Inf) +
+                xmin = b, xmax = b,
+                ymin = Inf, ymax = Inf),
             annotation_custom(
                 grob = segmentsGrob(
                     y0 = unit(1, "npc"), y1 = unit(1, "npc") - tckSz,
                     gp = tickGp),
-                xmin = breaks, xmax = breaks)
+                xmin = b, xmax = b))
+        }
     }
     else if (side == 2 ||
              side == "l" ||
@@ -112,17 +117,18 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
         breaks <- EvalTrans(trans, breaks)
 
         # Return
-        plt +
-            annotation_custom(
-                grob = textGrob(label = labels, gp = gp, rot = rot,
+        plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
+            list(annotation_custom(
+                grob = textGrob(label = lbl, gp = gp, rot = rot,
                     hjust = 1.5 + deltaH, vjust = 0.5 + deltaV),
-                ymin = breaks, ymax = breaks,
-                xmin = -Inf, xmax = -Inf) +
+                ymin = b, ymax = b,
+                xmin = -Inf, xmax = -Inf),
             annotation_custom(
                 grob = segmentsGrob(
                     x0 = unit(0, "npc"), x1 = tckSz,
                     gp = tickGp),
-                ymin = breaks, ymax = breaks)
+                ymin = b, ymax = b))
+        }
     }
     else if (side == 4 ||
              side == "r" ||
@@ -131,17 +137,18 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
         trans <- GetScale("left")$trans
         breaks <- EvalTrans(trans, EvalTrans(trnsf, breaks))
         # Return
-        plt +
-            annotation_custom(
-                grob = textGrob(label = labels, gp = gp, rot = rot,
+        plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
+            list(annotation_custom(
+                grob = textGrob(label = lbl, gp = gp, rot = rot,
                     hjust = -0.4 + deltaH, vjust = 0.5 + deltaV),
-                ymin = breaks, ymax = breaks,
-                xmin = Inf, xmax = Inf) +
+                ymin = b, ymax = b,
+                xmin = Inf, xmax = Inf),
             annotation_custom(
                 grob = segmentsGrob(
                     x0 = unit(1, "npc"), x1 = unit(1, "npc") - tckSz,
                     gp = tickGp),
-                ymin = breaks, ymax = breaks)
+                ymin = b, ymax = b))
+        }
     }
     else
         stop(sprintf("Unknown axis %s", as.character(side)))

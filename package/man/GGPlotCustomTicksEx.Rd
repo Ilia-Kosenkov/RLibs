@@ -4,9 +4,9 @@
 \alias{GGPlotCustomTicksEx}
 \title{GGPlotCustomTicksEx}
 \usage{
-GGPlotCustomTicksEx(plt, side, breaks, labels, tckSz = unit(7.5, "pt"),
-  trnsf = identity, gp = gpar(), rot = 0, deltaH = 0, deltaV = 0,
-  tickGp = gpar())
+GGPlotCustomTicksEx(plt, side, breaks, labels, trnsf = identity,
+  tckSz = unit(7.5, "pt"), gp = gpar(), rot = 0, deltaH = 0,
+  deltaV = 0, tickGp = gpar())
 }
 \arguments{
 \item{plt}{Target plot.}
@@ -19,9 +19,9 @@ GGPlotCustomTicksEx(plt, side, breaks, labels, tckSz = unit(7.5, "pt"),
 
 \item{labels}{Respective text labels.}
 
-\item{tckSz}{Tick size (in units).}
-
 \item{trnsf}{Inverse trnsformation function. Used to handle secondary axes.}
+
+\item{tckSz}{Tick size (in units).}
 
 \item{gp}{A \code{gpar} set of parameters passed to the text methods.
 Affects rendering of the labels.}

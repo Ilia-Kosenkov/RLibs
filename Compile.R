@@ -36,6 +36,7 @@ if (interactive()) {
     src %>% walk(source)
 
     #source(file.path("package", "tests", "testthat.R"))
+    # Uncomment this to check the package from within interactive session
     #devtools::check(file.path("package"))
 
 } else {
