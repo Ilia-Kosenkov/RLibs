@@ -21,20 +21,21 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#' @title GetPlotLims
+#' @title GGPlotLims
 #' @param plt Input \code{ggplot} plot.
 #' @return \code{list} with x and y limits.
 #' @importFrom dplyr %>%
-#' @importFrom rlang %||% eval_tidy is_empty
-#' @importFrom purrr map transpose flatten
+#' @importFrom rlang %||% eval_tidy is_empty is_null
+#' @importFrom purrr map transpose flatten discard
 #' @export
-GetPlotLims <- function(plt) {
+GGPlotLims <- function(plt) {
     parentData <- plt$data %||% list()
     parentAes <- plt$mapping %||% list() %>% flatten
     xNms <- c("x", "xend", "xmin", "xmax")
     yNms <- c("y", "yend", "ymin", "ymax")
 
     plt$layers %>%
+        purrr::discard(~is_null(.x$mapping)) %>%
         map(function(lyr) {
             aes <- lyr$mapping %||% list() %>% flatten
             if (lyr$inherit.aes)

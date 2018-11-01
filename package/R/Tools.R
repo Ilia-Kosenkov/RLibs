@@ -381,9 +381,10 @@ TangentAndNorm <- function(dt, xcol, ycol, t) {
 
 }
 
-#' @importFrom rlang eval_tidy parse_expr
+#' @importFrom rlang eval_tidy f_rhs f_env
 EvalFormulaRhs <- function(frml, data) {
-    eval_tidy(parse_expr(as.character(frml)), data)
+    # Adopted from tidyverse/ggplot2/sec_axis solution
+    eval_tidy(f_rhs(frml), data = data, env = f_env(frml))
 }
 
 utils::globalVariables("formula")

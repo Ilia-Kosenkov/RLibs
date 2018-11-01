@@ -43,9 +43,10 @@ utils::globalVariables(c("b", "lbl"))
 #' @param tickGp \code{gpar} that controls ticks.
 #' @importFrom ggplot2 annotation_custom
 #' @importFrom grid textGrob segmentsGrob
+#' @importFrom stringr str_detect
 #' @export
 GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
-                                trnsf = identity, 
+                                trnsf = identity,
                                 tckSz = unit(7.5, "pt"),
                                 gp = gpar(),
                                 rot = 0, deltaH = 0, deltaV = 0,
@@ -53,14 +54,16 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
 
     if (!(tckSz %is% unit))
         tckSz <- unit(tckSz, "npc")
-    lb <- NULL
-    br <- NULL
 
     GetScale <- function(side) {
         trnsf <- plt$scales$scales %>%
-            keep(~.x$position == side) %??% NULL %>%
+            keep(~.x$position == side &&
+                str_detect(.x$scale_name, "position")) %??% NULL %>%
             extract2(1)
     }
+
+    if (!missing(breaks) && missing(labels))
+        labels <- rep("", length(breaks))
 
     if (length(breaks) != length(labels) && length(labels) > 1)
         stop("Length of [breaks] and [labels] should be equal.")
@@ -76,16 +79,21 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
         # Return
 
         plt +  foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            list(annotation_custom(
-                grob = textGrob(label = lbl, gp = gp, rot = rot,
-                    hjust = 0.5 + deltaH, vjust = 1.5 + deltaV),
-                xmin = b, xmax = b,
-                ymin = -Inf, ymax = -Inf),
-            annotation_custom(
-                grob = segmentsGrob(
-                    y0 = unit(0, "npc"), y1 = tckSz,
-                    gp = tickGp),
-                xmin = b, xmax = b))
+            result <- list(
+                annotation_custom(
+                    grob = textGrob(label = lbl, gp = gp, rot = rot,
+                        hjust = 0.5 + deltaH, vjust = 1.5 + deltaV),
+                    xmin = b, xmax = b,
+                    ymin = -Inf, ymax = -Inf))
+
+            if (nzchar(lbl))
+                result %<>% append(
+                list(
+                    annotation_custom(
+                        grob = segmentsGrob(
+                            y0 = unit(0, "npc"), y1 = tckSz,
+                            gp = tickGp),
+                        xmin = b, xmax = b)))
         }
     }
     else if (side == 3 ||
@@ -97,16 +105,21 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
 
         # Return
         plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            list(annotation_custom(
-                grob = textGrob(label = lbl, gp = gp, rot = rot,
-                    hjust = 0.5 + deltaH, vjust = -0.7 + deltaV),
-                xmin = b, xmax = b,
-                ymin = Inf, ymax = Inf),
-            annotation_custom(
-                grob = segmentsGrob(
-                    y0 = unit(1, "npc"), y1 = unit(1, "npc") - tckSz,
-                    gp = tickGp),
-                xmin = b, xmax = b))
+            result <- list(
+                annotation_custom(
+                    grob = textGrob(label = lbl, gp = gp, rot = rot,
+                        hjust = 0.5 + deltaH, vjust = -0.7 + deltaV),
+                    xmin = b, xmax = b,
+                    ymin = Inf, ymax = Inf))
+
+            if (nzchar(lbl))
+                result %<>% append(
+                list(
+                    annotation_custom(
+                    grob = segmentsGrob(
+                        y0 = unit(1, "npc"), y1 = unit(1, "npc") - tckSz,
+                        gp = tickGp),
+                    xmin = b, xmax = b)))
         }
     }
     else if (side == 2 ||
@@ -118,16 +131,21 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
 
         # Return
         plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            list(annotation_custom(
-                grob = textGrob(label = lbl, gp = gp, rot = rot,
-                    hjust = 1.5 + deltaH, vjust = 0.5 + deltaV),
-                ymin = b, ymax = b,
-                xmin = -Inf, xmax = -Inf),
-            annotation_custom(
-                grob = segmentsGrob(
-                    x0 = unit(0, "npc"), x1 = tckSz,
-                    gp = tickGp),
-                ymin = b, ymax = b))
+            result <- list(
+                annotation_custom(
+                    grob = textGrob(label = lbl, gp = gp, rot = rot,
+                        hjust = 1.5 + deltaH, vjust = 0.5 + deltaV),
+                    ymin = b, ymax = b,
+                    xmin = -Inf, xmax = -Inf))
+
+            if (nzchar(lbl))
+                result %<>% append(
+                list(
+                    annotation_custom(
+                        grob = segmentsGrob(
+                            x0 = unit(0, "npc"), x1 = tckSz,
+                            gp = tickGp),
+                        ymin = b, ymax = b)))
         }
     }
     else if (side == 4 ||
@@ -138,16 +156,23 @@ GGPlotCustomTicksEx <- function(plt, side, breaks, labels,
         breaks <- EvalTrans(trans, EvalTrans(trnsf, breaks))
         # Return
         plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            list(annotation_custom(
-                grob = textGrob(label = lbl, gp = gp, rot = rot,
-                    hjust = -0.4 + deltaH, vjust = 0.5 + deltaV),
-                ymin = b, ymax = b,
-                xmin = Inf, xmax = Inf),
-            annotation_custom(
-                grob = segmentsGrob(
-                    x0 = unit(1, "npc"), x1 = unit(1, "npc") - tckSz,
-                    gp = tickGp),
-                ymin = b, ymax = b))
+            result <- list(
+                annotation_custom(
+                    grob = segmentsGrob(
+                        x0 = unit(1, "npc"), x1 = unit(1, "npc") - tckSz,
+                        gp = tickGp),
+                    ymin = b, ymax = b))
+
+            if (nzchar(lbl))
+                result %<>% append(
+                list(
+                    annotation_custom(
+                        grob = textGrob(label = lbl, gp = gp, rot = rot,
+                            hjust = -0.4 + deltaH, vjust = 0.5 + deltaV),
+                        ymin = b, ymax = b,
+                        xmin = Inf, xmax = Inf)))
+
+            result
         }
     }
     else
