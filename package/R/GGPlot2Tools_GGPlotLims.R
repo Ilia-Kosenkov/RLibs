@@ -25,8 +25,8 @@
 #' @param plt Input \code{ggplot} plot.
 #' @return \code{list} with x and y limits.
 #' @importFrom dplyr %>%
-#' @importFrom rlang %||% eval_tidy is_empty is_null
-#' @importFrom purrr map transpose flatten discard
+#' @importFrom rlang %||% eval_tidy is_empty is_null flatten
+#' @importFrom purrr map transpose discard
 #' @export
 GGPlotLims <- function(plt) {
     parentData <- plt$data %||% list()
@@ -35,9 +35,11 @@ GGPlotLims <- function(plt) {
     yNms <- c("y", "yend", "ymin", "ymax")
 
     plt$layers %>%
-        discard(~is_null(.x$mapping))  %>%
+        discard(~is_null(.x$mapping)) %>%
         map(function(lyr) {
+
             aes <- lyr$mapping %||% list() %>% flatten
+
             if (lyr$inherit.aes)
                 aes <- append(parentAes, aes)
 
@@ -46,8 +48,8 @@ GGPlotLims <- function(plt) {
             else
                 data <- lyr$data
 
-            yAes <- aes[names(aes) %in% yNms] %T>% print
-            xAes <- aes[names(aes) %in% xNms] %T>% print
+            yAes <- aes[names(aes) %in% yNms]
+            xAes <- aes[names(aes) %in% xNms]
 
             xlim <- xAes %>%
                 map(~eval_tidy(.x, data)) %>%
