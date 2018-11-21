@@ -115,10 +115,11 @@ GrobMarginSet <- function(grob,
         #grob %<>% GrobSizeSet("axis-l", width = axisList$left)
         grob <- worker(name = "axis-l", width = axisList$left)
 
-    if (nullOutBorder && (grob %is% gtable && grob %is% gTree))
-        grob <- GrobSetGaps(asMargin = margin())
-    else
-        grob <- map(grob, GrobSetGaps, asMargin = margin())
-
+    if (nullOutBorder) {
+        if ((grob %is% gtable) && (grob %is% gTree))
+            grob <- GrobSetGaps(asMargin = margin())
+        else
+            grob <- map(grob, GrobSetGaps, asMargin = margin())
+    }
     return(grob)
 }

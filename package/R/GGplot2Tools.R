@@ -645,8 +645,11 @@ GrobSetGaps <- function(grob,
     asList = NULL, asMargin = NULL) {
 
     if (!is.null(asMargin))
-        asList <- setNames(as.list(asMargin),
-            c("top", "right", "bottom", "left"))
+        asList <- list(
+            "top" = asMargin[1],
+            "right" = asMargin[2],
+            "bottom" = asMargin[3],
+            "left" = asMargin[4])
 
     if (all(is.null(asList)))
         asList <- list(top = top, right = right,
