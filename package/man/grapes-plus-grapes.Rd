@@ -19,5 +19,5 @@ Performs (possibly) a vectorized summation operation,
  which depends on the class of operators.
  Following methods are implemented:
  \code{character} + \code{character},
-       1-to-1 vectorized, concatenation of strings
+       1-to-1 vectorized, concatenation of strings.
 }

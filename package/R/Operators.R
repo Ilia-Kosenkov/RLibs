@@ -42,12 +42,12 @@
 #'  which depends on the class of operators.
 #'  Following methods are implemented:
 #'  \code{character} + \code{character},
-#'        1-to-1 vectorized, concatenation of strings
+#'        1-to-1 vectorized, concatenation of strings.
+#' Does the same as `%+%`.
 #' @return Result of the aapropriate summation/concatenation.
 #' @importFrom purrr map2_chr
 #' @export
-`%+%` <- function(x, y) {
-    warning("Consider switching to RLibs::`%&%` to avoid name masking.")
+`%&%` <- function(x, y) {
     if (x %is% character && y %is% character) {
         if (length(x) == length(y))
             return(map2_chr(x, y, ~ paste0(.x, .y)))
@@ -70,12 +70,12 @@
 #'  Following methods are implemented:
 #'  \code{character} + \code{character},
 #'        1-to-1 vectorized, concatenation of strings.
-#' Does the same as `%+%`.
 #' @return Result of the aapropriate summation/concatenation.
 #' @importFrom purrr map2_chr
 #' @export
-`%&%` <- function(x, y) {
-    RLibs::`%+%`(x, y)
+`%+%` <- function(x, y) {
+    warning("Consider switching to RLibs::`%&%` to avoid name masking.")
+    RLibs::`%&%`(x, y)
 }
 
 #' @title Null/empty-coalescing operator
