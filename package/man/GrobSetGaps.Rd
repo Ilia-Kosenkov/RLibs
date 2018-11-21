@@ -5,7 +5,7 @@
 \title{GrobSetGaps}
 \usage{
 GrobSetGaps(grob, top = NULL, right = NULL, bottom = NULL,
-  left = NULL, asList = NULL)
+  left = NULL, asList = NULL, asMargin = NULL)
 }
 \arguments{
 \item{grob}{Inout grob.}
@@ -19,6 +19,8 @@ GrobSetGaps(grob, top = NULL, right = NULL, bottom = NULL,
 \item{left}{Left gap.}
 
 \item{asList}{When not NULL, used instead of other parameters to set gaps.}
+
+\item{asMargin}{When not NULL, used instead of other parameters to set gaps.}
 }
 \value{
 Grob.

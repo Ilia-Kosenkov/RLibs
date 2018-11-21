@@ -636,12 +636,17 @@ GrobZero <- function(grob, name) {
 #' @param bottom Bottom gap.
 #' @param left Left gap.
 #' @param asList When not NULL, used instead of other parameters to set gaps.
+#' @param asMargin When not NULL, used instead of other parameters to set gaps.
 #' @return Grob.
 #' @export
 #'
 GrobSetGaps <- function(grob,
     top = NULL, right = NULL, bottom = NULL, left = NULL,
-    asList = NULL) {
+    asList = NULL, asMargin = NULL) {
+
+    if (!is.null(asMargin))
+        asList <- setNames(as.list(asMargin),
+            c("top", "right", "bottom", "left"))
 
     if (all(is.null(asList)))
         asList <- list(top = top, right = right,

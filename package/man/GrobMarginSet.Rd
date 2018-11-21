@@ -7,7 +7,7 @@
 GrobMarginSet(grob, tLab = NULL, rLab = NULL, bLab = NULL,
   lLab = NULL, tAxis = NULL, rAxis = NULL, bAxis = NULL,
   lAxis = NULL, labsList = NULL, axisList = NULL, labsMar = NULL,
-  axisMar = NULL)
+  axisMar = NULL, nullOutBorder = TRUE)
 }
 \arguments{
 \item{grob}{Input grob.}
@@ -35,6 +35,8 @@ GrobMarginSet(grob, tLab = NULL, rLab = NULL, bLab = NULL,
 \item{labsMar}{A \code{margin} item used instead of \code{labsList}.}
 
 \item{axisMar}{A \code{margin} item used instead of \code{axisList}.}
+
+\item{nullOutBorder}{If \code{TRUE} sets borders to zero.}
 }
 \value{
 Modified grob.

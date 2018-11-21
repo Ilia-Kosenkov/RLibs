@@ -38,6 +38,7 @@ utils::globalVariables("gtable")
 #' @param axisList When not NULL, is used instead of other axis parameters.
 #' @param labsMar A \code{margin} item used instead of \code{labsList}.
 #' @param axisMar A \code{margin} item used instead of \code{axisList}.
+#' @param nullOutBorder If \code{TRUE} sets borders to zero.
 #'
 #' @return Modified grob.
 #' @importFrom rlang invoke
@@ -50,7 +51,8 @@ GrobMarginSet <- function(grob,
     tAxis = NULL, rAxis = NULL, bAxis = NULL, lAxis = NULL,
     labsList = NULL, axisList = NULL,
     labsMar = NULL,
-    axisMar = NULL) {
+    axisMar = NULL,
+    nullOutBorder = TRUE) {
 
     if (grob %is% gtable &&
         grob %is% gTree)
@@ -113,6 +115,10 @@ GrobMarginSet <- function(grob,
         #grob %<>% GrobSizeSet("axis-l", width = axisList$left)
         grob <- worker(name = "axis-l", width = axisList$left)
 
+    if (nullOutBorder && (grob %is% gtable && grob %is% gTree))
+        grob <- GrobSetGaps(asMargin = margin())
+    else
+        grob <- map(grob, GrobSetGaps, asMargin = margin())
 
-    invisible(grob)
+    return(grob)
 }
