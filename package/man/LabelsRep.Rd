@@ -5,7 +5,7 @@
 \title{LabelsRep}
 \usage{
 LabelsRep(labels, normRange = c(-2, 2), isTex = FALSE, expDigPlc = 0,
-  omitOnes = TRUE, every = 1)
+  omitOnes = TRUE, every = 1, sameDigitCount = FALSE)
 }
 \arguments{
 \item{labels}{Input numeric vector.}
@@ -23,6 +23,9 @@ without leading 1}
 
 \item{every}{Samples labels. All other labels, except every \code{every} one
 are empty strings. Works good when there is no space to put all the labels.}
+
+\item{sameDigitCount}{If \code{TRUE}, enforces same amount of
+dec. digits across all items.}
 }
 \value{
 Textual represntation of the numeric vector.

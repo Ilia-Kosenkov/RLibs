@@ -33,6 +33,8 @@
 #' without leading 1
 #' @param every Samples labels. All other labels, except every \code{every} one
 #' are empty strings. Works good when there is no space to put all the labels.
+#' @param sameDigitCount If \code{TRUE}, enforces same amount of
+#' dec. digits across all items.
 #'
 #' @return Textual represntation of the numeric vector.
 #' @importFrom dplyr %>%
@@ -46,7 +48,8 @@ LabelsRep <- function(labels,
     isTex = FALSE,
     expDigPlc = 0,
     omitOnes = TRUE,
-    every = 1) {
+    every = 1,
+    sameDigitCount = FALSE) {
 
     if (isTex)
         expPattern <-
@@ -59,7 +62,8 @@ LabelsRep <- function(labels,
 
     digits <- labels %>% abs %>% log10 %>% floor
     decDigits <- digits %>% multiply_by(-1) %>% Clamp(0, + Inf)
-
+    if (sameDigitCount)
+        decDigits <- rep(max(decDigits), length(decDigits))
     if (!all(WithinL(digits, normRange[1], normRange[2]))) {
         remnants <- labels %>%
             divide_by(10 ^ digits) %>% round(digits = expDigPlc)

@@ -115,34 +115,42 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
 
 
     grobs[lInds] %<>% map(GrobMarginSet,
-            lLab = labsList$left, lAxis = axisList$left) %>%
+            lLab = labsList$left, lAxis = axisList$left,
+            nullOutBorder = FALSE) %>%
         map(GrobSetGaps, left = unit(0, "pt"))
     grobs[-lInds] %<>% map(GrobMarginSet,
-                           lLab = unit(0, "cm"), lAxis = unit(0, "cm")) %>%
+                           lLab = unit(0, "cm"), lAxis = unit(0, "cm"),
+                           nullOutBorder = FALSE) %>%
         map(GrobZero, c("ylab-l")) %>%
         map(GrobSetGaps, left = halfHgap)
 
     grobs[rInds] %<>% map(GrobMarginSet,
-            rLab = labsList$right, rAxis = axisList$right) %>%
+            rLab = labsList$right, rAxis = axisList$right,
+            nullOutBorder = FALSE) %>%
         map(GrobSetGaps, right = unit(0, "pt"))
     grobs[-rInds] %<>% map(GrobMarginSet,
-                           rLab = unit(0, "cm"), rAxis = unit(0, "cm")) %>%
+                           rLab = unit(0, "cm"), rAxis = unit(0, "cm"),
+                           nullOutBorder = FALSE) %>%
         map(GrobZero, c("ylab-r")) %>%
         map(GrobSetGaps, right = halfHgap)
 
     grobs[tInds] %<>% map(GrobMarginSet,
-            tLab = labsList$top, tAxis = axisList$top) %>%
+            tLab = labsList$top, tAxis = axisList$top,
+            nullOutBorder = FALSE) %>%
         map(GrobSetGaps, top = unit(0, "pt"))
     grobs[-tInds] %<>% map(GrobMarginSet,
-                           tLab = unit(0, "cm"), tAxis = unit(0, "cm")) %>%
+                           tLab = unit(0, "cm"), tAxis = unit(0, "cm"),
+                           nullOutBorder = FALSE) %>%
         map(GrobZero, c("xlab-t")) %>%
         map(GrobSetGaps, top = halfVgap)
 
     grobs[bInds] %<>% map(GrobMarginSet,
-            bLab = labsList$bottom, bAxis = axisList$bottom) %>%
+            bLab = labsList$bottom, bAxis = axisList$bottom,
+            nullOutBorder = FALSE) %>%
         map(GrobSetGaps, bottom = unit(0, "pt"))
     grobs[-bInds] %<>% map(GrobMarginSet,
-                           bLab = unit(0, "cm"), bAxis = unit(0, "cm")) %>%
+                           bLab = unit(0, "cm"), bAxis = unit(0, "cm"),
+                           nullOutBorder = FALSE) %>%
         map(GrobZero, c("xlab-b")) %>%
         map(GrobSetGaps, bottom = halfVgap)
 
@@ -161,7 +169,7 @@ GrobsArrange <- function(grobs, ncol, nrow = length(grobs) %/% ncol,
     vSize <- (vpHeightCm - vExtraSpaceCm) / nrow
 
     oneWidth <- 1 / ncol * (unit(1, "npc") - (labsList$right + axisList$right +
-        labsList$left + axisList$left + (ncol-1) * hGap))
+        labsList$left + axisList$left + (ncol - 1) * hGap))
 
     widths <- rep(oneWidth, ncol)
     widths[1] <- 0.5 * hGap + labsList$left + axisList$left + widths[1]

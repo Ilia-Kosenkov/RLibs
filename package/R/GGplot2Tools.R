@@ -141,23 +141,53 @@ SetMargins <- function(grob, type, margins) {
 
 #' @title DefaultTheme
 #' @description Generates default theme used in scientific publications.
+#' @param ticks Controls the tick size (and direction).
+#' @param textSz Text font size by default.
+#' @param titleSz Title (labels') font size by default.
 #' @return A theme object.
 #' @export
 #' @import ggplot2
-DefaultTheme <- function() {
+DefaultTheme <- function(
+    ticks = unit(-3.5, "pt"),
+    textSz = 10,
+    titleSz = 15) {
     return(theme_bw() +
                 theme(panel.grid.major = element_blank(),
                     panel.grid.minor = element_blank()) +
-                theme(axis.ticks.length = unit(-3.5, "pt")) +
+                theme(axis.ticks.length = ticks) +
                 theme(axis.text.x =
-                    element_text(size = 10,
-                        margin = margin(t = unit(10, "pt")), colour = "#000000")) +
+                    element_text(size = textSz,
+                        margin = margin(t = unit(10, "pt")),
+                        colour = "#000000")) +
                 theme(axis.text.y =
-                    element_text(size = 10,
-                        margin = margin(r = unit(10, "pt")), colour = "#000000")) +
+                        element_text(size = textSz,
+                        margin = margin(r = unit(10, "pt")),
+                        colour = "#000000")) +
                 theme(axis.text.y.right =
-                    element_text(size = 10,
-                        margin = margin(l = unit(10, "pt")), colour = "#000000")))
+                        element_text(size = textSz,
+                        margin = margin(l = unit(10, "pt")),
+                        colour = "#000000")) +
+                theme(axis.text.x.top =
+                        element_text(size = textSz,
+                        margin = margin(l = unit(10, "pt")),
+                        colour = "#000000")) +
+                #------------------------------------#
+                theme(axis.title.x =
+                        element_text(size = titleSz,
+                        margin = margin(t = unit(10, "pt")),
+                        colour = "#000000")) +
+                theme(axis.title.y =
+                        element_text(size = titleSz,
+                        margin = margin(r = unit(10, "pt")),
+                        colour = "#000000")) +
+                theme(axis.title.y.right =
+                        element_text(size = titleSz,
+                        margin = margin(l = unit(10, "pt")),
+                        colour = "#000000")) +
+                theme(axis.title.x.top =
+                        element_text(size = titleSz,
+                        margin = margin(l = unit(10, "pt")),
+                        colour = "#000000")))
 }
 
 #' @export

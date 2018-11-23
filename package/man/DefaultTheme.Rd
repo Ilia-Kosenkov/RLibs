@@ -4,7 +4,14 @@
 \alias{DefaultTheme}
 \title{DefaultTheme}
 \usage{
-DefaultTheme()
+DefaultTheme(ticks = unit(-3.5, "pt"), textSz = 10, titleSz = 15)
+}
+\arguments{
+\item{ticks}{Controls the tick size (and direction).}
+
+\item{textSz}{Text font size by default.}
+
+\item{titleSz}{Title (labels') font size by default.}
 }
 \value{
 A theme object.
