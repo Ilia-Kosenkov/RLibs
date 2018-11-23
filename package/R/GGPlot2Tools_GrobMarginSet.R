@@ -117,7 +117,7 @@ GrobMarginSet <- function(grob,
 
     if (nullOutBorder) {
         if ((grob %is% gtable) && (grob %is% gTree))
-            grob <- GrobSetGaps(asMargin = margin())
+            grob <- GrobSetGaps(grob, asMargin = margin())
         else
             grob <- map(grob, GrobSetGaps, asMargin = margin())
     }
