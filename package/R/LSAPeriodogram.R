@@ -21,58 +21,40 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#' @title LSAPeriodogram
+#'
+#' @param w (Angular) frequencies.
+#' @param t Moments of time at which \code{x} were observed.
+#' @param x Observations
+#' @param tau If \code{NA}, \code{LSAPhase} is used to calculate phases.
+#' Can be used to caches values for a given set of \code{w} and \code{t}.
+#'
+#' @return Numeric vector of length equal to length of \code{w}.
+#' @importFrom purrr map2_dbl
 #' @export
-Scargle.Tau = function(w, t)
-{
-    # Determines phase correction to Scargle periodogram
-    # Args:
-    #       w : Frequencies (2 pi nu)
-    #       t : Time
-    warning("This method is obsolete. Consider using `LSAPhase` instead.")
-    worker = function(locW, t) {
-        
-        if (F)
-            return(sum(t) / length(t))
-        else
-            return(0.5/locW * atan2(sum(sin(locW * t)),  sum(cos(locW * t))))
-    }
-    
-    return(sapply(w, worker, t))
-}
-
-#' @export
-Scargle.Periodogram = function(w, t, x, tau = NA)
-{
+LSAPeriodogram <- function(w, t, x, tau = NA) {
     # Calculates scargle periodogram
     # Args:
     #   w   : Frequencies (2 pi nu)
     #   t   : Time
     #   x   : Measurements
     #   tau : Phase correction. If NA, it is calculated
-    warning("This method is obsolete. Consider using `LSAPeriodogram` instead.")
+
     if (all(is.na(tau)))
-        tau = Scargle.Tau(w, t)
-    
-    args = lapply(1:length(w), function(i) return(c("w" = w[i], "tau" = tau[i])))
+        tau <- LSAPhase(w, t)
 
-    worker = function(locArgs, t, x) {
-        locW = locArgs["w"]
-        locTau = locArgs["tau"]
-        arg = locW * (t - locTau)
-        cs = cos(arg)
-        # cosns = (sum(x * cos(locW * (t - locTau)))) ^ 2 / sum((cos(locW * (t - locTau))) ^ 2)
-        cosns = (sum(x * cs)) ^ 2 / sum(cs ^ 2)
-        if (abs(locW) < .Machine$double.xmin * 1e1)
-            sins = (sum(arg)) ^ 2 / sum((t - locTau) ^ 2)
+    map2_dbl(w, tau, function(locW, locT) {
+        arg <- locW * (t - locT)
+        cs <- cos(arg)
+        csTerm <- (sum(x * cs) ^ 2) / sum(cs ^ 2)
+        if (abs(locW) <= 2 * .Machine$double.eps)
+            snTerm <- sum(x * (t - locT)) ^ 2 / sum((t - locT) ^ 2)
         else {
-            sn = sin(arg) 
-            sins = (sum(x * sn)) ^ 2 / sum(sn ^ 2)
+            sn <- sin(arg)
+            snTerm <- sum(x * sn) ^ 2 / sum(sn ^ 2)
         }
-        return(0.5 * (cosns + sins))
-    }
 
-     return(sapply(args, worker, t, x))
+        return(0.5 * (csTerm  + snTerm))
+    })
 
 }
-
-
