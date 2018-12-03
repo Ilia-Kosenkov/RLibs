@@ -60,7 +60,7 @@ LSAPeriodogramEx <- function(.data, t, x, w, tau = NA) {
             snTerm <- sum(x * sn) ^ 2 / sum(sn ^ 2)
         }
 
-        return(tibble(W = locW, Tau = locT, CS = csTerm, SN = snTerm))
+        return(list(W = locW, Tau = locT, CS = csTerm, SN = snTerm))
     }) %>%
     bind_rows %>%
     mutate(
