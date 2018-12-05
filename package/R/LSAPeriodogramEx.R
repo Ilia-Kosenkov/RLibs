@@ -22,7 +22,8 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 utils::globalVariables(
-    c("CS", "SN", "PSD", "W", "P", "Tau", "PSDN", "Amplitude", "Phase"))
+    c("CS", "SN", "PSD", "W", "P", "Tau", "PSDN", "Amplitude",
+      "CSPhase", "SNPhase", "TCSPhase", "TSNPhase"))
 #' @title LSAPeriodogram
 #'
 #' @param .data Input data tibble.
@@ -65,9 +66,13 @@ LSAPeriodogramEx <- function(.data, t, x, w, tau = NA) {
     bind_rows %>%
     mutate(
         PSD = 0.5 * (CS + SN), PSDN = PSD / var,
-        Phase = atan2(sqrt(SN), sqrt(CS)),
+        CSPhase = -atan2(sqrt(SN), sqrt(CS)),
+        SNPhase = atan2(sqrt(CS), sqrt(SN)),
+        TCSPhase = -W * Tau + CSPhase,
+        TSNPhase = -W * Tau + SNPhase,
         Amplitude = sqrt(4 / n * PSD),
         F = W / 2 / pi, P = 1 / `F`) %>%
-    select(W, `F`, P, Tau, CS, SN, PSD, PSDN, Amplitude, Phase)
+    select(W, `F`, P, Tau, CS, SN, PSD, PSDN, Amplitude,
+        CSPhase, SNPhase, TCSPhase, TSNPhase)
 
 }
