@@ -23,7 +23,7 @@
 
 utils::globalVariables(
     c("CS", "SN", "PSD", "W", "P", "Tau", "PSDN", "Amplitude",
-      "CSPhase", "SNPhase", "TCSPhase", "TSNPhase"))
+      "CSPhase", "SNPhase", "TCSPhase", "TSNPhase", "FAP"))
 #' @title LSAPeriodogram
 #'
 #' @param .data Input data tibble.
@@ -71,8 +71,9 @@ LSAPeriodogramEx <- function(.data, t, x, w, tau = NA) {
         TCSPhase = -W * Tau + CSPhase,
         TSNPhase = -W * Tau + SNPhase,
         Amplitude = sqrt(4 / n * PSD),
-        F = W / 2 / pi, P = 1 / `F`) %>%
-    select(W, `F`, P, Tau, CS, SN, PSD, PSDN, Amplitude,
+        F = W / 2 / pi, P = 1 / `F`,
+        FAP = 1 - (1 - exp(-PSDN)) ^ n) %>%
+    select(W, `F`, P, Tau, CS, SN, PSD, PSDN, Amplitude, FAP,
         CSPhase, SNPhase, TCSPhase, TSNPhase)
 
 }
