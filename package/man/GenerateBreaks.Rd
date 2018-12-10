@@ -4,7 +4,8 @@
 \alias{GenerateBreaks}
 \title{GenerateBreaks}
 \usage{
-GenerateBreaks(range, largeStep, smallStep, ticks, op = `*`)
+GenerateBreaks(range, largeStep, smallStep, ticks, op = `*`,
+  shrinkFactor = -0.05)
 }
 \arguments{
 \item{range}{Range of breaks (typically a scale of an axis).}
@@ -19,6 +20,10 @@ to create small breaks.}
 \item{op}{Used in combination with \code{ticks} as:
 per each large break produces
 \code{op(ticks, break)} small breaks and then limits them to \code{range}}
+
+\item{shrinkFactor}{Controls the min and max limits within which
+large labels are calculated. Can be useful to prevent large labels
+being plotted outside of plot region, overlapping with e.g. stacked plots.}
 }
 \value{
 A list containing either $Large, $Small
