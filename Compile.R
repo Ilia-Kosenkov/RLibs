@@ -29,6 +29,8 @@ if (interactive()) {
     library(magrittr)
     library(rlang)
     library(glue)
+    library(scales)
+    library(foreach)
 
     src <- dir(file.path("package", "R"),
         full.names = TRUE, recursive = TRUE)
