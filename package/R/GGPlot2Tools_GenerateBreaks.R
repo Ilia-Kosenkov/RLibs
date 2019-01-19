@@ -63,7 +63,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`,
     else
         reulst <- NULL
 
-    if (!is.null(result$Large)) {
+    if (!is_null(result$Large)) {
         rangeSh <- Expand(range, factor = shrinkFactor)
         result$Large <- Within(result$Large, rangeSh)
     }
@@ -72,7 +72,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`,
         prod <- outer(result$Small, result$Large, function(x, y) abs(x - y)) <
             0.5 * median(diff(result$Small))
         inds <- prod %>%
-            as.tibble %>%
+            as_tibble %>%
             reduce(or) %>%
             which %>% multiply_by(-1)
         result$Small <- result$Small[inds]
