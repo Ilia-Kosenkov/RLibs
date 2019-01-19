@@ -44,6 +44,7 @@ utils::globalVariables(c("b", "lbl"))
 #' @importFrom ggplot2 annotation_custom
 #' @importFrom grid textGrob segmentsGrob
 #' @importFrom stringr str_detect
+#' @importFrom rlang eval_tidy quo is_empty is_integer is_character
 #' @export
 GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
                                 trnsf = identity,
@@ -59,7 +60,7 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
         sideId <- which(
             str_detect(c("top", "right", "bottom", "left"),
                 regex("\\b" %&% side[1], ignore_case = TRUE)))
-    else stop(glue("`side` should be either integer ",
+    else stop(paste0("`side` should be either integer ",
         "or string name of one of the sides."))
 
     if (is_empty(sideId))
