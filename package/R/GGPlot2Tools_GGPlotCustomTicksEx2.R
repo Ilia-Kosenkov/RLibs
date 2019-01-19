@@ -53,6 +53,17 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
                                 offset = unit(0.15, "cm"),
                                 just = NULL,
                                 tickGp = gpar()) {
+    if (is_integer(side))
+        sideId <- side[1]
+    else if (is_character(side))
+        sideId <- which(
+            str_detect(c("top", "right", "bottom", "left"),
+                regex("\\b" %&% side[1], ignore_case = TRUE)))
+    else stop(glue("`side` should be either integer ",
+        "or string name of one of the sides."))
+
+    if (is_empty(sideId))
+        stop("Invalid `side` value provided")
 
     if (!(tckSz %is% unit))
         tckSz <- unit(tckSz, "npc")
@@ -70,124 +81,75 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
     if (length(breaks) != length(labels) && length(labels) > 1)
         stop("Length of [breaks] and [labels] should be equal.")
     if (length(labels) == 1)
-        labels <- rep(labels, length(breaks))
+        labels <- rep(labels[1], length(breaks))
 
     if (is_empty(labels))
         labels <- rep("", length(breaks))
 
-    if (side == 1 ||
-        side == "b" ||
-        regexpr("bot", side) > 0) {
+    template <- tibble(
+        Side = c("t", "r", "b", "l"),
+        Full = c("top", "right", "bottom", "left"),
+        x = list(unit(0.5, "npc"), unit(1, "npc") + offset,
+                 unit(0.5, "npc"), unit(0, "npc") - offset),
+        y = list(unit(1, "npc") + offset, unit(0.5, "npc"),
+                 unit(0, "npc") - offset, unit(0.5, "npc")),
+        Just = if (is_null(just)) c("bottom", "left", "top", "right")
+            else rep(just, 4),
+        xmin = list(quo(b), - Inf, quo(b), Inf),
+        xmax = list(quo(b), Inf, quo(b), -Inf),
+        ymin = list(Inf, quo(b), - Inf, quo(b)),
+        ymax = list(-Inf, quo(b), Inf, quo(b)),
+        x0 = list(unit(0, "npc"), unit(1, "npc"),
+            unit(0, "npc"), unit(0, "npc")),
+        x1 = list(unit(1, "npc"), unit(1, "npc") - tckSz,
+                  unit(1, "npc"), tckSz),
+        y0 = list(unit(1, "npc"), unit(0, "npc"),
+            unit(0, "npc"), unit(0, "npc")),
+        y1 = list(unit(1, "npc") - tckSz, unit(1, "npc"),
+                  tckSz, unit(1, "npc")),
+        Trans = list(GetScale("bottom")$trans,
+            GetScale("left")$trans)[c(1, 2, 1, 2)],
+        BreaksTrans = list(
+            function(x) EvalTrans(Trans[1], EvalTrans(trnsf, x)),
+            function(x) EvalTrans(Trans[2], EvalTrans(trnsf, x)),
+            function(x) EvalTrans(Trans[3], x),
+            function(x) EvalTrans(Trans[4], x)))
 
-        trans <- GetScale("bottom")$trans
-        breaks <- EvalTrans(trans, breaks)
-        # Return
+    selection <- template %>% slice(sideId)
 
-        plt +  foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            result <- list(
+
+    plt +
+    map2(selection$BreaksTrans[[1]](breaks), labels, function(b, lbl) {
+        xmin <- eval_tidy(selection$xmin[[1]], list(b = b))
+        xmax <- eval_tidy(selection$xmax[[1]], list(b = b))
+        ymin <- eval_tidy(selection$ymin[[1]], list(b = b))
+        ymax <- eval_tidy(selection$ymax[[1]], list(b = b))
+        result <- list(
+            annotation_custom(
+                grob = segmentsGrob(
+                    x0 = selection$x0[[1]],
+                    x1 = selection$x1[[1]],
+                    y0 = selection$y0[[1]],
+                    y1 = selection$y1[[1]],
+                    gp = tickGp),
+                xmin = xmin,
+                xmax = xmax,
+                ymin = ymin,
+                ymax = ymax))
+
+        if (nzchar(lbl))
+            result <- append(result, list(
                 annotation_custom(
                     grob = textGrob(
                         label = lbl, gp = gp, rot = rot,
-                        y = unit(0, "npc") - offset,
-                        just = ifelse(is.null(just), "top", just)),
-                    xmin = b, xmax = b,
-                    ymin = -Inf, ymax = -Inf))
+                        x = selection$x[[1]],
+                        y = selection$y[[1]],
+                        just = selection$Just),
+                    xmin = xmin,
+                    xmax = xmax,
+                    ymin = ymin,
+            ymax = ymax)))
 
-            if (nzchar(lbl))
-                result %<>% append(
-                list(
-                    annotation_custom(
-                        grob = segmentsGrob(
-                            y0 = unit(0, "npc"), y1 = tckSz,
-                            gp = tickGp),
-                        xmin = b, xmax = b)))
-        }
-    }
-    else if (side == 3 ||
-             side == "t" ||
-             regexpr("top", side) > 0) {
-
-        trans <- GetScale("bottom")$trans
-        breaks <- EvalTrans(trans, EvalTrans(trnsf, breaks))
-
-        # Return
-        plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            result <- list(
-                annotation_custom(
-                    grob = textGrob(
-                        label = lbl, gp = gp, rot = rot,
-                        y = unit(1, "npc") + offset,
-                        just = ifelse(is.null(just), "bottom", just)),
-                    xmin = b, xmax = b,
-                    ymin = Inf, ymax = Inf))
-
-            if (nzchar(lbl))
-                result %<>% append(
-                list(
-                    annotation_custom(
-                    grob = segmentsGrob(
-                        y0 = unit(1, "npc"), y1 = unit(1, "npc") - tckSz,
-                        gp = tickGp),
-                    xmin = b, xmax = b)))
-        }
-    }
-    else if (side == 2 ||
-             side == "l" ||
-             regexpr("lef", side) > 0) {
-
-        trans <- GetScale("left")$trans
-        breaks <- EvalTrans(trans, breaks)
-
-        # Return
-        plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            result <- list(
-                annotation_custom(
-                    grob = textGrob(
-                        label = lbl, gp = gp, rot = rot,
-                        x = unit(0, "npc") - offset,
-                        just = ifelse(is.null(just), "right", just)),
-                    ymin = b, ymax = b,
-                    xmin = -Inf, xmax = -Inf))
-
-            if (nzchar(lbl))
-                result %<>% append(
-                list(
-                    annotation_custom(
-                        grob = segmentsGrob(
-                            x0 = unit(0, "npc"), x1 = tckSz,
-                            gp = tickGp),
-                        ymin = b, ymax = b)))
-        }
-    }
-    else if (side == 4 ||
-             side == "r" ||
-             regexpr("rig", side) > 0) {
-
-        trans <- GetScale("left")$trans
-        breaks <- EvalTrans(trans, EvalTrans(trnsf, breaks))
-        # Return
-        plt + foreach(b = breaks, lbl = labels, .combine = append) %do% {
-            result <- list(
-                annotation_custom(
-                    grob = segmentsGrob(
-                        x0 = unit(1, "npc"), x1 = unit(1, "npc") - tckSz,
-                        gp = tickGp),
-                    ymin = b, ymax = b))
-
-            if (nzchar(lbl))
-                result %<>% append(
-                list(
-                    annotation_custom(
-                        grob = textGrob(
-                            label = lbl, gp = gp, rot = rot,
-                            x = unit(1, "npc") + offset,
-                            just = ifelse(is.null(just), "left", just)),
-                        ymin = b, ymax = b,
-                        xmin = Inf, xmax = Inf)))
-
-            result
-        }
-    }
-    else
-        stop(sprintf("Unknown axis %s", as.character(side)))
+        result
+    })
 }
