@@ -23,4 +23,5 @@
 
 if (interactive()) {
     source(file.path("..", "..", "R", "Math.R"))
+    source(file.path("..", "..", "R", "are_equal_f.R"))
 }

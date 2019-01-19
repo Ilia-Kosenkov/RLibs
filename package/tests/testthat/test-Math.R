@@ -108,3 +108,16 @@ test_that("M.Norm returnes vector, which length is 1", {
         expect_equal(sum(M.Norm(x)^2), 1)
     }
 })
+
+test_that("Transitivity and symmetry of `are_equal_f", {
+    x <- rnorm(50)
+    sample_1 <- sample(x, 1e3, TRUE)
+    sample_2 <- sample(x, 1e3, TRUE)
+
+    expect_true(all(are_equal_f(sample_1, sample_2) ==
+        are_equal_f(sample_2, sample_1)))
+
+    expect_true(all(are_equal_f(sample_1, sample_1)))
+    expect_true(all(are_equal_f(sample_2, sample_2)))
+
+})
