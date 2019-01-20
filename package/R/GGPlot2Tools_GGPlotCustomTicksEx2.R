@@ -111,13 +111,12 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
         Trans = list(GetScale("bottom")$trans,
             GetScale("left")$trans)[c(1, 2, 1, 2)],
         BreaksTrans = list(
-            function(x) EvalTrans(Trans[1], EvalTrans(trnsf, x)),
-            function(x) EvalTrans(Trans[2], EvalTrans(trnsf, x)),
-            function(x) EvalTrans(Trans[3], x),
-            function(x) EvalTrans(Trans[4], x)))
+            function(x) EvalTrans(Trans[[1]], EvalTrans(trnsf, x)),
+            function(x) EvalTrans(Trans[[2]], EvalTrans(trnsf, x)),
+            function(x) EvalTrans(Trans[[3]], x),
+            function(x) EvalTrans(Trans[[4]], x)))
 
     selection <- template %>% slice(sideId)
-
 
     plt +
     map2(selection$BreaksTrans[[1]](breaks), labels, function(b, lbl) {
@@ -125,6 +124,7 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
         xmax <- eval_tidy(selection$xmax[[1]], list(b = b))
         ymin <- eval_tidy(selection$ymin[[1]], list(b = b))
         ymax <- eval_tidy(selection$ymax[[1]], list(b = b))
+
         result <- list(
             annotation_custom(
                 grob = segmentsGrob(
