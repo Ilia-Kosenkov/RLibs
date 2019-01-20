@@ -63,6 +63,7 @@ if (interactive()) {
     `%>%` <- dplyr::`%>%`
     stringr::str_match(pckgs, "RLibs_((?:[0-9]+?\\.?){3})\\.tar\\.gz") %>%
         dplyr::as_tibble(.name_repair = "universal") %>%
+        suppressWarnings %>%
         stats::setNames(nm = c("File", "Version")) %>%
         dplyr::mutate(
             VersionNum = stringr::str_split(Version, "\\."),

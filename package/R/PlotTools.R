@@ -21,6 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+utils::globalVariables(c("Ext", "FileName"))
 
 #' @title Tex2Pdf
 #' @param source Source files.
@@ -32,7 +33,7 @@
 #' @importFrom glue glue glue_collapse
 #' @importFrom dplyr %>% pull
 #' @importFrom purrr map pwalk walk
-#' @importFrom fs path_dir path_ext_remove path_ext 
+#' @importFrom fs path_dir path_ext_remove path_ext file_exists
 #' @importFrom fs path_norm path_ext_set path_file
 #'
 Tex2Pdf <- function(..., verbose = FALSE,

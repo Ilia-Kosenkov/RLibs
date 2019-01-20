@@ -2,20 +2,16 @@
 % Please edit documentation in R/PlotTools.R
 \name{Tex2Pdf}
 \alias{Tex2Pdf}
-\alias{PlotAPI.Tex2Pdf}
 \title{Tex2Pdf}
 \usage{
-Tex2Pdf(source, verbose = FALSE, additionalParams = "", seps = c("/",
-  "\\\\\\\\"))
+Tex2Pdf(..., verbose = FALSE, additionalParams = "")
 }
 \arguments{
-\item{source}{Source files.}
-
 \item{verbose}{\code{logical}. If \code{TRUE}, prints detailed output.}
 
 \item{additionalParams}{Passed to 'pdflatex'.}
 
-\item{seps}{Directory name separators.}
+\item{source}{Source files.}
 }
 \description{
 Tex2Pdf
