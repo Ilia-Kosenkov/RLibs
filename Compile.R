@@ -37,9 +37,9 @@ if (interactive()) {
 
     src %>% walk(source)
 
-    #source(file.path("package", "tests", "testthat.R"))
+    source(file.path("package", "tests", "testthat.R"))
     # Uncomment this to check the package from within interactive session
-    #devtools::check(file.path("package"))
+    devtools::check(file.path("package"))
 
 } else {
 
@@ -61,22 +61,20 @@ if (interactive()) {
     pckgs <- base::dir(".", "*.gz")
 
     `%>%` <- dplyr::`%>%`
-    stringr::str_match_all(pckgs, "RLibs_(([0-9]\\.){3}).*gz") %>%
-        purrr::map(dplyr::as_tibble) %>%
-        purrr::reduce(dplyr::bind_rows) %>%
-        dplyr::select(1:2) %>%
+    stringr::str_match(pckgs, "RLibs_((?:[0-9]+?\\.?){3})\\.tar\\.gz") %>%
+        dplyr::as_tibble(.name_repair = "universal") %>%
         stats::setNames(nm = c("File", "Version")) %>%
-        dplyr::arrange(desc(Version)) %>%
-        dplyr::slice(1) %>%
+        dplyr::mutate(
+            VersionNum = stringr::str_split(Version, "\\."),
+            Major = map_int(VersionNum, ~ as.integer(.x[1])),
+            Minor = map_int(VersionNum, ~ as.integer(.x[2])),
+            Patch = map_int(VersionNum, ~ as.integer(.x[3]))) %>%
+        dplyr::arrange(desc(Major), desc(Minor), desc(Patch)) %>%
+        utils::head(1) %>%
         dplyr::pull(File) -> latestPckg
 
 
-
-
     cmd_2 <- sprintf("R%s CMD check %s", sfx, latestPckg)
-    #command <-
-            #sprintf("cmd /k \"R.exe CMD build ./package && %s %s && %s \"",
-                #"R.exe CMD check", latestPckg,"exit")
     message(paste("Executing:", cmd_2))
     if (isWin)
         shell(cmd_2, mustWork = TRUE)
