@@ -26,62 +26,85 @@
 #' @param source Source files.
 #' @param verbose \code{logical}. If \code{TRUE}, prints detailed output.
 #' @param additionalParams Passed to 'pdflatex'.
-#' @param seps Directory name separators.
 #' @export
-#' @aliases PlotAPI.Tex2Pdf
-#' @importFrom stringr str_split str_replace
+#' @importFrom tibble tibble
+#' @importFrom rlang flatten_chr is_empty
 #' @importFrom glue glue glue_collapse
-#' @importFrom dplyr %>%
-#' @importFrom purrr map map_if keep pwalk reduce
-#' @importFrom utils tail
-Tex2Pdf <- function(source, verbose = FALSE,
-    additionalParams = "", seps = c("/", "\\\\")) {
-    # Transforms TeX output of tikzDevice into .pdf
-    # using 'pdflatex' command.
-    # Output file is file with the same name as source,
-    # except extention is changed to .pdf
-    # Params :
-    #   source           : path to .tex file
-    #   verbose          : If TRUE, prints detailed output
-    #   additionalParams : Passed to 'pdflatex' command
-    #   seps             : Path separators
+#' @importFrom dplyr %>% pull
+#' @importFrom purrr map pwalk walk
+#' @importFrom fs path_dir path_ext_remove path_ext 
+#' @importFrom fs path_norm path_ext_set path_file
+#'
+Tex2Pdf <- function(..., verbose = FALSE,
+    additionalParams = "") {
 
-    if (all(nzchar(unlist(additionalParams))))
-        params <- glue_collapse(additionalParams, sep = " ")
-    else
-        params <- ""
+    source <- flatten_chr(list(...))
+
+    params <- glue_collapse(additionalParams, sep = " ")
 
     if (!verbose)
         params <- glue("{params} -quiet")
 
-    # Splits strings
-    fInfo <- source %>%
-        str_split(glue("[{glue_collapse(seps)}]")) %>%
-        map(~keep(.x, nzchar)) %>%
-        map_if(~length(.x) < 2, ~ c(getwd(), .x)) %>%
-        map_if(~.x[1] == ".", ~c(getwd(), .x[-1]))
+    fInfo <- tibble(
+            Folder = path_dir(source),
+            FileName = path_ext_remove(path_file(source)),
+            Ext = path_ext(source),
+            Tex = path_norm(source))
 
-    fNames <- fInfo %>% map_chr(tail, 1)
-    fNamesClean <- fNames %>% str_replace("\\.[a-zA-Z0-9]+?$", "")
-    fDir <- fInfo %>%
-        map(~glue_collapse(head(.x, -1), sep = .Platform$file.sep))
+    invalidFiles <- fInfo %>%
+        filter(tolower(Ext) != "tex") %>%
+        pull(FileName)
 
-    list(fNames, fNamesClean, fDir) %>% pwalk(function(nm, nmc, dir) {
+    if (!is_empty(invalidFiles)) {
+        lim <- 4L
+        error <- glue("[{head(invalidFiles, lim)}]") %>%
+            glue_collapse(sep = ", ")
+        extraMsg <- ifelse(length(invalidFiles) > lim,
+            glue(" and {length(invalidFiles) - lim} more"), "")
+        stop(glue("Illegal files: {error}{extraMsg}."))
+    }
+
+    pwalk(fInfo, function(Folder, FileName, Ext, Tex) {
+        if (verbose)
+            message(glue("Running `pdflatex` for \"{FileName}.tex\"..."))
+
         pdflatexCmd <-
-            glue("pdflatex -job-name={nmc}",
-            " -output-directory=\"{dir}\"",
-            " {params} \"{dir}{.Platform$file.sep}{nm}\"")
-
-        rmCmd <- glue("rm {ifelse(verbose, \"-v\", \"\")}")
-
-        rmCmds <- c("aux", "log") %>%
-            reduce(~glue("{.x} \"{dir}{.Platform$file.sep}{nmc}.{.y}\""),
-                   .init = rmCmd)
+            glue("pdflatex -job-name='{FileName}'",
+                " -output-directory=\"{Folder}\"",
+                " {params} \"{Tex}\"")
 
         system(pdflatexCmd)
-        system(rmCmds)
+
+        rmCmd <- glue("rm {ifelse(verbose, \"-v\", \"\")}")
+        rmFiles <- c("aux", "log") %>%
+            map(~glue("\"{path_ext_set(Tex, .x)}\""))
+
+        rmFiles %>%
+            walk(function(f) {
+                if (verbose)
+                    message(glue("Removing {f}..."))
+                cmd <- glue("{rmCmd} {f}")
+                system(cmd)
+            })
 
     })
+
+    #list(fNames, fNamesClean, fDir) %>% pwalk(function(nm, nmc, dir) {
+        #pdflatexCmd <-
+            #glue("pdflatex -job-name={nmc}",
+            #" -output-directory=\"{dir}\"",
+            #" {params} \"{dir}{.Platform$file.sep}{nm}\"")
+
+        #rmCmd <- glue("rm {ifelse(verbose, \"-v\", \"\")}")
+
+        #rmCmds <- c("aux", "log") %>%
+            #reduce(~glue("{.x} \"{dir}{.Platform$file.sep}{nmc}.{.y}\""),
+                   #.init = rmCmd)
+
+        #system(pdflatexCmd)
+        #system(rmCmds)
+
+    #})
 
     return(invisible(NULL))
 }
