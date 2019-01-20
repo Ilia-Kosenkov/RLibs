@@ -43,7 +43,7 @@ utils::globalVariables(c("b", "lbl"))
 #' @param tickGp \code{gpar} that controls ticks.
 #' @importFrom ggplot2 annotation_custom
 #' @importFrom grid textGrob segmentsGrob
-#' @importFrom stringr str_detect
+#' @importFrom stringr str_detect regex
 #' @importFrom rlang eval_tidy quo is_empty is_integer is_character
 #' @export
 GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
