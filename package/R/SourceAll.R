@@ -21,6 +21,8 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+utils::globalVariables(c("Path", "Length"))
+
 #' Sources files in the directory.
 #' Useful for the initial project setup.
 #'

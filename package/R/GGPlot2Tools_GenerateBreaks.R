@@ -39,6 +39,7 @@
 #' collections of breaks, or both.
 #' @importFrom stats median
 #' @importFrom magrittr or
+#' @importFrom tibble as_tibble
 #' @export
 GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`,
     shrinkFactor = - 0.05) {

@@ -31,6 +31,7 @@
 #'
 #' @return Logical vector.
 #' @importFrom purrr map2_lgl
+#' @importFrom rlang is_double is_integer is_scalar_double is_scalar_integer
 #' @export
 are_equal_f <- function(x, y = rep(0.0, length(x)), tol = .Machine$double.eps) {
     if (!is_double(x) && !is_integer(x))

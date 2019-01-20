@@ -22,7 +22,7 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-utils::globalVariables(c("b", "lbl"))
+utils::globalVariables(c("b", "lbl", "Trans"))
 #' @title GGPlotCustomTicksEx
 #' @description
 #' Creates custom ticks with labels. Requires a finished ggproto object.
