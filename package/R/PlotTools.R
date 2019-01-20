@@ -52,7 +52,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
             Tex = path_norm(source))
 
     invalidFiles <- fInfo %>%
-        filter(tolower(Ext) != "tex") %>%
+        filter(tolower(Ext) != "tex" && (!file_exists(FileName))) %>%
         pull(FileName)
 
     if (!is_empty(invalidFiles)) {
