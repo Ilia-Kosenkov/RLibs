@@ -83,16 +83,76 @@ ReadList <- function(file) {
     return(result)
 }
 
+utils::globalVariables(c("Col", "Format", "Header", "IsFactor", "Str", "Type"))
+
 #' @title WriteFixed
+#' @description Prints table to the target file in a fixed-format manner.
 #' @param frame \link{data.frame} or \link{tibble} to print.
 #' @param path Path to the output file.
 #' @param frmt \link{sprintf}-compatible format.
 #' Either one value applied to all columns,
 #' or a \code{character} vector of \code{ncol(frame)} elements.
-#' @description Prints table to the target file in a fixed-format manner.
+#' @param append If \code{TRUE}, appends data to the existing file.
+#' @importFrom rlang is_missing is_string is_atomic type_of
+#' @importFrom tibble tibble is_tibble
+#' @importFrom purrr map_chr map_lgl map2_chr map2_df negate
+#' @importFrom dplyr %>% mutate filter pull mutate_at vars funs one_of
+#' @importFrom glue glue glue_collapse
+#' @importFrom stringr str_extract
+#' @importFrom readr write_lines
+#' @importFrom utils write.table
 #' @export
-WriteFixed <- function(frame, path, frmt = "%8.2f") {
-    Tools.DataFrame.Print(frame, file = path, frmt = frmt)
+WriteFixed <- function(frame, path, frmt, append = FALSE) {
+    if (is_missing(frame) || is_missing(path))
+        stop("One of the required argumetns is missing.")
+    if (!is_tibble(frame) && !is.data.frame(frame))
+        stop("`frame` should be either a `tibble` or a `data.frame.")
+    if (!is_string(path))
+        stop("`path` should be a char vector of length 1 (a string).")
+
+    if (some(frame, negate(is_atomic)))
+        stop("Only tables with atomic types are supported.")
+
+    selector <- function(x)
+        switch(x,
+            "double" = "%8.2f",
+            "integer" = "%8d",
+            "character" = ,
+            "logical" = ,
+            "complex" = ,
+            "raw" = "%8s")
+
+    colTypes <- tibble(
+            Col = names(frame),
+            Type = map_chr(frame, type_of),
+            IsFactor = map_lgl(frame, is.factor)) %>%
+        mutate(Type = if_else(IsFactor, "character", Type))
+
+    if (!is_missing(frmt) && !is_empty(frmt) && is_character(frmt))
+        colTypes %<>%
+            mutate(Format = frmt)
+    else
+        colTypes %<>%
+            mutate(Format = map_chr(Type, selector))
+
+    fctr <- colTypes %>% filter(IsFactor) %>% pull(Col)
+
+    colTypes %<>% mutate(
+            Header = str_extract(Format, "(?<=%)[0-9]+(?=\\.?[[:alnum:]]+)"),
+            Header = glue("%{Header}s"))
+
+
+    headFrmt <- colTypes %>%
+        mutate(Str = map2_chr(Col, Header, ~ sprintf(.y, .x))) %>%
+        pull(Str) %>%
+        glue_collapse()
+
+    write_lines(headFrmt, path, append = append)
+
+    frame %>% mutate_at(vars(one_of(fctr)), funs(levels(.)[.])) %>%
+        map2_df(colTypes$Format, ~ sprintf(.y, .x)) %>%
+        write.table(file = path, append = TRUE, quote = FALSE, sep = "",
+                    row.names = FALSE, col.names = FALSE)
 }
 
 Tools.DataFrame.Print <- function(frame, file, frmt = "%8.2f",
@@ -288,4 +348,68 @@ Tools.DataFrame.DF2Latex2 <- function(frame, file,
         writeLines("\\end{tabular}")
     },
     finally = sink())
+}
+
+#' @title write_smart
+#' @description Writes output in one of the avilable formats
+#' based on the file extension.
+#' @param data Input table.
+#' @param path Path to save.
+#' @param ... Additional paramteres passed to either of
+#' \code{feather::write_feather}, \code{readr::write_rds} or 
+#' \code{RLibs::WriteFixed}.
+#' @return Nothing
+#' @importFrom rlang is_missing is_string
+#' @importFrom tibble is_tibble
+#' @importFrom fs path_ext
+#' @importFrom readr write_rds
+#' @importFrom feather write_feather
+#' @export
+write_smart <- function(data, path, ...) {
+    if (is_missing(data))
+        stop("`data` is missing.")
+    if (is_missing(path))
+        stop("`path` is missing.")
+    if (!is_tibble(data) && !is.data.frame(data))
+        stop("`data` should be either `tibble` or a `data.frame`.")
+    if (!is_string(path))
+        stop("`path` should be a char vector of length 1 (a string).")
+
+    ext <- tolower(path_ext(path))
+
+    switch(ext,
+           "feather" = ,
+           "feath" = ,
+           "fth" = write_feather(data, path),
+           "rds" = write_rds(data, path, ...),
+           WriteFixed(data, path, ...))
+}
+
+#' @title read_smart
+#' @description Reads output in one of the avilable formats
+#' based on the file extension.
+#' @param path Path to read from.
+#' @param ... Additional paramteres passed to either of
+#' \code{feather::read_feather}, \code{readr::read_rds} or 
+#' \code{readr::read_table2}.
+#' @return Nothing
+#' @importFrom rlang is_missing is_string
+#' @importFrom fs path_ext
+#' @importFrom readr read_rds read_table2
+#' @importFrom feather read_feather
+#' @export
+read_smart <- function(path, ...) {
+    if (is_missing(path))
+        stop("`path` is missing.")
+    if (!is_string(path))
+        stop("`path` should be a char vector of length 1 (a string).")
+
+    ext <- tolower(path_ext(path))
+
+    switch(ext,
+        "feather" = ,
+        "feath" = ,
+        "fth" = read_feather(path),
+        "rds" = read_rds(path),
+        read_table2(path, ...))
 }

@@ -4,7 +4,7 @@
 \alias{WriteFixed}
 \title{WriteFixed}
 \usage{
-WriteFixed(frame, path, frmt = "\%8.2f")
+WriteFixed(frame, path, frmt, append = FALSE)
 }
 \arguments{
 \item{frame}{\link{data.frame} or \link{tibble} to print.}
@@ -14,6 +14,8 @@ WriteFixed(frame, path, frmt = "\%8.2f")
 \item{frmt}{\link{sprintf}-compatible format.
 Either one value applied to all columns,
 or a \code{character} vector of \code{ncol(frame)} elements.}
+
+\item{append}{If \code{TRUE}, appends data to the existing file.}
 }
 \description{
 Prints table to the target file in a fixed-format manner.

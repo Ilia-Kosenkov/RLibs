@@ -24,22 +24,22 @@
 if (interactive()) {
     # If is in interactive session, run debug code
     library(tidyverse)
+    library(scales)
     library(grid)
     library(gridExtra)
     library(magrittr)
     library(rlang)
     library(glue)
-    library(scales)
     library(foreach)
+    library(feather)
+    library(fs)
 
-    src <- dir(file.path("package", "R"),
-        full.names = TRUE, recursive = TRUE)
 
-    src %>% walk(source)
+    dir_walk(path("package", "R"), source, recursive = TRUE)
 
-    source(file.path("package", "tests", "testthat.R"))
+    # source(file.path("package", "tests", "testthat.R"))
     # Uncomment this to check the package from within interactive session
-    devtools::check(file.path("package"))
+    # devtools::check(file.path("package"))
 
 } else {
 
