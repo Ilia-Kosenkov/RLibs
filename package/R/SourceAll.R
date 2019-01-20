@@ -30,7 +30,7 @@
 #' @param recursive If \code{TRUE}, goes recurisvely into sub directories.
 #'
 #' @return Nothing
-#' @importFrom fs dir_lc
+#' @importFrom fs dir_ls
 #' @importFrom purrr %>% discard pwalk map_int
 #' @importFrom stringr str_detect str_split str_extract
 #' @importFrom glue glue
