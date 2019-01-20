@@ -72,7 +72,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`,
         prod <- outer(result$Small, result$Large, function(x, y) abs(x - y)) <
             0.5 * median(diff(result$Small))
         inds <- prod %>%
-            as_tibble %>%
+            as_tibble(.name_repair = "universal") %>%
             reduce(or) %>%
             which %>% multiply_by(-1)
         result$Small <- result$Small[inds]
