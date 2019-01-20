@@ -74,6 +74,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`,
             0.5 * median(diff(result$Small))
         inds <- prod %>%
             as_tibble(.name_repair = "universal") %>%
+            suppressMessages %>% 
             reduce(or) %>%
             which %>% multiply_by(-1)
         result$Small <- result$Small[inds]
