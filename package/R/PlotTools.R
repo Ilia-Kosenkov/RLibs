@@ -70,7 +70,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
             message(glue("Running `pdflatex` for \"{FileName}.tex\"..."))
 
         pdflatexCmd <-
-            glue("pdflatex -job-name='{FileName}'",
+            glue("pdflatex -job-name={FileName}",
                 " -output-directory=\"{Folder}\"",
                 " {params} \"{Tex}\"")
 
