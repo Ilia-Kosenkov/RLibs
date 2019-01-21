@@ -53,12 +53,12 @@ LabelsRep <- function(labels,
 
     if (isTex)
         expPattern <-
-            "${ifelse(.x == 1 & omitOnes, ''," %+%
-                " as.character(.x) %+% '\\\\times')} 10^{{{.y}}}$"
+            paste0("${ifelse(.x == 1 & omitOnes, '',",
+                " as.character(.x) %&% '\\\\times')} 10^{{{.y}}}$")
     else
         expPattern <-
-            "{ifelse(.x == 1 & omitOnes, ''," %+%
-                " as.character(.x) %+% '%*%')}10^{.y}"
+            paste0("{ifelse(.x == 1 & omitOnes, '',",
+                " as.character(.x) %&% '%*%')}10^{.y}")
 
     digits <- labels %>% abs %>% log10 %>% floor
     decDigits <- digits %>% multiply_by(-1) %>% Clamp(0, + Inf)
