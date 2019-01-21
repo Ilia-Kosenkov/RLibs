@@ -77,7 +77,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
         system(pdflatexCmd)
 
         rmFiles <- c("aux", "log") %>%
-            map(~glue("\"{path_ext_set(Tex, .x)}\""))
+            map(~glue("{path_ext_set(Tex, .x)}"))
 
         rmFiles %>%
             walk(function(f) {
