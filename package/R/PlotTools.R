@@ -34,7 +34,7 @@ utils::globalVariables(c("Ext", "FileName"))
 #' @importFrom dplyr %>% pull
 #' @importFrom purrr map pwalk walk
 #' @importFrom fs path_dir path_ext_remove path_ext file_exists
-#' @importFrom fs path_norm path_ext_set path_file
+#' @importFrom fs path_norm path_ext_set path_file file_delete
 #'
 Tex2Pdf <- function(..., verbose = FALSE,
     additionalParams = "") {
@@ -76,7 +76,6 @@ Tex2Pdf <- function(..., verbose = FALSE,
 
         system(pdflatexCmd)
 
-        rmCmd <- glue("rm {ifelse(verbose, \"-v\", \"\")}")
         rmFiles <- c("aux", "log") %>%
             map(~glue("\"{path_ext_set(Tex, .x)}\""))
 
@@ -84,8 +83,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
             walk(function(f) {
                 if (verbose)
                     message(glue("Removing {f}..."))
-                cmd <- glue("{rmCmd} {f}")
-                system(cmd)
+                file_delete(f)
             })
 
     })
