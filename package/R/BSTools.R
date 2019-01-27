@@ -474,26 +474,28 @@ BSTools.DebugPlot <- function(data,
                 group = ".Group", col = ".Group")) +
             DefaultTheme() +
             geom_line() +
-            scale_color_manual(values = c("#000000", brewer.pal(9, "Set1")),
-                guide = FALSE) +
+            #scale_color_manual(values = c("#000000", brewer.pal(9, "Set1")),
+                #guide = FALSE) +
             xlab("Observation") +
-            ylab(name))
+            ylab(name)) +
+            scale_color_hue(guide = FALSE)
 
         dens <- (densData %>%
             ggplot(aes_string(x = name, y = paste0("dens_", name),
                 group = ".Group", col = ".Group")) +
             DefaultTheme() +
             geom_line() +
-            scale_color_manual(values = c("#000000", brewer.pal(9, "Set1")),
-                guide = FALSE) +
+            #scale_color_manual(values = c("#000000", brewer.pal(9, "Set1")),
+                #guide = FALSE) +
             xlab(name) +
-            ylab(paste("Density of", name)))
+            ylab(paste("Density of", name))) +
+            scale_color_hue(guide = FALSE)
 
         plts <- append(plts, list(trace))
         plts <- append(plts, list(dens))
     }
 
-    grobs <- GGPlot2Grob(plts)
+    grobs <- GGPlot2GrobEx(plts)
 
     isFirstPageRequired <- names(dev.cur()) != "pdf"
 

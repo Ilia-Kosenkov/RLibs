@@ -74,7 +74,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
                 " -output-directory=\"{Folder}\"",
                 " {params} \"{Tex}\"")
 
-        system(pdflatexCmd)
+        system(pdflatexCmd, show.output.on.console = verbose)
 
         rmFiles <- c("aux", "log") %>%
             map(~glue("{path_ext_set(Tex, .x)}"))
@@ -87,24 +87,6 @@ Tex2Pdf <- function(..., verbose = FALSE,
             })
 
     })
-
-    #list(fNames, fNamesClean, fDir) %>% pwalk(function(nm, nmc, dir) {
-        #pdflatexCmd <-
-            #glue("pdflatex -job-name={nmc}",
-            #" -output-directory=\"{dir}\"",
-            #" {params} \"{dir}{.Platform$file.sep}{nm}\"")
-
-        #rmCmd <- glue("rm {ifelse(verbose, \"-v\", \"\")}")
-
-        #rmCmds <- c("aux", "log") %>%
-            #reduce(~glue("{.x} \"{dir}{.Platform$file.sep}{nmc}.{.y}\""),
-                   #.init = rmCmd)
-
-        #system(pdflatexCmd)
-        #system(rmCmds)
-
-    #})
-
     return(invisible(NULL))
 }
 
