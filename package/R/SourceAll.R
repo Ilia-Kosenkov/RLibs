@@ -21,7 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-utils::globalVariables(c("Path", "Length"))
+utils::globalVariables(c("Path", "Length", "Temp"))
 
 #' Sources files in the directory.
 #' Useful for the initial project setup.
@@ -49,10 +49,11 @@ SourceAll <- function(path, except, quiet = FALSE, recursive = TRUE) {
 
     srcs %>%
         discard(~str_detect(.x, except)) %>%
-        enframe(NULL, "Path")  %>%
+        enframe("Temp", "Path") %>%
+        select(-Temp) %>%
         mutate(
-            Length = map_int(str_split(Path, "[\\\\/]"), length)) %>%
-        arrange(desc(Length), Path) %>%
+            Length = map_int(str_split(Path, "[\\\\/]"), length))  %>%
+        arrange(desc(Length), Path)  %>%
         mutate(Prints =
             str_extract(Path, "(?<=\\bSource[\\\\/]).*(?=\\.R\\b)")) %>%
         pwalk(function(Path, Length, Prints) {
