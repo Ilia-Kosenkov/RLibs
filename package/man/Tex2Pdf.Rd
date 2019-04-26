@@ -7,11 +7,11 @@
 Tex2Pdf(..., verbose = FALSE, additionalParams = "")
 }
 \arguments{
+\item{...}{Source files.}
+
 \item{verbose}{\code{logical}. If \code{TRUE}, prints detailed output.}
 
 \item{additionalParams}{Passed to 'pdflatex'.}
-
-\item{source}{Source files.}
 }
 \description{
 Tex2Pdf

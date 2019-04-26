@@ -24,7 +24,7 @@
 utils::globalVariables(c("Ext", "FileName"))
 
 #' @title Tex2Pdf
-#' @param source Source files.
+#' @param ... Source files.
 #' @param verbose \code{logical}. If \code{TRUE}, prints detailed output.
 #' @param additionalParams Passed to 'pdflatex'.
 #' @export

@@ -380,6 +380,7 @@ AsSegments <- function(.data, ..., suffix = "_end") {
 
 #' @title GGCustomTextAnnotation
 #' @param labels Labels.
+#' @param x,y X and Y coordinates of labels
 #' @param xmin,xmax X coordinates of labels.
 #' @param ymin,ymax Y coordinates of labels.
 #' @param vjust Vertical justification.

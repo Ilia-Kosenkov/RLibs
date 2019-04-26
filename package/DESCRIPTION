@@ -29,7 +29,8 @@ Imports:
     scales,
     fs,
     readr,
-    feather
+    feather,
+	assertthat
 RoxygenNote: 6.1.1
 ByteCompile: true
 Encoding: UTF-8

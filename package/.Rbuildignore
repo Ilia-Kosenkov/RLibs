@@ -1,11 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^.*sln
-^.*xproj
-^.*gz
-.vs
+^.*sln$
+^.*xproj$
+^.*gz$
+.vs$
 Examples
 UnitTests
-.*md
-.*tex
+.*md$
+.*tex$
 Compile.R

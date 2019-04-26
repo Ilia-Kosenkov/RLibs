@@ -10,6 +10,8 @@ GGCustomTextAnnotation(labels, x, y, xmin = x, xmax = x, ymin = y,
 \arguments{
 \item{labels}{Labels.}
 
+\item{x, y}{X and Y coordinates of labels}
+
 \item{xmin, xmax}{X coordinates of labels.}
 
 \item{ymin, ymax}{Y coordinates of labels.}
