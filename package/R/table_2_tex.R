@@ -30,6 +30,8 @@ table_2_tex <- function(
     insert_math_header = TRUE,
     print_header = TRUE,
     add_hlines = TRUE,
+    before = NULL,
+    after = NULL,
     append = FALSE) {
 
     expand_argument <- function(arg, names, default = NULL) {
@@ -48,8 +50,11 @@ table_2_tex <- function(
         if (rlang::is_list(arg)
             && length(arg) == length(names)
             && purrr::every(arg, rlang::is_scalar_atomic)) {
-            if (rlang::is_named(arg))
-                return(arg[names])
+            if (rlang::is_named(arg)) {
+                if(all(names(arg) %in% names))
+                    return(arg[names])
+                return (NULL)
+            }
             return(rlang::set_names(arg, names))
         }
 
@@ -65,6 +70,56 @@ table_2_tex <- function(
 
     indent <- function(str, n) {
         paste0(paste0(rep(" ", n), collapse = ""), str)
+    }
+
+    process_extra_headers <- function(input, format_tbl, header_format) {
+        if (rlang::is_null(input))
+            return(input)
+        if (rlang::is_string(input)) {
+            str_rep <- stringr::str_match(input, "^(.*?)(?:(?<!\\\\)%(.*))?$")[2:3]
+
+            if (all(rlang::are_na(str_rep))) {
+                warning("Inconsistent extra hedare string. Ignoring it in the output.")
+                return(NULL)
+            }
+            if (rlang::is_na(str_rep[1]))
+                return(paste0("%", str_rep[2]))
+
+            eol_test <- stringr::str_match_all(str_rep[1], "(?:(\\\\)\\s*$|(\\\\)|^([^\\\\]*)$)") %>%
+                magrittr::extract2(1) %>% {
+                    list(ExtraEOL = any(!are_na(.[1:nrow(.), 3])), EOL = any(!are_na(.[1:nrow(.), 2])))
+                }
+            if (eol_test$ExtraEOL) {
+                warning("Multuple new lines in the extra header. Ignoring it in the output")
+                return(NULL)
+            }
+
+            if (!eol_test$EOL)
+                str_rep[1] <- paste0(str_rep[1], "\\\\")
+
+            result <- str_rep[1]
+            if (!rlang::is_na(str_rep[2]))
+                result <- paste0(result, " %", str_rep[2])
+
+            return(result)
+        }
+
+        if (rlang::is_character(input)
+            && length(input) == nrow(format_tbl))
+                return(RLibs::GlueFmt(header_format, .envir = set_names(as_list(input), format_tbl$Name)))
+
+        if (rlang::is_list(input)
+            && length(input) == nrow(format_tbl)
+            && purrr::every(input, rlang::is_scalar_character)) {
+
+            if(rlang::is_named(input) && all(names(input) %in% format_tbl$Name))
+                return(RLibs::GlueFmt(header_format, .envir = input))
+            else
+                return(RLibs::GlueFmt(header_format, .envir = set_names(input, format_tbl$Name)))
+            }
+
+        return(NULL)
+
     }
 
     # Arguments' contracts
@@ -90,22 +145,40 @@ table_2_tex <- function(
         stringr::str_match("^\\%([0-9]+)?(?:\\.([0-9]+))?(\\w+)$") %>%
         tibble::as_tibble(.name_repair = identity) %>%
         rlang::set_names("Source", "Padding", "Precision", "Type") %>%
-        dplyr::mutate(Name = nms,
-               Padding = dplyr::if_else(is.na(Padding), "8", Padding),
-               InsertMathBody = purrr::flatten_lgl(insert_math_body),
-               InsertMathHeader = purrr::flatten_lgl(insert_math_header)) %T>% print
+        dplyr::mutate(
+            Name = nms,
+            Padding = readr::parse_integer(Padding),
+            Padding = dplyr::if_else(is.na(Padding), 8L, Padding),
+            Precision = readr::parse_integer(Precision),
+            InsertMathBody = purrr::flatten_lgl(insert_math_body),
+            InsertMathHeader = purrr::flatten_lgl(insert_math_header)) %>%
+        dplyr::mutate(
+            PrecisionStr = if_else(is.na(Precision), "", rlang::as_character(glue::glue(".{Precision}"))),
+            BodyFormat =
+               glue::glue("%{if_else(InsertMathHeader & !InsertMathBody, Padding + 2L, Padding)}{PrecisionStr}{Type}"),
+            HeaderFormat =
+                glue::glue("%{if_else(InsertMathBody & !InsertMathHeader, Padding + 2L, Padding)}s"),
+            AddonFormat =
+                glue::glue("%{if_else(InsertMathBody | InsertMathHeader, Padding + 2L, Padding)}s"))
+        
 
 
 
     line_format <- format %>%
-        dplyr::select(Source, Name, InsertMathBody) %>%
+        dplyr::select(BodyFormat, Name, InsertMathBody) %>%
         pmap(~glue::glue("{if(..3) '$' else ''}{{{..2}: {..1}}}{if(..3) '$' else ''}")) %>%
         glue::glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
     header_format <- format %>%
-        dplyr::select(Padding, Name, InsertMathHeader) %>%
-        pmap(~glue::glue("{if(..3) '$' else ''}{{{..2}: %{..1}s}}{if(..3) '$' else ''}")) %>%
+        dplyr::select(HeaderFormat, Name, InsertMathHeader) %>%
+        pmap(~glue::glue("{if(..3) '$' else ''}{{{..2}: {..1}}}{if(..3) '$' else ''}")) %>%
+        glue::glue_collapse(sep = " & ") %>%
+        paste0(" \\\\")
+
+    plain_header_format <- format %>%
+        dplyr::select(AddonFormat, Name) %>%
+        pmap(~glue::glue("{{{..2}: {..1}}}")) %>%
         glue::glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
@@ -115,41 +188,59 @@ table_2_tex <- function(
 
     table_frmt <- paste0(col_layout, collapse = "")
 
+    before <- process_extra_headers(before, format, plain_header_format)
+    after <- process_extra_headers(after, format, plain_header_format)
+
     offset <- 0L
-    readr::write_lines(indent(glue::glue("\\begin{{tabular}}{{{table_frmt}}}"), offset), path, append = append_next)
-    append_next <- TRUE
+    offset_step <- 4L
+    output <- indent(glue::glue("\\begin{{tabular}}{{{table_frmt}}}"), offset)
 
     if (add_hlines) {
-        offset <- offset + 4L
-        readr::write_lines(indent("\\hline", offset), path, append = append_next)
+        offset <- offset + offset_step
+        output %<>% c(indent("\\hline", offset))
     }
-    
 
-    offset <- offset + 4L
+
+    offset <- offset + offset_step
+    if (!rlang::is_null(before))
+        output %<>% c(indent(before, offset))
+
     if (print_header) 
-        readr::write_lines(indent(header_string, offset), path, append = append_next)
+        output %<>% c(indent(header_string, offset))
 
-    offset <- offset - 4L
+    if (!rlang::is_null(after))
+        output %<>% c(indent(after, offset))
+
+    offset <- offset - offset_step
     if (add_hlines && print_header) 
-        readr::write_lines(indent("\\hline", offset), path, append = append_next)
+        output %<>% c(indent("\\hline", offset))
     
 
-    offset <- offset + 4L
+    offset <- offset + offset_step
+    
     if (print_header)
-        readr::write_lines(indent("", offset), path, append = append_next)
+        output %<>% c(indent("", offset))
 
-    data %>% purrr::pmap_chr(function(...) {
+    output %<>% c(data %>% purrr::pmap_chr(function(...) {
                 RLibs::GlueFmt(indent(line_format, offset), .envir = list(...))
-            }) %>%
-        readr::write_lines(path, append = append_next)
+            }))
+        
 
     if (add_hlines) {
-        offset <- offset - 4L
-        readr::write_lines(indent("\\hline", offset), path, append = append_next)
+        offset <- offset - offset_step
+        output %<>% c(indent("\\hline", offset))
     }
 
-    offset <- offset - 4L
-    readr::write_lines(indent("\\end{tabular}", offset), path, append = append_next)
+    offset <- offset - offset_step
+    output %<>% c(indent("\\end{tabular}"))
+
+    readr::write_lines(output, path, append = append)
+
+    invisible(NULL)
 }
 
- mtcars %>% table_2_tex("test.tex", add_hlines = T, print_header = F) %>% print
+mtcars %>%
+    table_2_tex("test.tex", add_hlines = T, print_header = T,
+        before = as_list(names(.)),
+        after = as.character(1:ncol(.))) %>%
+    print
