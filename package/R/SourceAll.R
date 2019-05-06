@@ -54,7 +54,7 @@ SourceAll <- function(path, except, quiet = FALSE, recursive = TRUE) {
         mutate(
             Length = map_int(str_split(Path, "[\\\\/]"), length))  %>%
         arrange(desc(Length), Path)  %>%
-        mutate(Prints = fs::path_ext_remove(fs::path_file(Path))) %>%
+        mutate(Prints = fs::path_ext_remove(Path)) %>%
         pwalk(function(Path, Length, Prints) {
             if (!quiet)
                 message(glue("Sourcing {Prints}..."))
