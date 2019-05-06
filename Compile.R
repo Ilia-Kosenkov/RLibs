@@ -35,7 +35,7 @@ if (interactive()) {
     library(fs)
 
 
-    dir_walk(path("package", "R"), source, recursive = TRUE)
+    dir_walk(path("package", "R"), source, recurse = TRUE)
 
     # source(file.path("package", "tests", "testthat.R"))
     # Uncomment this to check the package from within interactive session
