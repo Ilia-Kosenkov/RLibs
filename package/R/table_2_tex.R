@@ -27,7 +27,7 @@ utils::globalVariables(c("Padding", "Precision", "BodyFormat", "InsertMathBody",
 #' @export
 #' @importFrom rlang set_names as_list is_scalar_atomic is_list is_named are_na 
 #' @importFrom rlang is_scalar_character is_scalar_logical as_character is_na
-#' @importFrom stringr str_match str_ends str_trim
+#' @importFrom stringr str_match
 #' @importFrom assertthat assert_that is.string
 #' @importFrom readr parse_integer
 #' @importFrom purrr flatten_lgl pmap pmap_chr
@@ -87,10 +87,7 @@ table_2_tex <- function(
         if (is_null(input))
             return(input)
         if (is_string(input)) {
-            input <- str_trim(input)
-            if(str_ends(input, "\\\\"))
-                return(input)
-            return(paste(input, "\\\\"))
+            return(input)
         }
 
         if (is_character(input)
