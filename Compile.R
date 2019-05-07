@@ -33,7 +33,7 @@ if (interactive()) {
     library(foreach)
     library(feather)
     library(fs)
-
+    library(assertthat)
 
     dir_walk(path("package", "R"), source, recurse = TRUE)
 

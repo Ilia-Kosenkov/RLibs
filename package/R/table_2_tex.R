@@ -42,6 +42,7 @@ table_2_tex <- function(
     add_hlines = TRUE,
     before = NULL,
     after = NULL,
+    custom_header = NULL,
     append = FALSE) {
 
     expand_argument <- function(arg, names, default = NULL) {
@@ -68,7 +69,7 @@ table_2_tex <- function(
             return(set_names(arg, names))
         }
 
-        return(NULL)
+        stop("Invalid argument")
     }
 
     get_format <- function(type) {
@@ -144,6 +145,8 @@ table_2_tex <- function(
     format <- expand_argument(format, nms)
     insert_math_body <- expand_argument(insert_math_body, nms, FALSE)
     insert_math_header <- expand_argument(insert_math_header, nms, FALSE)
+    custom_header <- expand_argument(custom_header, nms)
+    custom_header <- map2(custom_header[nms], nms, ~.x %||% .y) 
     col_types <- data %>% map(typeof)
 
     format <- map2(format, col_types, function(f, t) {
@@ -191,7 +194,7 @@ table_2_tex <- function(
         glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
-    header_string <- GlueFmt(header_format, .envir = set_names(as_list(nms)))
+    header_string <- GlueFmt(header_format, .envir = custom_header)
 
     append_next <- append
 
