@@ -27,7 +27,7 @@ utils::globalVariables(c("Padding", "Precision", "BodyFormat", "InsertMathBody",
 #' @export
 #' @importFrom rlang set_names as_list is_scalar_atomic is_list is_named are_na 
 #' @importFrom rlang is_scalar_character is_scalar_logical as_character is_na
-#' @importFrom stringr str_match_all
+#' @importFrom stringr str_match str_ends str_trim
 #' @importFrom assertthat assert_that is.string
 #' @importFrom readr parse_integer
 #' @importFrom purrr flatten_lgl pmap pmap_chr
@@ -87,32 +87,10 @@ table_2_tex <- function(
         if (is_null(input))
             return(input)
         if (is_string(input)) {
-            str_rep <- str_match(input, "^(.*?)(?:(?<!\\\\)%(.*))?$")[2:3]
-
-            if (all(are_na(str_rep))) {
-                warning("Inconsistent extra hedare string. Ignoring it in the output.")
-                return(NULL)
-            }
-            if (is_na(str_rep[1]))
-                return(paste0("%", str_rep[2]))
-
-            eol_test <- str_match_all(str_rep[1], "(?:(\\\\)\\s*$|(\\\\)|^([^\\\\]*)$)") %>%
-                extract2(1) %>% {
-                    list(ExtraEOL = any(!are_na(.[1:nrow(.), 3])), EOL = any(!are_na(.[1:nrow(.), 2])))
-                }
-            if (eol_test$ExtraEOL) {
-                warning("Multuple new lines in the extra header. Ignoring it in the output")
-                return(NULL)
-            }
-
-            if (!eol_test$EOL)
-                str_rep[1] <- paste0(str_rep[1], "\\\\")
-
-            result <- str_rep[1]
-            if (!is_na(str_rep[2]))
-                result <- paste0(result, " %", str_rep[2])
-
-            return(result)
+            input <- str_trim(input)
+            if(str_ends(input, "\\\\"))
+                return(input)
+            return(paste(input, "\\\\"))
         }
 
         if (is_character(input)
