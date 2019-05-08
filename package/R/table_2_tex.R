@@ -153,19 +153,19 @@ table_2_tex <- function(
 
     line_format <- format %>%
         select(BodyFormat, Name, InsertMathBody) %>%
-        pmap(~glue("{if(..3) '$' else ''}{{{..2}: {..1}}}{if(..3) '$' else ''}")) %>%
+        pmap(~glue("{if(..3) '$' else ''}{{{..2}:{..1}}}{if(..3) '$' else ''}")) %>%
         glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
     header_format <- format %>%
         select(HeaderFormat, Name, InsertMathHeader) %>%
-        pmap(~glue("{if(..3) '$' else ''}{{{..2}: {..1}}}{if(..3) '$' else ''}")) %>%
+        pmap(~glue("{if(..3) '$' else ''}{{{..2}:{..1}}}{if(..3) '$' else ''}")) %>%
         glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
     plain_header_format <- format %>%
         select(AddonFormat, Name) %>%
-        pmap(~glue("{{{..2}: {..1}}}")) %>%
+        pmap(~glue("{{{..2}:{..1}}}")) %>%
         glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
