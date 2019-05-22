@@ -22,7 +22,7 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 utils::globalVariables(c("Padding", "Precision", "BodyFormat", "InsertMathBody", 
-    "HeaderFormat", "InsertMathHeader", "AddonFormat"))
+    "HeaderFormat", "InsertMathHeader", "AddonFormat", "Name"))
 
 #' @export
 #' @importFrom rlang set_names as_list is_scalar_atomic is_list is_named are_na 

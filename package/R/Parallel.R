@@ -21,13 +21,7 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SuppressNotes <- function(args) {
-    for (var in args) {
-        assign(var, NULL, envir = .GlobalEnv)
-    }
-}
-
-SuppressNotes(c("IsRegistered", "IsDisposed", "ID", "ClusterDesc"))
+utils::globalVariables(c("IsRegistered", "IsDisposed", "ID", "ClsuterDesc", "new"))
 
 # Packages required for execution
 #' @export
@@ -64,12 +58,6 @@ Cluster <- setRefClass("Cluster",
 # ID is immutable.
 Cluster$lock("ClusterDesc", "ID")
 
-#' @title new
-#' @name new
-#' @description Constructor for \link{Cluster}.
-#' @importFrom snow makeCluster stopCluster
-#' @importFrom parallel detectCores
-#' @export
 Cluster$methods("initialize" = function(nProcs) {
     # Constructor.
     # Args:
@@ -79,7 +67,7 @@ Cluster$methods("initialize" = function(nProcs) {
 
     sapply(.Parallel.Packages, require, character.only = TRUE)
     # Limits nProcs to [1, detecCores()] interval
-    if (!is.numeric(nProcs) || nProcs < 0 || nProcs > detectCores())
+    if (!is.numeric(nProcs) || nProcs < 0 || nProcs > parallel::detectCores())
         stop("Illegal number of processes requested.")
 
     # Creates cluster

@@ -45,6 +45,7 @@ if (interactive()) {
 
     message("Running `roxygen2::roxygenize`...")
     roxygen2::roxygenize("./package")
+    message("Finished `roxygen2::roxygenize`...")
 
     isWin <- grepl("win(dows)?", Sys.info()["sysname"])
     if (is.na(isWin))

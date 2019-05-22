@@ -23,6 +23,7 @@
 
 utils::globalVariables(c("Path", "Length", "Temp"))
 
+
 #' Sources files in the directory.
 #' Useful for the initial project setup.
 #'
@@ -39,7 +40,8 @@ utils::globalVariables(c("Path", "Length", "Temp"))
 #' @importFrom tibble enframe
 #' @importFrom dplyr mutate arrange desc
 #' @export
-SourceAll <- function(path, except, quiet = FALSE, recursive = TRUE) {
+#' @aliases SourceAll
+source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
     srcs <- dir_ls(
            path = path,
            regexp = "\\.R$",
@@ -62,3 +64,6 @@ SourceAll <- function(path, except, quiet = FALSE, recursive = TRUE) {
         })
     invisible(NULL)
 }
+
+#' @export
+SourceAll <- deprecate_function(SourceAll, source_all)

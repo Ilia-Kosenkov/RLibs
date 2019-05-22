@@ -29,6 +29,7 @@
 #' @return \code{logical} \code{TRUE} if
 #' \code{object} is of class \code{class}, \code{FALSE} otherwise.
 #' @importFrom rlang quo_squash enquo
+#' @importFrom methods is
 #' @export
 `%is%` <- function(object, class) {
     nm <- as.character(quo_squash(enquo(class))) %??% "NULL"
