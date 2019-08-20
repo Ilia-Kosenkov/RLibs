@@ -1,6 +1,6 @@
 #   MIT License
 #
-#   Copyright(c) 2017-2018 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
+#   Copyright(c) 2017-2019 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
 #
 #   Permission is hereby granted, free of charge, to any person obtaining a copy
 #   of this software and associated documentation files(the "Software"), to deal
@@ -21,32 +21,15 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# ADOPTED FROM [glue] package; vignettes
-
-sprintf_transformer <- function(text, envir) {
-    m <- regexpr(":\\ ?%.+$", text)
-    if (m != -1) {
-        format <- substring(regmatches(text, m), 2)
-        regmatches(text, m) <- ""
-        res <- eval(parse(text = text, keep.source = FALSE), envir)
-        do.call(sprintf, list(glue("{format}"), res))
-    } else {
-        eval(parse(text = text, keep.source = FALSE), envir)
-    }
-}
-
-#' GlueFmt
+#' desc_ex
 #'
-#' @param ... Passed to \code{glue::glue}.
-#' @param .envir Evaluation environment.
+#' @param f A sorting object to inverse (a collection or a function)
 #'
-#' @return Format-aware interpoalted string.
-#' @importFrom glue glue
+#' @return Modified colelction / function
 #' @export
-GlueFmt <- function(..., .envir = parent.frame()) {
-    glue(..., .envir = .envir, .transformer = sprintf_transformer)
-}
+desc_ex <- function(f) {
+    if (rlang::is_function(f) || rlang::is_formula(f))
+        return(function(x, ...) desc(f(x, ...)))
 
-#' @rdname GlueFmt
-#' @export
-glue_fmt <- GlueFmt
+    return(desc(f))
+}

@@ -1,6 +1,6 @@
 #   MIT License
 #
-#   Copyright(c) 2017-2018 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
+#   Copyright(c) 2017-2019 Ilia Kosenkov [ilia.kosenkov.at.gm@gmail.com]
 #
 #   Permission is hereby granted, free of charge, to any person obtaining a copy
 #   of this software and associated documentation files(the "Software"), to deal
@@ -21,32 +21,16 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# ADOPTED FROM [glue] package; vignettes
 
-sprintf_transformer <- function(text, envir) {
-    m <- regexpr(":\\ ?%.+$", text)
-    if (m != -1) {
-        format <- substring(regmatches(text, m), 2)
-        regmatches(text, m) <- ""
-        res <- eval(parse(text = text, keep.source = FALSE), envir)
-        do.call(sprintf, list(glue("{format}"), res))
-    } else {
-        eval(parse(text = text, keep.source = FALSE), envir)
-    }
-}
-
-#' GlueFmt
+#' order_by_ex
+#' @description Orders a sortable object based on the accessor function
 #'
-#' @param ... Passed to \code{glue::glue}.
-#' @param .envir Evaluation environment.
-#'
-#' @return Format-aware interpoalted string.
-#' @importFrom glue glue
+#' @param .x The object to sort
+#' @param .f Accessor function that is evaluated for each element of \code{.x}
+#' @param ... \code{purrr}-style arguments to the function
+#' @return Ordered source collection
 #' @export
-GlueFmt <- function(..., .envir = parent.frame()) {
-    glue(..., .envir = .envir, .transformer = sprintf_transformer)
+order_by_ex <- function(.x, .f = identity, ...) {
+    sorter <- purrr::compose(base::xtfrm, purrr::as_mapper(.f, ...))
+    .x[base::order(purrr::map_dbl(.x, sorter))]
 }
-
-#' @rdname GlueFmt
-#' @export
-glue_fmt <- GlueFmt

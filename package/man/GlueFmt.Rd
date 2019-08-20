@@ -2,9 +2,12 @@
 % Please edit documentation in R/GlueFmt.R
 \name{GlueFmt}
 \alias{GlueFmt}
+\alias{glue_fmt}
 \title{GlueFmt}
 \usage{
 GlueFmt(..., .envir = parent.frame())
+
+glue_fmt(..., .envir = parent.frame())
 }
 \arguments{
 \item{...}{Passed to \code{glue::glue}.}
