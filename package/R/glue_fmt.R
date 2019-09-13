@@ -35,7 +35,7 @@ sprintf_transformer <- function(text, envir) {
     }
 }
 
-#' GlueFmt
+#' @title GlueFmt
 #'
 #' @param ... Passed to \code{glue::glue}.
 #' @param .envir Evaluation environment.

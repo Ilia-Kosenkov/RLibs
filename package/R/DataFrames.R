@@ -22,7 +22,7 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#' @title FitlerRange
+#' @title fitler_range
 #' @param .data Input table.
 #' @param .var Column to filter.
 #' @param .range Limits on the column.
@@ -30,12 +30,16 @@
 #' @importFrom rlang enquo quo_squash !!
 #' @importFrom dplyr %>% filter
 #' @export
-FilterRange <- function(.data, .var, .range) {
+filter_range <- function(.data, .var, .range) {
     expr <- quo_squash(enquo(.var))
 
     .data %>%
         filter(!!expr >= .range[1] & !!expr <= .range[2])
 }
+
+#' @rdname filter_range
+#' @export
+FilterRange <- deprecate_function(FilterRange, filter_range)
 
 #' @title Clamp.data.frame
 #' @param .data Input \code{data.frame} or \code{tibble}.
