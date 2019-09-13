@@ -647,3 +647,99 @@ GGPlotPanelLabs <- function(p, labels = "X",
                    }
 
 }
+
+
+
+
+#' @title theme_scientific
+#' @description Generates scientific theme.
+#' @param ticks Controls the tick size (and direction).
+#' @param textSz Text font size by default.
+#' @param titleSz Title (labels') font size by default.
+#' @param text_margin Text margin (added to the tick offset)
+#' @param title_margin Title margin (added to the tick offset)
+#' @param ... Other parameters passed to \code{ggplot2::theme}
+#' @return A theme object.
+#' @import ggplot2
+#' @importFrom assertthat assert_that is.number
+#' @importFrom grid is.unit
+#' @export
+theme_scientific <- function(
+    ticks = unit(-3.5, "pt"),
+    textSz = 10,
+    titleSz = 15,
+    text_margin = unit(5, "pt"),
+    title_margin = unit(5, "pt"),
+    ...) {
+    assert_that(passes(is.unit(ticks)))
+    assert_that(passes(is.unit(text_margin)))
+    assert_that(passes(is.unit(title_margin)))
+    assert_that(is.number(textSz))
+    assert_that(is.number(titleSz))
+
+    return(theme_bw() +
+                theme(panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank(),
+               axis.ticks.length = ticks,
+               axis.text.x =
+                    element_text(size = textSz,
+                        margin = new_margin(t = text_margin - ticks),
+                        colour = "#000000"),
+                axis.text.y =
+                        element_text(size = textSz,
+                        margin = new_margin(r = text_margin - ticks),
+                        colour = "#000000"),
+                axis.text.y.right =
+                        element_text(size = textSz,
+                        margin = new_margin(l = text_margin - ticks),
+                        colour = "#000000"),
+                axis.text.x.top =
+                        element_text(size = textSz,
+                        margin = new_margin(b = text_margin - ticks),
+                        colour = "#000000"),
+    #------------------------------------#
+                axis.title.x =
+                        element_text(size = titleSz,
+                        margin = new_margin(t = title_margin),
+                        colour = "#000000"),
+                axis.title.y =
+                        element_text(size = titleSz,
+                        margin = new_margin(r = title_margin),
+                        colour = "#000000"),
+                axis.title.y.right =
+                        element_text(size = titleSz,
+                        margin = new_margin(l = title_margin),
+                        colour = "#000000"),
+                axis.title.x.top =
+                        element_text(size = titleSz,
+                        margin = new_margin(b = title_margin),
+                        colour = "#000000"),
+                ...))
+}
+
+#' @title new_margin
+#' @description Creates a new instance of margin. Supports unit arithmetics
+#' @param t Top
+#' @param r Right
+#' @param b Bottom
+#' @param l Left
+#' @return An instance of \code{margin}
+#' @importFrom assertthat assert_that
+#' @importFrom grid is.unit unit.c
+#' @importFrom vctrs vec_c
+#' @export
+new_margin <- function(
+    t = unit(0, "pt"),
+    r = unit(0, "pt"),
+    b = unit(0, "pt"),
+    l = unit(0, "pt")) {
+
+    assert_that(passes(is.unit(t)))
+    assert_that(passes(is.unit(r)))
+    assert_that(passes(is.unit(b)))
+    assert_that(passes(is.unit(l)))
+
+    margin <- unit.c(t, r, b, l)
+    class(margin) <- vec_c("margin", class(margin))
+    margin
+}
