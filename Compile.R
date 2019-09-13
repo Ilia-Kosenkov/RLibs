@@ -34,6 +34,7 @@ if (interactive()) {
     library(feather)
     library(fs)
     library(assertthat)
+    library(vctrs)
 
     dir_walk(path("package", "R"), source, recurse = TRUE)
 
