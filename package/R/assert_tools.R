@@ -90,17 +90,19 @@ is_nonpositive <- function(x) {
 
 assertthat::on_failure(passes) <- function(call, env) {
     callStr <- deparse(call$x)
-    parsed <- array(str_match(callStr, "(is)[\\._](.+)\\((.+)\\)"))
-    if (any(is.na(parsed)))
-        return(callStr)
-    else
-        glue_fmt("{parsed[4]} is not a {parsed[3]}")
+    parsed <- array(str_match(callStr, "^\\(*(?:(not)\\(+)?(is)[\\._](.+)\\(+(.+?)\\)+$")) 
+    if (is.na(parsed[1]))
+        glue_fmt("{callStr} is false")
+    else {
+        if(is.na(parsed[2]))
+            glue_fmt("{parsed[5]} is not a {parsed[4]}")
+        else
+            glue_fmt("{parsed[5]} should not be a {parsed[4]}")
     }
+}
 
 assertthat::on_failure(has_size) <- function(call, env) {
     len <- eval(call$len, env)
     callStr <- deparse(call$x)
     glue_fmt("{callStr} should have size of {len}")
 }
-
-
