@@ -26,7 +26,7 @@ utils::globalVariables(c("Padding", "Precision", "BodyFormat", "InsertMathBody",
 
 #' @export
 #' @importFrom rlang set_names as_list is_scalar_atomic is_list is_named are_na 
-#' @importFrom rlang is_scalar_character is_scalar_logical as_character is_na
+#' @importFrom rlang is_scalar_character is_scalar_logical as_character is_na is_string
 #' @importFrom stringr str_match
 #' @importFrom assertthat assert_that is.string
 #' @importFrom readr parse_integer
