@@ -45,7 +45,7 @@ source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
     srcs <- dir_ls(
            path = path,
            regexp = "\\.R$",
-           recursive = recursive)
+           recurse = recursive)
     if (missing(except) || !nzchar(except))
         except <- "^$"
 
