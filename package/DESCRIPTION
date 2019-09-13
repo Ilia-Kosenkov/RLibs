@@ -1,6 +1,6 @@
 Package: RLibs
 Title: RLibs
-Version: 0.5.1
+Version: 0.5.2
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
 Description: Auxilary functions for data analysis & plotting.
 URL: https://github.com/Ilia-Kosenkov/RLibs
@@ -11,7 +11,6 @@ Imports:
     methods,
     stats,
     rjags,
-    snow,
     stringr,
     tibble,
     dplyr,
@@ -24,13 +23,13 @@ Imports:
     purrr,
     magrittr,
     tidyr,
-	parallel,
     glue,
-    scales,
     fs,
     readr,
     feather,
-	assertthat
+	assertthat,
+	vctrs,
+	scales
 RoxygenNote: 6.1.1
 ByteCompile: true
 Encoding: UTF-8
