@@ -162,14 +162,14 @@ Clamp.numeric <- function(...) {
 }
 
 
-#' @title expand
+#' @title expand_interval
 #' @param x Input interval.
 #' @param factor How large the expansion is.
 #' 1 corresponds to 100\% increase in size.
 #' @param direction In which way to expand.
 #' @return Expanded interval.
 #' @export
-expand <- function(x, factor = 1, direction = c(1, 1)) {
+expand_interval <- function(x, factor = 1, direction = c(1, 1)) {
     # Expands provided interval x factor times,
     # preserving the center of the interval
     # Args :
@@ -185,9 +185,9 @@ expand <- function(x, factor = 1, direction = c(1, 1)) {
     return(center + (c(-1, 1) * (1 + factor * direction)) * halfSize)
 }
 
-#' @rdname expand
+#' @rdname expand_interval
 #' @export
-Expand <- deprecate_function(Expand, expand)
+Expand <- deprecate_function(Expand, expand_interval)
 
 #' @title Lin
 #' @param x0 Where to interpolate.

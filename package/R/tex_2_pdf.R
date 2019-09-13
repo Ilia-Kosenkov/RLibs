@@ -35,8 +35,9 @@ utils::globalVariables(c("Ext", "FileName"))
 #' @importFrom purrr map pwalk walk
 #' @importFrom fs path_dir path_ext_remove path_ext file_exists
 #' @importFrom fs path_norm path_ext_set path_file file_delete
+#' @importFrom vctrs vec_c vec_size
 #'
-Tex2Pdf <- function(..., verbose = FALSE,
+tex_2_pdf <- function(..., verbose = FALSE,
     additionalParams = "") {
 
     source <- flatten_chr(list(...))
@@ -60,7 +61,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
         lim <- 4L
         error <- glue("[{head(invalidFiles, lim)}]") %>%
             glue_collapse(sep = ", ")
-        extraMsg <- ifelse(length(invalidFiles) > lim,
+        extraMsg <- if_else_weak(vec_size(invalidFiles) > lim,
             glue(" and {length(invalidFiles) - lim} more"), "")
         stop(glue("Illegal files: {error}{extraMsg}."))
     }
@@ -76,7 +77,7 @@ Tex2Pdf <- function(..., verbose = FALSE,
 
         system(pdflatexCmd, show.output.on.console = verbose)
 
-        rmFiles <- c("aux", "log") %>%
+        rmFiles <- vec_c("aux", "log") %>%
             map(~glue("{path_ext_set(Tex, .x)}"))
 
         rmFiles %>%
@@ -90,10 +91,6 @@ Tex2Pdf <- function(..., verbose = FALSE,
     return(invisible(NULL))
 }
 
+#' @rdname tex_2_pdf
 #' @export
-#' @importFrom stringr str_sub str_locate_all
-#' @importFrom tools file_path_as_absolute
-PlotAPI.Tex2Pdf <- function(...) {
-    message("[RLibs::PlotAPI.Tex2Pdf] is deprecated, use [RLibs::Tex2Pdf]")
-    do.call("Tex2Pdf", ...)
-}
+Tex2Pdf <- deprecate_function(Tex2Pdf, tex_2_pdf)
