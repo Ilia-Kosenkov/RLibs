@@ -282,3 +282,34 @@ EvalTrans <- function(trans, data) {
     else
         data
     }
+
+
+#' @title if_else_weak
+#'
+#' @param condition Condition to test
+#' @param true Returned if \code{condition} is \code{TRUE}
+#' @param false Returned otherwise
+#' @importFrom assertthat assert_that
+#' @importFrom vctrs vec_size
+#' @importFrom rlang is_missing is_logical
+#' @importFrom magrittr not
+#' @export
+if_else_weak <- function(condition, true, false) {
+    assert_that(passes(is_logical(condition)))
+    if (vec_size(condition) == 1L) {
+        if (condition) {
+            assert_that(passes(not(is_missing(true))))
+            true
+        }
+        else {
+            assert_that(passes(not(is_missing(false))))
+            false
+        }
+    }
+    else {
+        assert_that(not(is_missing(true)), not(is_missing(false)))
+        assert_that(has_size(true, vec_size(condition)), has_size(false, vec_size(condition)))
+
+        pmap(list(condition, true, false), ~if(..1) ..2 else ..3)
+    }
+}
