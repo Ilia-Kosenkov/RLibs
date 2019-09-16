@@ -35,6 +35,7 @@ if (interactive()) {
     library(fs)
     library(assertthat)
     library(vctrs)
+    library(zeallot)
 
     dir_walk(path("package", "R"), source, recurse = TRUE)
 

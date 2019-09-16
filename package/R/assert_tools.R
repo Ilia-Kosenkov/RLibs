@@ -29,7 +29,9 @@
 #' provides a more detailed error explanation.
 #' @return Returns the result of the test. 
 #' @examples \dontrun{assert_that(passes(is_tibble(mtcars)))}
-#' @importFrom stringr str_match
+#' @importFrom stringr str_match str_split
+#' @importFrom dplyr %>% first
+#' @importFrom glue glue_collapse
 #' @export
 passes <- function(x) {
     x
@@ -87,22 +89,95 @@ is_nonpositive <- function(x) {
     is_numeric(x) && all(x <= 0)
 }
 
+#' @title either
+#' @param ... A number of conditions, one of which should be met.
+#' @importFrom rlang list2 call_args
+#' @importFrom glue glue_collapse
+#' @importFrom purrr %>% map some
+#' @importFrom dplyr first
+#' @export
+either <- function(...) {
+    args <- list2(...)
+    args %>% some(identity)
+}
+
+#' @title vec_within
+#'
+#' @param x Vector to test
+#' @param lower Lower limit
+#' @param upper Upper limit
+#' @param include_lower Wether to include lower limit
+#' @param include_upper Wether to include upper limit
+#' @importFrom vctrs vec_is vec_cast_common
+#' @importFrom zeallot %->%
+#' @return \code{logical} \code{TRUE} if all elements are within the boundaries.
+#' @export
+vec_within <- function(x, lower, upper, include_lower = TRUE, include_upper = TRUE) {
+    if (!vec_is(include_lower, logical(), 1L))
+        return (FALSE)
+    if (!vec_is(include_upper, logical(), 1L))
+        return(FALSE)
+    if (!vec_is(lower, size = 1L))
+        return(FALSE)
+    if (!vec_is(upper, size = 1L))
+        return(FALSE)
+
+    vec_cast_common(x, lower, upper) %->% c(x, lower, upper)
+
+    left_check <- if_else_weak(include_lower, x >= lower, x > lower)
+    right_check <- if_else_weak(include_upper, x <= upper, x < upper)
+
+    return(all(left_check & right_check))
+}
+
+parse_assertion <- function(str) {
+    parsed <- array(str_match(str, "^\\(*(?:(not)\\(+)?(is)[\\._](.+)\\(+(.+?)\\)+$"))
+    if (is.na(parsed[1]))
+        glue_fmt("{str} is false")
+    else {
+        parsed[4] <- parsed[4] %>% str_split("[_\\.]") %>% first %>% glue_collapse(sep = " ")
+        if (vec_size(parsed[4]) == 1L &&
+            (tolower(parsed[4]) == "missing" || tolower(parsed[4]) == "empty")) {
+            needs_a <- ""
+        } else
+            needs_a <- "a "
+
+        if (is.na(parsed[2]))
+            glue_fmt("{parsed[5]} is not {needs_a}{parsed[4]}")
+        else
+            glue_fmt("{parsed[5]} should not be {needs_a}{parsed[4]}")
+        }
+}
 
 assertthat::on_failure(passes) <- function(call, env) {
     callStr <- deparse(call$x)
-    parsed <- array(str_match(callStr, "^\\(*(?:(not)\\(+)?(is)[\\._](.+)\\(+(.+?)\\)+$")) 
-    if (is.na(parsed[1]))
-        glue_fmt("{callStr} is false")
-    else {
-        if(is.na(parsed[2]))
-            glue_fmt("{parsed[5]} is not a {parsed[4]}")
-        else
-            glue_fmt("{parsed[5]} should not be a {parsed[4]}")
-    }
+    parse_assertion(callStr)
 }
 
 assertthat::on_failure(has_size) <- function(call, env) {
     len <- eval(call$len, env)
     callStr <- deparse(call$x)
     glue_fmt("{callStr} should have size of {len}")
+}
+
+assertthat::on_failure(either) <- function(call, env) {
+    args <- rlang::call_args(call) %>%
+        map(deparse) %>%
+        map(parse_assertion) %>%
+        map(~glue_fmt("\t{.x}")) %>%
+        glue_collapse(sep = ",\n") -> asserts
+    glue_fmt("Failed, because \n{asserts}.")
+}
+
+assertthat::on_failure(not) <- function(call, env) {
+    str <- deparse(call)
+    parse_assertion(str)
+}
+
+assertthat::on_failure(vec_within) <- function(call, env) {
+    rlang::call_args(call) -> args
+    left_br <- if_else_weak(args$include_lower %||% TRUE, "[", "(")
+    right_br <- if_else_weak(args$include_upper %||% TRUE, "]", ")")
+
+    glue_fmt("{deparse(args$x)} is not within {left_br}{deparse(args$lower)}, {deparse(args$upper)}{right_br} range")
 }
