@@ -337,7 +337,7 @@ contours_2d_df <- function(df, x, y, prob,
     n = 30, lims = NULL) {
 
     assert_that(passes(is_numeric(prob)), all(prob >= 0), all(prob <= 1))
-    assert_that(passes(is_integerish(n)), passes(is_positive(n)), has_size(1L))
+    assert_that(passes(is_integerish(n)), passes(is_positive(n)), has_size(n, 1L))
     assert_that(passes(is_numeric(lims)))
 
     if (rlang::is_null(lims))
