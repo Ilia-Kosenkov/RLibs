@@ -35,7 +35,7 @@ fct_get <- function(x) {
     levels(x)[x]
 }
 
-#' @title JointDistributionContours
+#' @title contour_2d
 #' @param x First variable.
 #' @param y Second variable.
 #' @param prob Vector of probabilities in (0, 1).
@@ -97,6 +97,8 @@ contours_2d <- function(x, y, prob,
     return(cntrs)
 }
 
+#' @rdname contour_2d
+#' @export
 JointDistributionContours <- deprecate_function(JointDistributionContours, contours_2d)
 
 #' @title fancy_step
@@ -318,7 +320,7 @@ if_else_weak <- function(condition, true, false) {
     }
 }
 
-#' @title JointDistributionContours
+#' @title contour_2d_df
 #' @param df Data frame.
 #' @param x First variable.
 #' @param y Second variable.
