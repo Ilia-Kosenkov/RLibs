@@ -31,7 +31,8 @@ Imports:
 	vctrs,
 	scales,
 	future,
-	zeallot
+	zeallot,
+	forcats
 RoxygenNote: 6.1.1
 ByteCompile: true
 Encoding: UTF-8

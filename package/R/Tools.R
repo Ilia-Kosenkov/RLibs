@@ -320,6 +320,7 @@ if_else_weak <- function(condition, true, false) {
     }
 }
 
+utils::globalVariables(vctrs::vec_c("lnId", "prId"))
 #' @title contours_2d_df
 #' @param df Data frame.
 #' @param x First variable.
@@ -332,13 +333,14 @@ if_else_weak <- function(condition, true, false) {
 #' @importFrom purrr map map_dbl map2
 #' @importFrom MASS kde2d
 #' @importFrom dplyr tibble %>% bind_rows
+#' @importFrom forcats as_factor fct_cross
 #' @export
 contours_2d_df <- function(df, x, y, prob,
-    n = 30, lims = NULL) {
+    n = 30L, lims = NULL) {
 
     assert_that(passes(is_numeric(prob)), all(prob >= 0), all(prob <= 1))
     assert_that(passes(is_integerish(n)), passes(is_positive(n)), has_size(n, 1L))
-    assert_that(passes(is_numeric(lims)))
+    assert_that(either(is_numeric(lims), is_null(lims)))
 
     if (rlang::is_null(lims))
         lims <- vec_c(range(dplyr::pull(df, {{ x }})), range(dplyr::pull(df, {{ y }})))
@@ -374,10 +376,12 @@ contours_2d_df <- function(df, x, y, prob,
             contourLines(dens, levels = l) %>%
             map2(seq_len(length(.)),
                 ~ tibble(x = .x$x, y = .x$y, prId = prId, lnId = .y)) %>%
-            map(~AsSegments(.x, x, y)) %>%
+            #map(~AsSegments(.x, x, y)) %>%
             bind_rows
         }) %>%
-    bind_rows
+    bind_rows %>%
+            mutate_at(vars(prId, lnId), as_factor) %>%
+            mutate(glId = fct_cross(lnId, prId))
 
     return(cntrs)
 }
