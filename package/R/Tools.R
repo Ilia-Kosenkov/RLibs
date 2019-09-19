@@ -46,14 +46,15 @@ fct_get <- function(x) {
 #' @importFrom purrr map map_dbl map2
 #' @importFrom MASS kde2d
 #' @importFrom dplyr tibble %>% bind_rows
+#' @importFrom rlang is_integerish
 #' @export
 contours_2d <- function(x, y, prob,
     n = 30, lims = c(range(x), range(y))) {
     
     assert_that(passes(is_numeric(x)))
     assert_that(passes(is_numeric(y)))
-    assert_that(passes(is_numeric(prob)), prob >= 0, prob <= 1)
-    assert_that(passes(is_integer(n)), passes(is_positive(n)))
+    assert_that(passes(is_numeric(prob)), all(prob >= 0), all(prob <= 1))
+    assert_that(passes(is_integerish(n)), passes(is_positive(n)))
     assert_that(passes(is_numeric(lims)))
     assert_that(vec_size(x) == vec_size(y), msg = "x and y should be of the same length")
 
@@ -315,4 +316,66 @@ if_else_weak <- function(condition, true, false) {
         false[condition] <- true[condition]
         false
     }
+}
+
+#' @title JointDistributionContours
+#' @param df Data frame.
+#' @param x First variable.
+#' @param y Second variable.
+#' @param prob Vector of probabilities in (0, 1).
+#' @param n Size of the \code{MASS::kde2d} estimator's grid.
+#' @param lims Explicit lims passed to \code{kde2d}.
+#' @return List of contours, one per each probability.
+#' @importFrom grDevices contourLines
+#' @importFrom purrr map map_dbl map2
+#' @importFrom MASS kde2d
+#' @importFrom dplyr tibble %>% bind_rows
+#' @export
+contours_2d_df <- function(df, x, y, prob,
+    n = 30, lims = NULL) {
+
+    assert_that(passes(is_numeric(prob)), all(prob >= 0), all(prob <= 1))
+    assert_that(passes(is_integerish(n)), passes(is_positive(n)), has_size(1L))
+    assert_that(passes(is_numeric(lims)))
+
+    if (rlang::is_null(lims))
+        lims <- vec_c(range(dplyr::pull(df, {{ x }})), range(dplyr::pull(df, {{ y }})))
+
+    # Depends on MASS package
+    #require(MASS)
+    # Calculates 2D density
+    dens <- kde2d(dplyr::pull(df, {{ x }}), dplyr::pull(df, {{ y }}), n = n, lims = lims)
+
+    # Aranges values in ascending order
+    z <- sort(dens$z)
+    # Bin size in x and y directions
+    dx <- diff(dens$x[1:2])
+    dy <- diff(dens$y[1:2])
+
+    # Returns all cumulative sums:
+    # z1; z1+z2; ...; z1+z2+z3+...zN
+    # Times 2D bin size
+    cz <- cumsum(z) * dx * dy
+
+    # For each prob gives Z
+    #levels <- sapply(prob, function(x)
+    #{
+    #approx(CZ, Z, xout = 1 - x)$y
+    #})
+
+    levels <- map(prob, ~ approx(cz, z, xout = 1 - .x)$y)
+
+
+    # Generates contour lines at appropriate levels
+    cntrs <- map2(levels, seq_len(length(levels)),
+        function(l, prId) {
+            contourLines(dens, levels = l) %>%
+            map2(seq_len(length(.)),
+                ~ tibble(x = .x$x, y = .x$y, prId = prId, lnId = .y)) %>%
+            map(~AsSegments(.x, x, y)) %>%
+            bind_rows
+        }) %>%
+    bind_rows
+
+    return(cntrs)
 }

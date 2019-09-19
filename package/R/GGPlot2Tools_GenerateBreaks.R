@@ -65,7 +65,7 @@ GenerateBreaks <- function(range, largeStep, smallStep, ticks, op = `*`,
         reulst <- NULL
 
     if (!is_null(result$Large)) {
-        rangeSh <- Expand(range, factor = shrinkFactor)
+        rangeSh <- expand_interval(range, factor = shrinkFactor)
         result$Large <- Within(result$Large, rangeSh)
     }
 
