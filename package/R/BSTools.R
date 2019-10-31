@@ -143,16 +143,20 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
     lifecycle::deprecate_warn("0.6.0", "RLibs::BSTools.Run2()",
         details = "Function is deprecated in order to remove dependence on {rjags}")
 
+    jags.model <- rlang::exec("::", "rjags", "jags.model")
+    update <- rlang::exec(":::", "rjags", "update.jags")
+    coda.samples <- rlang::exec("::", "rjags", "coda.samples")
+
     cat("\r\nStarting simulation...\r\n")
     if (!all(is.na(initials)))
-        mdl <- rlang::exec(`::`("rjags", "jags.model"),
+        mdl <- jags.model(
             file = model,
             data = data,
             inits = initials,
             n.chains = nChain,
             n.adapt = nBurn)
     else
-        mdl <- rlang::exec(`::`("rjags", "jags.model"),
+        mdl <- jags.model(
             file = model,
             data = data,
             n.chains = nChain,
@@ -160,11 +164,11 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
 
     for (i in seq_len(updateCount)) {
         cat(sprintf("\r\nUpdating (%i)...\r\n", i))
-        rlang::exec(`:::`("rjags", "update.jags"), mdl, nUpdate, progress.bar = "text")
+        update(mdl, nUpdate, progress.bar = "text")
     }
 
     cat(sprintf("\r\nSampling..."))
-    result <- rlang::exec(`::`("rjags", "coda.samples"), mdl, samples, nSample * sampleEach, sampleEach)
+    result <- coda.samples(mdl, samples, nSample * sampleEach, sampleEach)
     result <- lapply(result, as.tibble)
     return(result)
 }
@@ -388,9 +392,11 @@ BSTools.RNGs <- function(n) {
     lifecycle::deprecate_warn(
         "0.6.0", "RLibs::BSTools.RNGs()",
          details = "Function is deprecated in order to remove dependence on {rjags}")
-    rlang::exec(`::`("rjags", "load.module"), "lecuyer")
+    load.module <- rlang::exec("::", "rjags", "load.module")
+    parallel.seeds <- rlang::exec("::", "rjags", "parallel.seeds")
+    load.module("lecuyer")
 
-    return(rlang::exec(`::`("rjags", "parallel.seeds"), "lecuyer::RngStream", n))
+    return(parallel.seeds("lecuyer::RngStream", n))
 }
 
 utils::globalVariables(c(".", "Vars"))

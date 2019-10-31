@@ -203,9 +203,9 @@ expand_interval <- function(x, factor = 1, direction = c(1, 1)) {
 Expand <- deprecate_function(Expand, expand_interval)
 
 #' @title lin
-#' @param x0 Where to interpolate.
-#' @param x Arguments (size 2).
-#' @param y Values (size 2).
+#' @param x Where to interpolate.
+#' @param x0 Arguments (size 2).
+#' @param y0 Values (size 2).
 #' @return Interpolated value between two provided.
 #' @importFrom zeallot %->%
 #' @export

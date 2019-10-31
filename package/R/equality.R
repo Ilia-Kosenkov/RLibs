@@ -1,6 +1,3 @@
-#' @import vctrs, assertthat, rlang, purrr
-
-
 #' are_equal_f
 #'
 #' @param x LHS
@@ -54,6 +51,12 @@ are_equal_f <- function(x, y, eps = 1) {
     purrr::map2_lgl(x, y, comparator)
 }
 
+#' Floating-point equality
+#'
+#' @param e1 LHS
+#' @param e2 RHS
+#'
+#' @return Logical vector
 #' @export
 `%==%` <- function(e1, e2) {
     vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
@@ -64,7 +67,7 @@ are_equal_f <- function(x, y, eps = 1) {
     return(x == y)
 }
 
-#' Floating-point equality
+#' Floating-point inequality
 #'
 #' @param e1 LHS
 #' @param e2 RHS
@@ -75,12 +78,12 @@ are_equal_f <- function(x, y, eps = 1) {
     !(e1 %==% e2)
 }
 
-#' Floating-point inequality
+
+#' @title are_same_all
+#' @param x Vector to test
+#' @param eps Floating-point comparison tolerance
 #'
-#' @param e1 LHS
-#' @param e2 RHS
-#'
-#' @return Logical vector
+#' @return \code{TRUE} if all elements are equal
 #' @export
 are_same_all <- function(x, eps = 1) {
     # `eps` is tested in `are_equal_f`
@@ -113,13 +116,13 @@ vec_assert_numeric <- function(x, size = NULL, arg = rlang::as_label(substitute(
 }
 
 vec_cast_integerish <- function(x, x_arg = "x") {
-    if (vec_is(x, integer()))
+    if (vctrs::vec_is(x, integer()))
         return(x)
 
     if (vec_is(x, double())) {
         diffs <- (abs(x) - floor(abs(x))) %==% 0
         inds <- which(!diffs)
-        if (vec_is_empty(inds))
+        if (vctrs::vec_is_empty(inds))
             return(vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x))))
 
         vctrs::stop_incompatible_cast(x[inds[1]], integer(), x_arg = rlang::as_label(x[inds[1]]))
@@ -127,13 +130,13 @@ vec_cast_integerish <- function(x, x_arg = "x") {
 }
 
 vec_assert_integerish <- function(x, size = NULL, x_arg = "x") {
-    if (vec_is(x, integer()))
+    if (vctrs::vec_is(x, integer()))
         result <- x
 
-    if (vec_is(x, double())) {
+    if (vctrs::vec_is(x, double())) {
         diffs <- (abs(x) - floor(abs(x))) %==% 0
         inds <- which(!diffs)
-        if (vec_is_empty(inds))
+        if (vctrs::vec_is_empty(inds))
             result <- vctrs::allow_lossy_cast(vec_cast(x, integer(), x_arg = rlang::as_label(x)))
         else
             vctrs::stop_incompatible_cast(x[inds[1]], integer(), x_arg = rlang::as_label(x[inds[1]]))
