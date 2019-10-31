@@ -35,6 +35,16 @@ fct_get <- function(x) {
     levels(x)[x]
 }
 
+#' @export
+`%vec_in%` <- vctrs::vec_in
+#' @export
+cc <- vctrs::vec_c
+
+#' @export
+len <- function(x) UseMethod("len")
+len.default <- vctrs::vec_size
+len.unit <- length
+
 #' @title contours_2d
 #' @param x First variable.
 #' @param y Second variable.
@@ -192,20 +202,35 @@ expand_interval <- function(x, factor = 1, direction = c(1, 1)) {
 #' @export
 Expand <- deprecate_function(Expand, expand_interval)
 
-#' @title Lin
+#' @title lin
 #' @param x0 Where to interpolate.
 #' @param x Arguments (size 2).
 #' @param y Values (size 2).
 #' @return Interpolated value between two provided.
-#' @importFrom purrr map_dbl
-#' @importFrom magrittr %<>%
+#' @importFrom zeallot %->%
 #' @export
-Lin <- function(x0, x, y) {
-    x %<>% unlist %>% as.numeric
-    y %<>% unlist %>% as.numeric
+lin <- function(x, x0, y0) {
 
-    map_dbl(x0, ~ y[1] + diff(y) / diff(x) * (. - x[1]))
+    data <- vec_cast_common_flatten(x0, y0)
+    vctrs::vec_recycle_common(!!!data, .size = 2L) %->% c(x0, y0)
+
+    dx <- diff(x0)
+    dy <- diff(y0)
+    sz <- len(x)
+    if (sz %==% 0L)
+        return(x)
+    else if (sz %==% 1L)
+        (x - x0[1]) * dy / dx + y0[1]
+    else
+        purrr::map_dbl(x, ~ (.x - x0[1]) * dy / dx + y0[1])
 }
+
+#' @rdname lin
+Lin <- function(x, x0, y0) {
+    lifecycle::deprecate_soft("0.6.0", "RLibs::Lin()", "RLibs::lin()")
+    lin(x, x0, y0)
+}
+
 
 #' @title pforeach
 #' @param .data An implicit argument passed by a pipe operatpr \code{\%>\%}.
