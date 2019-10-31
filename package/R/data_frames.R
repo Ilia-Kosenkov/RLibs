@@ -26,33 +26,45 @@
 #' @param .data Input table.
 #' @param .var Column to filter.
 #' @param .range Limits on the column.
-#' @return FIltered table.
-#' @importFrom rlang enquo quo_squash !!
-#' @importFrom dplyr %>% filter
+#' @param .strict \code{logical}; If \code{TRUE}, boundaries are not included.
+#' @return Filtered table.
+#' @importFrom dplyr filter
 #' @export
-filter_range <- function(.data, .var, .range) {
-    expr <- quo_squash(enquo(.var))
+filter_range <- function(.data, .var, .range, .strict = FALSE) {
+    vctrs::vec_assert(.range, size = 2L)
+    vctrs::vec_assert(.strict, logical(), 1L)
 
-    .data %>%
-        filter(!!expr >= .range[1] & !!expr <= .range[2])
+    gr <- if (.strict) `>` else `>=`
+    le <- if (.strict) `<` else `<=`
+
+    dplyr::filter(.data, gr({{ .var }}, .range[1]) & le({{ .var }}, .range[2]))
 }
 
 #' @rdname filter_range
 #' @export
-FilterRange <- deprecate_function(FilterRange, filter_range)
-
-#' @title Clamp.data.frame
-#' @param .data Input \code{data.frame} or \code{tibble}.
-#' @param .var Variable to clamp.
-#' @param .range Clamp range.
-#' @return \code{.data} whith clamped within \code{.range} column \code{.var}.
-#' @importFrom dplyr mutate %>% if_else
-#' @importFrom rlang enquo quo_squash !! :=
-#' @export
-Clamp.data.frame <- function(.data, .var, .range) {
-    expr <- quo_squash(enquo(.var))
-
-    .data %>%
-        mutate(!!expr := if_else(!!expr > .range[2], .range[2], !!expr)) %>%
-        mutate(!!expr := if_else(!!expr < .range[1], .range[1], !!expr))
+FilterRange <- function(.data, .var, .range, .strict = FALSE) {
+    lifecycle::deprecate_warn("0.6.0", "RLibs::FilterRange", "RLibs::filter_range")
 }
+
+clamp.data.frame <- function(...) {
+
+    args <- rlang::enquos(...)
+    assertthat::assert_that(len(args) == 3L)
+    names <- names(args)
+    data_id <- which(names %==% ".data") %0% 1L
+    col_id <- which(names %==% ".col") %0% 2L
+    range_id <- which(names %==% ".range") %0% 3L
+
+    data <- rlang::eval_tidy(args[[data_id]])
+    expr <- args[[col_id]]
+    range <- rlang::eval_tidy(args[[range_id]])
+
+    vctrs::vec_assert(range, size = 2L)
+
+    dplyr::mutate(data,
+                  !!expr := dplyr::if_else(`>`(!!expr, range[2]), range[2], !!expr),
+                  !!expr := dplyr::if_else(`<`(!!expr, range[1]), range[1], !!expr))
+}
+
+clamp.tibble <- function(...)
+    clamp.data.frame(...)

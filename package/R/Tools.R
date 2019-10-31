@@ -44,6 +44,7 @@ cc <- vctrs::vec_c
 len <- function(x) UseMethod("len")
 len.default <- vctrs::vec_size
 len.unit <- length
+len.quosures <- length
 
 #' @title contours_2d
 #' @param x First variable.
@@ -152,26 +153,33 @@ FancyStep <- deprecate_function(FancyStep, fancy_step)
 #' @title Clamp
 #' @param ... Parameter.
 #' @return Clamped numerics.
+#' @importFrom vctrs %0%
 #' @export
-Clamp <- function(...) {
+clamp <- function(...) {
     UseMethod("Clamp")
 }
 
-#' @title Clamp.numeric
-#' @param ... Input parameters.
-#' @return Clamps vector.
+#' @rdname clamp
 #' @export
-Clamp.numeric <- function(...) {
-    args <- list(...)
-    x <- args[[1]]
-    lower <- args[[2]]
-    upper <- args[[3]]
-    if (!missing(lower))
-        x[x < lower] <- lower
-    if (!missing(upper))
-        x[x > upper] <- upper
+Clamp <- function(...) {
+    lifecycle::deprecate_warn("0.6.0", "RLibs::Clamp()", "RLibs::clamp()")
+    clamp(...)
+}
 
-    return(x)
+clamp.numeric <- function(...) {
+    args <- rlang::list2(...)
+    assertthat::assert_that(len(args) == 2L)
+    names <- names(args)
+    data_id <- which(names %==% ".data") %0% 1L
+    range_id <- which(names %==% ".range") %0% 2L
+
+    data <- args[[data_id]]
+    range <- args[[range_id]]
+
+    data[data < range[1]] <- range[1]
+    data[data > range[2]] <- range[2]
+
+    return(data)
 }
 
 
@@ -200,7 +208,10 @@ expand_interval <- function(x, factor = 1, direction = c(1, 1)) {
 
 #' @rdname expand_interval
 #' @export
-Expand <- deprecate_function(Expand, expand_interval)
+Expand <- function(x, factor = 1, direction = c(1, 1)) {
+    lifecycle::deprecate_warn("0.6.0", "RLibs::Expand()", "RLibs::Expand()")
+    expand_interval(x, factor, direction)
+}
 
 #' @title lin
 #' @param x Where to interpolate.
