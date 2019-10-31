@@ -1,6 +1,6 @@
 Package: RLibs
 Title: RLibs
-Version: 0.5.5
+Version: 0.6.0
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
 Description: Auxilary functions for data analysis & plotting.
 URL: https://github.com/Ilia-Kosenkov/RLibs
@@ -10,7 +10,6 @@ Imports:
     MASS,
     methods,
     stats,
-    rjags,
     stringr,
     tibble,
     dplyr,
@@ -32,7 +31,8 @@ Imports:
 	scales,
 	future,
 	zeallot,
-	forcats
+	forcats,
+	lifecycle
 RoxygenNote: 6.1.1
 ByteCompile: true
 Encoding: UTF-8

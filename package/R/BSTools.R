@@ -29,123 +29,130 @@
 BSTools.Plots.Densities.PlotsPerRow <- 4
 BSTools.Result <- NULL
 
-BSTools.ToVector <- function(data) {
-    N <- length(data)
-    result <- rep(0.0, N)
+BSTools.ToVector <- function(...) {
+    lifecycle::deprecate_stop("0.6.0", "RLibs::BSTools.ToVector()")
+    #N <- length(data)
+    #result <- rep(0.0, N)
 
-    for (i in 1:N) {
-        result[i] <- data[i]
-    }
+    #for (i in 1:N) {
+        #result[i] <- data[i]
+    #}
 
-    return (result)
+    #return (result)
 }
 
-BSTools.Density <- function(data) {
-    dens <- density(data)
+BSTools.Density <- function(...) {
+    lifecycle::deprecate_stop("0.6.0", "RLibs::BSTools.Density()")
 
-    result <- data.frame(dens$x, dens$y)
-    names(result) <- c("Quantity", "Density")
+    #dens <- density(data)
 
-    return (result)
+    #result <- data.frame(dens$x, dens$y)
+    #names(result) <- c("Quantity", "Density")
+
+    #return (result)
 }
 
-BSTools.Analyze <- function(result = BSTools.Result, qntls = c(0.05, 0.95)) {
-    N <- length(result)
+BSTools.Analyze <- function(...) {
+    lifecycle::deprecate_stop("0.6.0", "RLibs::BSTools.Analyze()")
 
-    for (i in 1:N)  {
-        temp.df <- as.data.frame(result[[i]])
-        assign(sprintf("%s%0i", "BSTools.Result.Run", i),
-               temp.df, envir = .GlobalEnv)
+    #N <- length(result)
 
-        temp.stats <- data.frame(V1 = numeric(4))
+    #for (i in 1:N)  {
+        #temp.df <- as.data.frame(result[[i]])
+        #assign(sprintf("%s%0i", "RLibs::BSTools.Result.Run", i),
+               #temp.df, envir = .GlobalEnv)
 
-        for (j in 1:ncol(temp.df)) {
-            temp.stats[1, j] <- mean (temp.df[[j]])
-            temp.stats[2, j] <- sd (temp.df[[j]])
-            qnt <- quantile(temp.df[[j]], qntls)
-            for (k in 1:length(qnt))
-                temp.stats[2 + k, j] <- qnt[[k]]
-        }
+        #temp.stats <- data.frame(V1 = numeric(4))
 
-        names(temp.stats) <- attributes(result[[i]])$dimnames[[2]]
+        #for (j in 1:ncol(temp.df)) {
+            #temp.stats[1, j] <- mean (temp.df[[j]])
+            #temp.stats[2, j] <- sd (temp.df[[j]])
+            #qnt <- quantile(temp.df[[j]], qntls)
+            #for (k in 1:length(qnt))
+                #temp.stats[2 + k, j] <- qnt[[k]]
+        #}
 
-        assign(sprintf("%s%0i%s", "BSTools.Result.Run", i, ".Stats"),
-               temp.stats, envir = .GlobalEnv)
-    }
+        #names(temp.stats) <- attributes(result[[i]])$dimnames[[2]]
 
-}
-
-#' @importFrom rjags jags.model coda.samples adapt
-
-BSTools.Run <- function(model, initials, samples, N,
-    M = 3, sample_each = 10, n_updates = 1) {
-
-  mdl <- jags.model(model, initials, n.chains = M, n.adapt = N)
-
-  for (i in 1:n_updates)  {
-    writeLines(sprintf("\r\nUpdating (%i)...", i))
-    adapt(mdl, N)
-  }
-
-  writeLines(sprintf("\r\nSampling..."))
-  result <- coda.samples(mdl, samples, N, sample_each)
-
-  n <- length(samples)
-
-
-  assign("BSTools.Result", result, envir = .GlobalEnv)
+        #assign(sprintf("%s%0i%s", "RLibs::BSTools.Result.Run", i, ".Stats"),
+               #temp.stats, envir = .GlobalEnv)
+    #}
 
 }
 
 
-BSTools.Run1 <- function(model, data, samples, N,
-                        initials = NA, M = 3, sample_each = 10, n_updates = 1) {
-    #message("\r\nStarting simulation...\r\n")
-    if (!all(is.na(initials)))
-        mdl <- jags.model(
-            file = model,
-            data = data,
-            inits = initials,
-            n.chains = M,
-            n.adapt = N)
-    else
-        mdl <- jags.model(
-            file = model,
-            data = data,
-            n.chains = M,
-            n.adapt = N)
+BSTools.Run <- function(...) {
+    lifecycle::deprecate_stop("0.6.0", "RLibs::BSTools.Run()")
 
-        for (i in seq_len(n_updates)) {
-            #message(sprintf("\r\nUpdating (%i)...", i))
-            adapt(mdl, N)
-        }
+  #mdl <- jags.model(model, initials, n.chains = M, n.adapt = N)
 
-    #message(sprintf("\r\nSampling..."))
-    result <- coda.samples(mdl, samples, N, sample_each)
+  #for (i in 1:n_updates)  {
+    #writeLines(sprintf("\r\nUpdating (%i)...", i))
+    #adapt(mdl, N)
+  #}
 
-    n <- length(samples)
+  #writeLines(sprintf("\r\nSampling..."))
+  #result <- coda.samples(mdl, samples, N, sample_each)
+
+  #n <- length(samples)
 
 
-    assign("BSTools.Result", result, envir = .GlobalEnv)
+  #assign("RLibs::BSTools.Result", result, envir = .GlobalEnv)
+
+}
+
+
+BSTools.Run1 <- function(...) {
+    lifecycle::deprecate_stop("0.6.0", "RLibs::BSTools.Run1()")
+
+    ##message("\r\nStarting simulation...\r\n")
+    #if (!all(is.na(initials)))
+        #mdl <- jags.model(
+            #file = model,
+            #data = data,
+            #inits = initials,
+            #n.chains = M,
+            #n.adapt = N)
+    #else
+        #mdl <- jags.model(
+            #file = model,
+            #data = data,
+            #n.chains = M,
+            #n.adapt = N)
+
+        #for (i in seq_len(n_updates)) {
+            ##message(sprintf("\r\nUpdating (%i)...", i))
+            #adapt(mdl, N)
+        #}
+
+    ##message(sprintf("\r\nSampling..."))
+    #result <- coda.samples(mdl, samples, N, sample_each)
+
+    #n <- length(samples)
+
+
+    #assign("RLibs::BSTools.Result", result, envir = .GlobalEnv)
 
 }
 
 #' @export
 #' @importFrom tibble as.tibble
-#' @import rjags
 BSTools.Run2 <- function(model, data, samples, initials = NA,
         nChain, nBurn, updateCount = 2, nUpdate = nBurn,
         nSample = nUpdate, sampleEach = 10) {
+    lifecycle::deprecate_warn("0.6.0", "RLibs::BSTools.Run2()",
+        details = "Function is deprecated in order to remove dependence on {rjags}")
+
     cat("\r\nStarting simulation...\r\n")
     if (!all(is.na(initials)))
-        mdl <- jags.model(
+        mdl <- rlang::exec(`::`("rjags", "jags.model"),
             file = model,
             data = data,
             inits = initials,
             n.chains = nChain,
             n.adapt = nBurn)
     else
-        mdl <- jags.model(
+        mdl <- rlang::exec(`::`("rjags", "jags.model"),
             file = model,
             data = data,
             n.chains = nChain,
@@ -153,11 +160,11 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
 
     for (i in seq_len(updateCount)) {
         cat(sprintf("\r\nUpdating (%i)...\r\n", i))
-        update(mdl, nUpdate, progress.bar = "text")
+        rlang::exec(`:::`("rjags", "update.jags"), mdl, nUpdate, progress.bar = "text")
     }
 
     cat(sprintf("\r\nSampling..."))
-    result <- coda.samples(mdl, samples, nSample * sampleEach, sampleEach)
+    result <- rlang::exec(`::`("rjags", "coda.samples"), mdl, samples, nSample * sampleEach, sampleEach)
     result <- lapply(result, as.tibble)
     return(result)
 }
@@ -166,222 +173,224 @@ BSTools.Run2 <- function(model, data, samples, initials = NA,
 #' @importFrom MASS kde2d
 #' @importFrom graphics contour
 #' @importFrom graphics par plot.new mtext
-BSTools.Densities = function(plot = TRUE, rerun = TRUE)
-{
+BSTools.Densities <- function(plot = TRUE, rerun = TRUE) {
+    lifecycle::deprecate_stop("0.6.0", "RLibs::BSTools.Densities()")
+
     #require(MASS)
 
-    N_runs = length(BSTools.Result)
+    #N_runs = length(BSTools.Result)
     
-    pb = txtProgressBar(min = 0, max = 100, initial = 0, char = ">", style = 3, width = 60)
+    #pb = txtProgressBar(min = 0, max = 100, initial = 0, char = ">", style = 3, width = 60)
  
-    if(plot)
-    {
-        factor = 2
-    }
-    else
-    {
-        factor = 1
-    }
+    #if(plot)
+    #{
+        #factor = 2
+    #}
+    #else
+    #{
+        #factor = 1
+    #}
        
-    for (i in 1:N_runs)
-    {
+    #for (i in 1:N_runs)
+    #{
        
-        frameName = sprintf("%s%0i", "BSTools.Result.Run", i)
-        frame = eval(as.name(frameName))
+        #frameName = sprintf("%s%0i", "RLibs::BSTools.Result.Run", i)
+        #frame = eval(as.name(frameName))
         
-        N_var = ncol(frame)
+        #N_var = ncol(frame)
         
-        varNames = names(frame)
+        #varNames = names(frame)
      
-        for (j1 in 1:N_var)
-            for(j2 in 1:N_var)
-            {
-                if (j1 != j2)
-                {
-                    tempFrameName = sprintf("%s%0i.%s.%s", "BSTools.Result.Run", i,  varNames[[j1]], varNames[[j2]])
-                    densFrameName = sprintf("%s%0i.%s.%s.D", "BSTools.Result.Run", i,  varNames[[j1]], varNames[[j2]])
+        #for (j1 in 1:N_var)
+            #for(j2 in 1:N_var)
+            #{
+                #if (j1 != j2)
+                #{
+                    #tempFrameName = sprintf("%s%0i.%s.%s", "RLibs::BSTools.Result.Run", i,  varNames[[j1]], varNames[[j2]])
+                    #densFrameName = sprintf("%s%0i.%s.%s.D", "RLibs::BSTools.Result.Run", i,  varNames[[j1]], varNames[[j2]])
                     
-                    if(rerun)
-                    {
-                        dens = kde2d(frame[[j1]], frame[[j2]])
+                    #if(rerun)
+                    #{
+                        #dens = kde2d(frame[[j1]], frame[[j2]])
                         
-                        tempFrame = data.frame(X = dens$x, Y = dens$y)
-                        tempDens = (dens$z)
+                        #tempFrame = data.frame(X = dens$x, Y = dens$y)
+                        #tempDens = (dens$z)
                         
-                        assign(tempFrameName, tempFrame, envir = .GlobalEnv)
-                        assign(densFrameName, tempDens, envir = .GlobalEnv)
-                    }
-                    else
-                    {
-                        tempFrame = eval(as.name(tempFrameName))
-                        tempDens = eval(as.name(densFrameName))
-                    }
+                        #assign(tempFrameName, tempFrame, envir = .GlobalEnv)
+                        #assign(densFrameName, tempDens, envir = .GlobalEnv)
+                    #}
+                    #else
+                    #{
+                        #tempFrame = eval(as.name(tempFrameName))
+                        #tempDens = eval(as.name(densFrameName))
+                    #}
                     
-                }
+                #}
                 
-                else
+                #else
                     
-                {
-                    tempFrameName = sprintf("%s%0i.%s", "BSTools.Result.Run", i, varNames[[j1]])
+                #{
+                    #tempFrameName = sprintf("%s%0i.%s", "RLibs::BSTools.Result.Run", i, varNames[[j1]])
                     
-                    if (rerun)
-                    {
-                        dens = density(frame[[j1]])
+                    #if (rerun)
+                    #{
+                        #dens = density(frame[[j1]])
                         
-                        tempFrame = data.frame(X = dens$x, D = dens$y)
+                        #tempFrame = data.frame(X = dens$x, D = dens$y)
                         
-                        assign(tempFrameName, tempFrame, envir = .GlobalEnv)
-                    }
-                    else
-                    {
-                        tempFrame = eval(as.name(tempFrameName))
-                    }
+                        #assign(tempFrameName, tempFrame, envir = .GlobalEnv)
+                    #}
+                    #else
+                    #{
+                        #tempFrame = eval(as.name(tempFrameName))
+                    #}
                     
-                }
+                #}
                 
-                setTxtProgressBar(pb, value = (100 * ((i-1) * N_var^2 + (j1-1) * N_var + j2) / (factor * N_var^2 * N_runs)))
+                #setTxtProgressBar(pb, value = (100 * ((i-1) * N_var^2 + (j1-1) * N_var + j2) / (factor * N_var^2 * N_runs)))
               
-            }
+            #}
        
-    }
+    #}
     
     
-    if(plot)
-    {
-        counter = 0
-        for (g in 1:N_runs)
-        {
+    #if(plot)
+    #{
+        #counter = 0
+        #for (g in 1:N_runs)
+        #{
         
-            N_plts = BSTools.Plots.Densities.PlotsPerRow
+            #N_plts = BSTools.Plots.Densities.PlotsPerRow
             
-            sz = min(N_var, N_plts)
+            #sz = min(N_var, N_plts)
             
-            oldpar = par(oma = c(0,0,2,0), no.readonly = TRUE)
+            #oldpar = par(oma = c(0,0,2,0), no.readonly = TRUE)
            
-            if (N_var <= N_plts)
-            {
-                plot.new()
+            #if (N_var <= N_plts)
+            #{
+                #plot.new()
                 
-                par(mfrow = c(sz, sz))
+                #par(mfrow = c(sz, sz))
                 
-                for (j1 in 1:N_var)
-                    for(j2 in 1:N_var)
-                    {
-                        par(mfg = c(j2, j1))
-                        if (j1 != j2)
-                        {
-                            tempFrameName = sprintf("%s%0i.%s.%s", "BSTools.Result.Run", g,  varNames[[j1]], varNames[[j2]])
-                            densFrameName = sprintf("%s%0i.%s.%s.D", "BSTools.Result.Run", g,  varNames[[j1]], varNames[[j2]])
+                #for (j1 in 1:N_var)
+                    #for(j2 in 1:N_var)
+                    #{
+                        #par(mfg = c(j2, j1))
+                        #if (j1 != j2)
+                        #{
+                            #tempFrameName = sprintf("%s%0i.%s.%s", "RLibs::BSTools.Result.Run", g,  varNames[[j1]], varNames[[j2]])
+                            #densFrameName = sprintf("%s%0i.%s.%s.D", "RLibs::BSTools.Result.Run", g,  varNames[[j1]], varNames[[j2]])
                             
-                            tempFrame = eval(as.name(tempFrameName))
-                            tempDens = eval(as.name(densFrameName))
+                            #tempFrame = eval(as.name(tempFrameName))
+                            #tempDens = eval(as.name(densFrameName))
                             
-                            contour(tempFrame$X, tempFrame$Y, tempDens, xlab = varNames[[j1]], ylab= varNames[[j2]], main = "")
-                        }
-                        else
-                        {
-                            tempFrameName = sprintf("%s%0i.%s", "BSTools.Result.Run", g, varNames[[j1]])
+                            #contour(tempFrame$X, tempFrame$Y, tempDens, xlab = varNames[[j1]], ylab= varNames[[j2]], main = "")
+                        #}
+                        #else
+                        #{
+                            #tempFrameName = sprintf("%s%0i.%s", "RLibs::BSTools.Result.Run", g, varNames[[j1]])
                             
-                            tempFrame = eval(as.name(tempFrameName))
+                            #tempFrame = eval(as.name(tempFrameName))
                             
-                            plot(tempFrame$X, tempFrame$D, xlab = varNames[[j1]], ylab = sprintf("Density of %s",varNames[[j1]]), main = "", type = 'l')
-                        }
+                            #plot(tempFrame$X, tempFrame$D, xlab = varNames[[j1]], ylab = sprintf("Density of %s",varNames[[j1]]), main = "", type = 'l')
+                        #}
                        
-                         counter = counter + 1
+                         #counter = counter + 1
                         
-                        setTxtProgressBar(pb, value = (100 * (counter + N_var^2 * N_runs) / (factor * N_var^2 * N_runs)))
-                    }
+                        #setTxtProgressBar(pb, value = (100 * (counter + N_var^2 * N_runs) / (factor * N_var^2 * N_runs)))
+                    #}
                 
-                mtext (text = sprintf("Densities of Run #%i", g), outer = TRUE)
-            }
-            else
-            {
+                #mtext (text = sprintf("Densities of Run #%i", g), outer = TRUE)
+            #}
+            #else
+            #{
                 
-                N_sheets = ceiling(N_var/N_plts)
+                #N_sheets = ceiling(N_var/N_plts)
                 
-                for(i1 in 1:N_sheets)
-                {
+                #for(i1 in 1:N_sheets)
+                #{
                     
-                    for(i2 in 1:N_sheets)
-                    {
-                        plot.new()
+                    #for(i2 in 1:N_sheets)
+                    #{
+                        #plot.new()
                         
-                        if(i1 == i2)
-                        {
+                        #if(i1 == i2)
+                        #{
                             
-                            par(mfcol = c(N_plts, N_plts))
+                            #par(mfcol = c(N_plts, N_plts))
                             
-                        }
-                        else if(i1 > i2)
-                        {
-                            par(mfrow = c(N_plts, N_plts))
-                        }
-                        else
-                        {
-                            par(mfcol = c(N_plts, N_plts))
-                        }
+                        #}
+                        #else if(i1 > i2)
+                        #{
+                            #par(mfrow = c(N_plts, N_plts))
+                        #}
+                        #else
+                        #{
+                            #par(mfcol = c(N_plts, N_plts))
+                        #}
                         
-                        for (j1 in 1:N_plts)
-                            for(j2 in 1:N_plts)
-                            {
-                                k1 = j1 + (i1-1)*N_plts
-                                k2 = j2 + (i2-1)*N_plts
-                                par(mfg = c(j2, j1))
+                        #for (j1 in 1:N_plts)
+                            #for(j2 in 1:N_plts)
+                            #{
+                                #k1 = j1 + (i1-1)*N_plts
+                                #k2 = j2 + (i2-1)*N_plts
+                                #par(mfg = c(j2, j1))
                                 
-                                if ((k1 <= N_var) && (k2 <= N_var))
-                                {
-                                    if (k1 != k2)
-                                    {
-                                        tempFrameName = sprintf("%s%0i.%s.%s", "BSTools.Result.Run", g,  varNames[[k1]], varNames[[k2]])
-                                        densFrameName = sprintf("%s%0i.%s.%s.D", "BSTools.Result.Run", g,  varNames[[k1]], varNames[[k2]])
+                                #if ((k1 <= N_var) && (k2 <= N_var))
+                                #{
+                                    #if (k1 != k2)
+                                    #{
+                                        #tempFrameName = sprintf("%s%0i.%s.%s", "RLibs::BSTools.Result.Run", g,  varNames[[k1]], varNames[[k2]])
+                                        #densFrameName = sprintf("%s%0i.%s.%s.D", "RLibs::BSTools.Result.Run", g,  varNames[[k1]], varNames[[k2]])
                                         
-                                        tempFrame = eval(as.name(tempFrameName))
-                                        tempDens = eval(as.name(densFrameName))
+                                        #tempFrame = eval(as.name(tempFrameName))
+                                        #tempDens = eval(as.name(densFrameName))
                                         
-                                        contour(tempFrame$X, tempFrame$Y, tempDens, xlab = varNames[[k1]], ylab= varNames[[k2]], main = "")
-                                    }
-                                    else
-                                    {
-                                        tempFrameName = sprintf("%s%0i.%s", "BSTools.Result.Run", g, varNames[[k1]])
+                                        #contour(tempFrame$X, tempFrame$Y, tempDens, xlab = varNames[[k1]], ylab= varNames[[k2]], main = "")
+                                    #}
+                                    #else
+                                    #{
+                                        #tempFrameName = sprintf("%s%0i.%s", "RLibs::BSTools.Result.Run", g, varNames[[k1]])
                                         
-                                        tempFrame = eval(as.name(tempFrameName))
+                                        #tempFrame = eval(as.name(tempFrameName))
                                         
-                                        plot(tempFrame$X, tempFrame$D, xlab = varNames[[k1]], ylab = sprintf("Density of %s",varNames[[k1]]) , main = "",  type = 'l')
-                                    }
-                                    counter = counter + 1
+                                        #plot(tempFrame$X, tempFrame$D, xlab = varNames[[k1]], ylab = sprintf("Density of %s",varNames[[k1]]) , main = "",  type = 'l')
+                                    #}
+                                    #counter = counter + 1
                                 
-                                }
-                                else
-                                {
-                                    plot(1, type="n", axes=F, xlab="", ylab="")
-                                }
+                                #}
+                                #else
+                                #{
+                                    #plot(1, type="n", axes=F, xlab="", ylab="")
+                                #}
                                 
                                 
-                                setTxtProgressBar(pb, value = (100 * (counter +  N_var^2 * N_runs) / (factor * N_var^2 * N_runs)))
+                                #setTxtProgressBar(pb, value = (100 * (counter +  N_var^2 * N_runs) / (factor * N_var^2 * N_runs)))
                                
-                            } 
+                            #} 
                         
-                        mtext (text = sprintf("Densities of Run #%i", g), outer = TRUE)
+                        #mtext (text = sprintf("Densities of Run #%i", g), outer = TRUE)
                         
-                    }
+                    #}
                     
-                }
+                #}
                 
                 
-            }
+            #}
             
-            par(oldpar)
-        }
-    }
+            #par(oldpar)
+        #}
+    #}
 }
 
 #' @export
-#' @importFrom rjags load.module parallel.seeds
 BSTools.RNGs <- function(n) {
-    #require(rjags)
-    load.module("lecuyer")
+    lifecycle::deprecate_warn(
+        "0.6.0", "RLibs::BSTools.RNGs()",
+         details = "Function is deprecated in order to remove dependence on {rjags}")
+    rlang::exec(`::`("rjags", "load.module"), "lecuyer")
 
-    return(parallel.seeds("lecuyer::RngStream", n))
+    return(rlang::exec(`::`("rjags", "parallel.seeds"), "lecuyer::RngStream", n))
 }
 
 utils::globalVariables(c(".", "Vars"))
@@ -390,7 +399,7 @@ utils::globalVariables(c(".", "Vars"))
 #' @importFrom tibble as.tibble
 #' @importFrom stats pnorm
 BSTools.Analyze1 <- function(input) {
-   
+    lifecycle::deprecate_warn("0.6.0", "RLibs::BSTools.Analyze1()")
     lapply(input,
           function(x)
               x %>%
@@ -436,7 +445,7 @@ BSTools.DebugPlot <- function(data,
                               traceLen = 1000L, densLen = 10000L,
                               nPltRow = 3L) {
 
-
+    lifecycle::deprecate_warn("0.6.0", "RLibs::BSTools.DebugPlot()")
     names <- names(data[[1]])
 
     pltData <- foreach(item = data,
