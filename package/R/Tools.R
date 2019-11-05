@@ -232,8 +232,10 @@ lin <- function(x, x0, y0) {
         return(x)
     else if (sz %==% 1L)
         (x - x0[1]) * dy / dx + y0[1]
-    else
-        purrr::map_dbl(x, ~ (.x - x0[1]) * dy / dx + y0[1])
+    else {
+        purrr::map(x, ~ (.x - x0[1]) * dy / dx + y0[1]) -> result
+        vctrs::vec_cast(result, vctrs::vec_ptype_common(!!!result))
+    }
 }
 
 #' @rdname lin

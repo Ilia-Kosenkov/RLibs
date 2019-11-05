@@ -183,7 +183,7 @@ vec_assert_integerish <- function(x, size = NULL, arg = rlang::as_label(substitu
 #' @export
 vec_cast_common_flatten <- function(x, y, .to = NULL) {
     if (rlang::is_null(.to))
-        .to <- vctrs::vec_type_common(!!!x, !!!y)
+        .to <- vctrs::vec_ptype_common(!!!x, !!!y)
     list(
          x = vctrs::vec_cast(x, .to),
          y = vctrs::vec_cast(y, .to))
