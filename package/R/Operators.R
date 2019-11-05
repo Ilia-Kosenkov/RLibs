@@ -25,15 +25,19 @@
 #' @title \code{is} interfix operator
 #' @param object Object to test.
 #' @param class Target type (supports \code{rlang} quosure).
-#' @description An interfix version of \link{is} method.
+#' @description Works atop of \code{vctrs}
 #' @return \code{logical} \code{TRUE} if
 #' \code{object} is of class \code{class}, \code{FALSE} otherwise.
-#' @importFrom rlang quo_squash enquo
-#' @importFrom methods is
+#' @importFrom rlang quo_squash enquo sym exec
+#' @importFrom vctrs vec_ptype vec_is
 #' @export
 `%is%` <- function(object, class) {
-    nm <- as.character(quo_squash(enquo(class))) %??% "NULL"
-    return(is(object, nm))
+    #lifecycle::deprecate_warn("0.6.1", "RLibs::`%is%`()")
+    class <- sym(quo_squash(enquo(class)))
+    ptype <- vec_ptype(exec(class))
+
+    vec_is(object, ptype)
+
 }
 
 #' @title Concat/add infix operator.
@@ -75,7 +79,7 @@
 #' @importFrom purrr map2_chr
 #' @export
 `%+%` <- function(x, y) {
-    warning("Consider switching to RLibs::`%&%` to avoid name masking.")
+    lifecycle::deprecate_warn("0.6.1", "RLibs::`%+%`()", "RLibs::`%&%`()")
     RLibs::`%&%`(x, y)
 }
 
