@@ -97,6 +97,31 @@ are_same_all <- function(x, eps = 1) {
     all(are_equal_f(vctrs::vec_slice(x, 1L), vctrs::vec_slice(x, 2L:vctrs::vec_size(x)), eps = eps))
 }
 
+unique_which_f <- function(x, eps = 1L) {
+    x <- vec_assert_numeric(x)
+
+    prod <- outer(x, x, are_equal_f, eps = eps)
+
+    which(map_int(vec_seq_along(x), ~ sum(prod[1:.x, .x])) %==% 1L)
+}
+
+unique_f <- function(x, eps = 1L) {
+    x[unique_which_f(x, eps)]
+}
+
+distinct_which_f <- function(x, y, eps = 1L) {
+    x <- vec_assert_numeric(x)
+    y <- vec_assert_numeric(y)
+
+    prod <- !outer(x, y, are_equal_f, eps = eps)
+    list(x = which(apply(prod, 1, all)), y = which(apply(prod, 2, all)))
+}
+
+distinct_f <- function(x, y, eps = 1L) {
+    ids <- distinct_which_f(x, y, eps)
+    list(x = x[ids$x], y = y[ids$y])
+}
+
 #' name_of
 #'
 #' @param x Argument

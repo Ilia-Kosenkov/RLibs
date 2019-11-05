@@ -93,4 +93,8 @@ tex_2_pdf <- function(..., verbose = FALSE,
 
 #' @rdname tex_2_pdf
 #' @export
-Tex2Pdf <- deprecate_function(Tex2Pdf, tex_2_pdf)
+Tex2Pdf <- function(..., verbose = FALSE,
+    additionalParams = "") {
+    lifecycle::deprecate_warn("0.6.1", "RLibs::Tex2Pdf()", "RLibs::tex_2_pdf()")
+    tex_2_pdf(..., verbose = verbose, additionalParams = additionalParams)
+}

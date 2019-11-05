@@ -153,53 +153,48 @@ write_fixed <- function(frame, path, frmt, append = FALSE) {
         write_lines(path, append = append)
 }
 
-Tools.DataFrame.Print <- function(frame, file, frmt = "%8.2f",
-                                 printHeaders = TRUE, append = FALSE) {
-    temp <- ""
-    Nc <- ncol(frame)
-    Nr <- nrow(frame)
+#Tools.DataFrame.Print <- function(frame, file, frmt = "%8.2f",
+                                 #printHeaders = TRUE, append = FALSE) {
+    #temp <- ""
+    #Nc <- ncol(frame)
+    #Nr <- nrow(frame)
 
-    tryCatch({
-        sink(file, append = append)
+    #tryCatch({
+        #sink(file, append = append)
 
-        if (printHeaders) {
-            sizes <- as.integer(
-                sapply(regmatches(frmt, regexec("%([0-9]*)", frmt)),
-                "[[", 2))
-            if (any(is.na(sizes)))
-                stop("Explicit column width is required in [frmt].")
-            if (length(sizes) != ncol(frame))
-                sizes <- rep(sizes[1], ncol(frame))
+        #if (printHeaders) {
+            #sizes <- as.integer(
+                #sapply(regmatches(frmt, regexec("%([0-9]*)", frmt)),
+                #"[[", 2))
+            #if (any(is.na(sizes)))
+                #stop("Explicit column width is required in [frmt].")
+            #if (length(sizes) != ncol(frame))
+                #sizes <- rep(sizes[1], ncol(frame))
 
-            hdrFrmt <- sapply(sizes, function(sz) sprintf("%%%ss", sz))
-            header <- paste(
-                sapply(seq_len(length(hdrFrmt)),
-                    function(i) sprintf(hdrFrmt[i], names(frame)[i])),
-                collapse = "")
-            writeLines(header)
-        }
+            #hdrFrmt <- sapply(sizes, function(sz) sprintf("%%%ss", sz))
+            #header <- paste(
+                #sapply(seq_len(length(hdrFrmt)),
+                    #function(i) sprintf(hdrFrmt[i], names(frame)[i])),
+                #collapse = "")
+            #writeLines(header)
+        #}
 
-        if (length(frmt) != ncol(frame))
-            bodyFrmt <- rep(frmt[1], ncol(frame))
-        else
-            bodyFrmt <- frmt
-        for (j in 1:Nr) {
+        #if (length(frmt) != ncol(frame))
+            #bodyFrmt <- rep(frmt[1], ncol(frame))
+        #else
+            #bodyFrmt <- frmt
+        #for (j in 1:Nr) {
 
-            data <- as.list(frame[j, ])
-            body <- paste(sapply(seq_len(length(bodyFrmt)),
-                            function(i) sprintf(bodyFrmt[i], data[[i]])),
-                          collapse = "")
-            writeLines(body)
-        }
-    },
-    finally = sink()
-  )
-}
-
-#' @export
-Tools.DataFrame.DF2Latex <- function(...)
-    stop("`Tools.DataFrame.DF2Latex` is deprecated. " %+%
-         "Use `Tools.DataFrame.DF2Latex2` instead.")
+            #data <- as.list(frame[j, ])
+            #body <- paste(sapply(seq_len(length(bodyFrmt)),
+                            #function(i) sprintf(bodyFrmt[i], data[[i]])),
+                          #collapse = "")
+            #writeLines(body)
+        #}
+    #},
+    #finally = sink()
+  #)
+#}
 
 #' @export
 Tools.DataFrame.DF2Latex2 <- function(frame, file,
@@ -208,6 +203,9 @@ Tools.DataFrame.DF2Latex2 <- function(frame, file,
                                     insMathBefore = FALSE, insMathAfter = FALSE,
                                     cols = "c", NA.symb = NA_character_,
                                     beforeHead = NA, afterHead = NA) {
+
+    lifecycle::deprecate_soft("0.6.1", "RLibs::Tools.DataFrame.DF2Latex2()")
+
     if (insMathBody)
         mB <- "$"
     else
@@ -406,4 +404,7 @@ read_smart <- function(path, ...) {
 
 #' @rdname WriteFixed
 #' @export
-WriteFixed <- deprecate_function(WriteFixed, write_fixed)
+WriteFixed <- function(frame, path, frmt, append = FALSE) {
+    lifecycle::deprecate_warn("0.6.1", "RLibs::WriteFixed()", "RLibs::write_fixed()")
+    write_fixed(frame, path, frmt, append)
+}

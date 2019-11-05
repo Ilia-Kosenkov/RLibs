@@ -66,4 +66,7 @@ source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
 }
 
 #' @export
-SourceAll <- deprecate_function(SourceAll, source_all)
+SourceAll <- function(path, except, quiet = FALSE, recursive = TRUE) {
+    lifecycle::deprecate_warn("0.6.1", "RLibs::SourceAll()", "RLibs::source_all()")
+    source_all(path = path, except = except, quiet = quiet, recursive = recursive)
+}

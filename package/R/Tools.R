@@ -110,7 +110,9 @@ contours_2d <- function(x, y, prob,
 
 #' @rdname contours_2d
 #' @export
-JointDistributionContours <- deprecate_function(JointDistributionContours, contours_2d)
+JointDistributionContours <- function(...) {
+    lifecycle::deprecate_stop("0.6.1", "RLibs::JointDistributionContours()")
+}
 
 #' @title fancy_step
 #' @param range The range within which the ticks are placed.
@@ -126,7 +128,7 @@ fancy_step <- function(range,
     modifier <- c(0.1 * modifier, modifier)
 
     # Gets the smallest base_10 step
-    largeSteps <- range %>%
+    large_steps <- range %>%
         diff %>% abs %>% log10 %>% floor %>% raise(10)
 
     # Calculates the number of intervals within range
@@ -134,7 +136,7 @@ fancy_step <- function(range,
     # that produce the closest to n amount of breaks.
     # If there are multuple matches, selects the smallest step
     # or largest number of breaks
-    modInd <- largeSteps %>%
+    mod_ind <- large_steps %>%
         multiply_by(modifier) %>%
         raise_to_power(-1) %>%
         multiply_by(range %>% diff %>% abs) %>%
@@ -143,12 +145,16 @@ fancy_step <- function(range,
         equals(min(.)) %>%
         which
 
-    largeSteps * modifier[modInd] %>% min
+    large_steps * modifier[mod_ind] %>% min
 }
 
 #' @rdname fancy_step
 #' @export
-FancyStep <- deprecate_function(FancyStep, fancy_step)
+FancyStep <- function(range,
+    n = 6, modifier = c(1, 2.5, 5)) {
+    lifecycle::deprecate_warn("0.6.1", "RLibs::FancyStep()", "RLibs::fancy_step()")
+    fancy_step(range, n, modifier)
+}
 
 #' @title Clamp
 #' @param ... Parameter.
@@ -253,63 +259,8 @@ Lin <- function(x, x0, y0) {
 #' @importFrom foreach foreach
 #' @export
 pforeach <- function(.data, ...) {
-    # Evaluates first (implicit) argument (`dot`)
-    # Value of `dot` is reassigned to `dot` to create
-    # a `dot` name in the current environment.
-    . <- eval(.data)
-    # Extracts all additional arguments and evaluates it.
-    # All references to `dot` are resolved because `dot`
-    # is defiend above
-    ._args <- list(...)
-
-    # Constructs a named argument list, first
-    # argument is `x` = `input collection`
-    ._args <- append(list(x = .), ._args)
-
-    # Executes foreach using do.call and named argument list (all evaluated)
-    # foreach generates a descriptor of what to do.
-    # Operators like %do% and %dopar% can then process data in accordance to
-    # this decription.
-    do.call(foreach, ._args)
+   lifecycle::deprecate_stop("0.6.1", "RLibs::pforeach()")
 }
-
-utils::globalVariables(c("Dx", "Dy"))
-#' @importFrom rlang enquo quo_squash !!
-#' @importFrom dplyr %>% mutate pull
-TangentAndNorm <- function(dt, xcol, ycol, t) {
-    f <- 1
-    xcol <- quo_squash(enquo(xcol))
-    ycol <- quo_squash(enquo(ycol))
-    t <- quo_squash(enquo(t))
-
-    xData <- dt %>% pull(!!xcol)
-    yData <- dt %>% pull(!!ycol)
-    tData <- dt %>% pull(!!t)
-
-    n <- nrow(dt)
-    dx <- c((xData[2] - xData[1]) / (tData[2] - tData[1]),
-      (xData[3:n] - xData[1:(n - 2)]) / (tData[3:n] - tData[1:(n - 2)]),
-      (xData[n] - xData[n - 1]) / (tData[n] - tData[n - 1]))
-
-    dy <- c((yData[2] - yData[1]) / (tData[2] - tData[1]),
-      (yData[3:n] - yData[1:(n - 2)]) / (tData[3:n] - tData[1:(n - 2)]),
-      (yData[n] - yData[n - 1]) / (tData[n] - tData[n - 1]))
-
-    dt %>%
-        mutate(Dx = dx / sqrt(dx ^ 2 + dy ^ 2),
-               Dy = dy / sqrt(dx ^ 2 + dy ^ 2)) %>%
-        mutate(slope = Dy / Dx) %>%
-        mutate(x_tn = !!xcol - f * Dx,
-               y_tn = !!ycol - f * Dy) %>%
-        mutate(x_tn_end = !!xcol + f * Dx,
-               y_tn_end = !!ycol + f * Dy) %>%
-        mutate(x_nrm = !!xcol + f * Dy,
-               y_nrm = !!ycol - f * Dx) %>%
-        mutate(x_nrm_end = !!xcol - f * Dy,
-               y_nrm_end = !!ycol + f * Dx)
-
-}
-
 
 utils::globalVariables("formula")
 

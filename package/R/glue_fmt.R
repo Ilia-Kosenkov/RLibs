@@ -35,7 +35,7 @@ sprintf_transformer <- function(text, envir) {
     }
 }
 
-#' @title GlueFmt
+#' @title glue_fmt
 #'
 #' @param ... Passed to \code{glue::glue}.
 #' @param .envir Evaluation environment.
@@ -43,10 +43,25 @@ sprintf_transformer <- function(text, envir) {
 #' @return Format-aware interpoalted string.
 #' @importFrom glue glue
 #' @export
-GlueFmt <- function(..., .envir = parent.frame()) {
+glue_fmt <- function(..., .envir = parent.frame()) {
     glue(..., .envir = .envir, .transformer = sprintf_transformer)
 }
 
-#' @rdname GlueFmt
+#' @title glue_fmt_chr
+#'
+#' @param ... Passed to \code{glue::glue}.
+#' @param .envir Evaluation environment.
+#'
+#' @return Format-aware interpoalted string.
+#' @importFrom glue glue
 #' @export
-glue_fmt <- GlueFmt
+glue_fmt_chr <- function(..., .envir = parent.frame()) {
+    as.character(glue(..., .envir = .envir, .transformer = sprintf_transformer))
+}
+
+#' @rdname glue_fmt
+#' @export
+GlueFmt <- function(..., .envir = parent.frame()) {
+    lifecycle::deprecate_warn("0.6.1", "RLibs::GlueFmt()", "RLibs::glue_fmt()")
+    glue_fmt(..., .envir = .envir)
+}
