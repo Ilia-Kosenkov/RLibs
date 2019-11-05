@@ -52,6 +52,7 @@ len.quosures <- length
 #' @param prob Vector of probabilities in (0, 1).
 #' @param n Size of the \code{MASS::kde2d} estimator's grid.
 #' @param lims Explicit lims passed to \code{kde2d}.
+#' @param ... For compatibility
 #' @return List of contours, one per each probability.
 #' @importFrom grDevices contourLines
 #' @importFrom purrr map map_dbl map2

@@ -102,7 +102,7 @@ unique_which_f <- function(x, eps = 1L) {
 
     prod <- outer(x, x, are_equal_f, eps = eps)
 
-    which(map_int(vec_seq_along(x), ~ sum(prod[1:.x, .x])) %==% 1L)
+    which(map_int(seq_along(x), ~ sum(prod[1:.x, .x])) %==% 1L)
 }
 
 unique_f <- function(x, eps = 1L) {

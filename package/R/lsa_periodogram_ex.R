@@ -24,7 +24,7 @@
 utils::globalVariables(
     c("CS", "SN", "PSD", "W", "P", "Tau", "PSDN", "Amplitude",
       "CSPhase", "SNPhase", "TCSPhase", "TSNPhase", "FAP", "Wnd"))
-#' @title LSAPeriodogram
+#' @title lsa_periodogram_ex
 #'
 #' @param .data Input data tibble.
 #' @param t Time column.
@@ -38,30 +38,30 @@ utils::globalVariables(
 #' @importFrom dplyr bind_rows mutate select pull
 #' @importFrom rlang enquo !!
 #' @export
-LSAPeriodogramEx <- function(.data, t, x, w, tau = NA) {
+lsa_periodogram_ex <- function(.data, t, x, w, tau = NA) {
 
     t <- pull(.data, !!enquo(t))
     x <- pull(.data, !!enquo(x))
     x <- x - mean(x)
 
     if (all(is.na(tau)))
-        tau <- LSAPhase(w, t)
+        tau <- lsa_phase(w, t)
 
     var <- var(x)
-    n <- nrow(.data)
+    n <- len(.data)
 
-    map2(w, tau, function(locW, locT) {
-        arg <- locW * (t - locT)
+    map2(w, tau, function(loc_w, loc_t) {
+        arg <- loc_w * (t - loc_t)
         cs <- cos(arg)
-        csTerm <- (sum(x * cs) ^ 2) / sum(cs ^ 2)
-        if (abs(locW) <= 2 * .Machine$double.eps)
-            snTerm <- sum(x * (t - locT)) ^ 2 / sum((t - locT) ^ 2)
+        cs_term <- (sum(x * cs) ^ 2) / sum(cs ^ 2)
+        if (abs(loc_w) <= 2 * .Machine$double.eps)
+            sn_term <- sum(x * (t - loc_t)) ^ 2 / sum((t - loc_t) ^ 2)
         else {
             sn <- sin(arg)
-            snTerm <- sum(x * sn) ^ 2 / sum(sn ^ 2)
+            sn_term <- sum(x * sn) ^ 2 / sum(sn ^ 2)
         }
 
-        return(list(W = locW, Tau = locT, CS = csTerm, SN = snTerm))
+        return(list(W = loc_w, Tau = loc_t, CS = cs_term, SN = sn_term))
     }) %>%
     bind_rows %>%
     mutate(
@@ -75,6 +75,11 @@ LSAPeriodogramEx <- function(.data, t, x, w, tau = NA) {
         FAP = 1 - (1 - exp(-PSDN)) ^ n) %>%
     select(W, `F`, P, Tau, CS, SN, PSD, PSDN, Amplitude, FAP,
         CSPhase, SNPhase, TCSPhase, TSNPhase) %>%
-    mutate(Wnd = LSAPeriodogram(w, t, rep(1.0, n), tau))
+    mutate(Wnd = lsa_periodogram(w, t, rep(1.0, n), tau))
 
+}
+
+LSAPeriodogramEx <- function(.data, t, x, w, tau = NA) {
+    lifecycle::deprecate_warn("0.6.2", "RLibs::LSAPeriodogramEx()", "RLibs::lsa_periodogram_ex()")
+    lsa_periodogram_ex(.data, t, x, w, tau)
 }

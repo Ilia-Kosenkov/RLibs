@@ -22,7 +22,7 @@
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 utils::globalVariables(c(".x"))
-#' @title LSAPhase
+#' @title lsa_phase
 #'
 #' @param w (Angular) frequencies.
 #' @param t Time.
@@ -31,18 +31,24 @@ utils::globalVariables(c(".x"))
 #' \code{LSAPeriodogram}.
 #' @importFrom purrr map_dbl %>%
 #' @export
-LSAPhase <- function(w, t) {
+lsa_phase <- function(w, t) {
     # Determines phase correction to Scargle periodogram
     # Args:
     #       w : Frequencies (2 pi nu)
     #       t : Time
 
-    result <- w %>%
-        map_dbl(~0.5 / .x * atan2(sum(sin(2 * .x * t)), sum(cos(2 * .x * t))))
+    result <- map_dbl(w, ~0.5 / .x * atan2(sum(sin(2 * .x * t)), sum(cos(2 * .x * t))))
 
     inds <- which(abs(w) < 2 * .Machine$double.eps)
 
     result[inds] <- mean(t)
 
     return(result)
+}
+
+#' @rdname lsa_phase
+#' @export
+LSAPhase <- function(w, t) {
+    lifecycle::deprecate_warn("0.6.2", "RLibs::LSAPhase()", "RLibs::lsa_phase()")
+    lsa_phase(w, t)
 }
