@@ -1,12 +1,13 @@
 Package: RLibs
 Title: RLibs
-Version: 0.6.3
+Version: 0.7.0
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
 Description: Auxilary functions for data analysis & plotting.
 URL: https://github.com/Ilia-Kosenkov/RLibs
 Depends:
     R (>= 3.5.0)
 Imports:
+	foreach,
     MASS,
     methods,
     stats,
@@ -15,7 +16,6 @@ Imports:
     dplyr,
     grid,
     ggplot2,
-    foreach,
     gridExtra,
     RColorBrewer,
     rlang,

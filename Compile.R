@@ -37,7 +37,7 @@ if (interactive()) {
     library(vctrs)
     library(zeallot)
 
-    dir_walk(path("package", "R"), source, recurse = TRUE)
+    fs::dir_walk(fs::path("R"), source, recurse = TRUE)
 
     # source(file.path("package", "tests", "testthat.R"))
     # Uncomment this to check the package from within interactive session
@@ -46,14 +46,14 @@ if (interactive()) {
 } else {
 
     message("Running `roxygen2::roxygenize`...")
-    roxygen2::roxygenize("./package")
+    roxygen2::roxygenize(".")
     message("Finished `roxygen2::roxygenize`...")
 
     isWin <- grepl("win(dows)?", Sys.info()["sysname"])
     if (is.na(isWin))
         stop("Unable to detect system. Run `R CMD build` manually.")
     sfx <- ifelse(isWin, ".exe", "")
-    cmd_1 <- sprintf("R%s CMD build ./package", sfx)
+    cmd_1 <- sprintf("R%s CMD build .", sfx)
 
     message(paste("Executing:", cmd_1))
     if (isWin)
