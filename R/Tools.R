@@ -212,7 +212,7 @@ FancyStep <- function(range,
 #' @importFrom vctrs %0%
 #' @export
 clamp <- function(...) {
-    UseMethod("Clamp")
+    UseMethod("clamp")
 }
 
 #' @rdname clamp
