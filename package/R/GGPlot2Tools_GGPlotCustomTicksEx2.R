@@ -54,6 +54,7 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
                                 offset = unit(0.15, "cm"),
                                 just = NULL,
                                 tickGp = gpar()) {
+    lifecycle::deprecate_warn("0.6.3", "RLibs::GGPlotCustomTicksEx2()")
     if (is_integer(side))
         sideId <- side[1]
     else if (is_character(side))

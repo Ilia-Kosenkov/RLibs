@@ -49,6 +49,9 @@ GGPlotCustomTicks <- function(plt, side, breaks, labels, tckSz,
                               rot = 0, deltaH = 0, deltaV = 0,
                               tickGp = gpar()) {
 
+    lifecycle::deprecate_warn("0.6.3", "RLibs::GGPlotCustomTicks()")
+
+
     if (!(tckSz %is% unit))
         tckSz <- unit(tckSz, "npc")
     lb <- NULL

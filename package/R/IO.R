@@ -86,6 +86,7 @@ ReadList <- function(file) {
 utils::globalVariables(c("Col", "Format", "Header", "IsFactor", "Str", "Type"))
 
 #' @title write_fixed
+#' @rdname write_fixed
 #' @description Prints table to the target file in a fixed-format manner.
 #' @param frame \link{data.frame} or \link{tibble} to print.
 #' @param path Path to the output file.
@@ -402,7 +403,7 @@ read_smart <- function(path, ...) {
 }
 
 
-#' @rdname WriteFixed
+#' @rdname write_fixed
 #' @export
 WriteFixed <- function(frame, path, frmt, append = FALSE) {
     lifecycle::deprecate_warn("0.6.1", "RLibs::WriteFixed()", "RLibs::write_fixed()")

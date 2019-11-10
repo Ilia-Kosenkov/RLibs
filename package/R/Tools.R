@@ -35,16 +35,65 @@ fct_get <- function(x) {
     levels(x)[x]
 }
 
+#' @title vec_in
+#' @param needles Needles (what to match).
+#' @param haystack Haystack (where to match).
+#' @return Logical vector of matches.
 #' @export
+#' @importFrom vctrs vec_in
 `%vec_in%` <- vctrs::vec_in
-#' @export
-cc <- vctrs::vec_c
 
+#' @title cc
+#' @param ... Input similar to \code{c}.
+#' @return Type-sefe concatenation of the input.
 #' @export
+#' @importFrom vctrs vec_c
+cc <- function(...) vctrs::vec_c(...)
+
+#' len
+#'
+#' @param x Object to measure.
+#'
+#' @return Length of the object.
+#' @export
+#' @importFrom vctrs vec_size
 len <- function(x) UseMethod("len")
 len.default <- vctrs::vec_size
 len.unit <- length
 len.quosures <- length
+
+#' vec_rbind_uq
+#'
+#' @param x Input list, which is unquoted (!!!).
+#' @param .ptype Type to cast to (if \code{NULL}, common type).
+#' @param .names_to Where to put names.
+#' @param .name_repair Name repair.
+#'
+#' @return Bind data object
+#' @export
+#' @importFrom vctrs vec_rbind
+#' @importFrom rlang list2 !!!
+vec_rbind_uq <- function(x, .ptype = NULL, .names_to = NULL, .name_repair = c("unique", "universal", "check_unique")) {
+    vctrs::vec_rbind(!!!x, .ptype = .ptype, .names_to = .names_to, .name_repair = .name_repair)
+}
+
+#' @title Within
+#' @rdname within
+#'
+#' @param lhs Vector to test
+#' @param rhs Vector of size 2.
+#'
+#' @return Logical vector of length of \code{lhs}.
+#' @export
+`%within%` <- function(lhs, rhs) {
+    lhs > rhs[1] & lhs < rhs[2]
+}
+
+#' @rdname within
+#' @export
+`%withini%` <- function(lhs, rhs) {
+    lhs >= rhs[1] & lhs <= rhs[2]
+}
 
 #' @title contours_2d
 #' @param x First variable.
