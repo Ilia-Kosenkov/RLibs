@@ -206,7 +206,8 @@ FancyStep <- function(range,
     fancy_step(range, n, modifier)
 }
 
-#' @title Clamp
+#' @title clamp
+#' @rdname calmp
 #' @param ... Parameter.
 #' @return Clamped numerics.
 #' @importFrom vctrs %0%
@@ -222,6 +223,8 @@ Clamp <- function(...) {
     clamp(...)
 }
 
+#' @rdname clamp
+#' @export
 clamp.numeric <- function(...) {
     args <- rlang::list2(...)
     assertthat::assert_that(len(args) == 2L)

@@ -46,6 +46,8 @@ FilterRange <- function(.data, .var, .range, .strict = FALSE) {
     lifecycle::deprecate_warn("0.6.0", "RLibs::FilterRange", "RLibs::filter_range")
 }
 
+#' @rdname clamp
+#' @export
 clamp.data.frame <- function(...) {
 
     args <- rlang::enquos(...)
@@ -66,5 +68,7 @@ clamp.data.frame <- function(...) {
                   !!expr := dplyr::if_else(`<`(!!expr, range[1]), range[1], !!expr))
 }
 
-clamp.tibble <- function(...)
+#' @rdname clamp
+#' @export
+clamp.tbl_df <- function(...)
     clamp.data.frame(...)
