@@ -50,17 +50,23 @@ fct_get <- function(x) {
 #' @importFrom vctrs vec_c
 cc <- function(...) vctrs::vec_c(...)
 
-#' len
-#'
+#' @title len
+#' @rdname len
 #' @param x Object to measure.
 #'
 #' @return Length of the object.
 #' @export
 #' @importFrom vctrs vec_size
 len <- function(x) UseMethod("len")
-len.default <- vctrs::vec_size
-len.unit <- length
-len.quosures <- length
+#' @rdname
+#' @export
+len.default <- function(x) vctrs::vec_size(x)
+#' @rdname
+#' @export
+len.unit <- function(x) length(x)
+#' @rdname
+#' @export
+len.quosures <- function(x) length(x)
 
 #' vec_rbind_uq
 #'
