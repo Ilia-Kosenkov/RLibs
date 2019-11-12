@@ -213,7 +213,6 @@ FancyStep <- function(range,
 }
 
 #' @title clamp
-#' @rdname calmp
 #' @param ... Parameter.
 #' @return Clamped numerics.
 #' @importFrom vctrs %0%

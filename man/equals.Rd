@@ -2,9 +2,12 @@
 % Please edit documentation in R/equality.R
 \name{\%==\%}
 \alias{\%==\%}
+\alias{\%!=\%}
 \title{Floating-point equality}
 \usage{
 e1 \%==\% e2
+
+e1 \%!=\% e2
 }
 \arguments{
 \item{e1}{LHS}
@@ -13,7 +16,11 @@ e1 \%==\% e2
 }
 \value{
 Logical vector
+
+Logical vector
 }
 \description{
 Floating-point equality
+
+Floating-point inequality
 }

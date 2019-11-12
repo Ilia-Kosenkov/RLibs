@@ -9,7 +9,6 @@ Depends:
 Imports:
 	foreach,
     MASS,
-    methods,
     stats,
     stringr,
     tibble,

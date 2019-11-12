@@ -2,7 +2,7 @@
 % Please edit documentation in R/equality.R
 \name{are_equal_f}
 \alias{are_equal_f}
-\title{are_equal_f}
+\title{equals}
 \usage{
 are_equal_f(x, y, eps = 1)
 }
@@ -17,5 +17,5 @@ are_equal_f(x, y, eps = 1)
 Logical vector
 }
 \description{
-are_equal_f
+equals
 }

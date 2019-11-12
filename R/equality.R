@@ -1,5 +1,4 @@
-#' are_equal_f
-#'
+#' @title equals
 #' @param x LHS
 #' @param y RHS
 #' @param eps Precision of floating-point comparison
@@ -51,7 +50,8 @@ are_equal_f <- function(x, y, eps = 1) {
     purrr::map2_lgl(x, y, comparator)
 }
 
-#' Floating-point equality
+#' @rdname equals
+#' @title Floating-point equality
 #'
 #' @param e1 LHS
 #' @param e2 RHS
@@ -67,10 +67,8 @@ are_equal_f <- function(x, y, eps = 1) {
     return(x == y)
 }
 
-#' Floating-point inequality
-#'
-#' @param e1 LHS
-#' @param e2 RHS
+#' @rdname equals
+#' @title Floating-point inequality
 #'
 #' @return Logical vector
 #' @export
