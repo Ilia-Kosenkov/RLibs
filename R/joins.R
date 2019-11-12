@@ -137,9 +137,9 @@ safe_join_coalesce <- function(x, y, by) {
 #'
 #' @importFrom utils tail
 #' @importFrom dplyr group_split
-#' @importFrom purrr map_at
+#' @importFrom purrr map reduce map_at
 #' @importFrom vctrs vec_is_empty vec_cbind
-#' @importFrom rlang abort quo_is_call quo_get_expr quo_set_expr
+#' @importFrom rlang abort quo_get_expr new_function quo_get_env missing_arg
 join_cnd <- function(left, right, ...,
     .type = "inner",
     .selector = "all",
@@ -164,21 +164,19 @@ join_cnd <- function(left, right, ...,
 
     .type <- match.arg(.type, cc("left", "right", "inner", "full"))
 
-    cond <- map(cond, function(cnd) {
-        if (!quo_is_call(cnd))
-            abort("Error", "maxi2_invalid_argument")
+    conds_proc <- cond %>%
+    map(quo_get_expr) %>%
+        reduce(~expr((!!.x) & (!!.y)))
 
-        expr <- quo_get_expr(cnd)
-        expr <- expr(outer(!!expr[[2]], !!expr[[3]], !!expr[[1]]))
-        quo_set_expr(cnd, expr)
-    })
+    args <- list(.x = missing_arg(), .y = missing_arg())
+    conds_proc <- new_function(args, conds_proc, quo_get_env(cond[[1]]))
 
+    proc <- function(i, j)
+        conds_proc(left[i,], right[j,])
 
-    cond %>%
-        map(eval_tidy, list(.x = left, .y = right)) %>%
-        map(which, arr.ind = TRUE) %>%
-        map(as_tibble, .name_repair = "minimal") %>%
-        reduce(inner_join, by = c("row", "col")) -> indices
+    outer(1:len(left), 1:len(right), proc) %>%
+        which(arr.ind = TRUE) %>%
+        as_tibble(.name_repair = "unique") -> indices
 
     if (.type %==% "left") {
         indices %>%
@@ -272,8 +270,3 @@ full_join_cnd <- function(left, right, ...,
     .enforce_suffix = FALSE) {
     join_cnd(left, right, ..., .type = "full", .selector = .selector, .suffix = .suffix, .enforce_suffix = .enforce_suffix)
 }
-
-#tbl <- tibble(x = cc(1, 10, 12, 14, 15, 17, 20), y = x + 3, c = letters[seq_along(x)])
-
-#join_cnd(mtcars[1:15,], tbl, .x$mpg >= .y$x, .x$mpg < .y$y) %>%
-    #print(n = vec_size(.))
