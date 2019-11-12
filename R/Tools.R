@@ -58,13 +58,13 @@ cc <- function(...) vctrs::vec_c(...)
 #' @export
 #' @importFrom vctrs vec_size
 len <- function(x) UseMethod("len")
-#' @rdname
+#' @rdname len
 #' @export
 len.default <- function(x) vctrs::vec_size(x)
-#' @rdname
+#' @rdname len
 #' @export
 len.unit <- function(x) length(x)
-#' @rdname
+#' @rdname len
 #' @export
 len.quosures <- function(x) length(x)
 
