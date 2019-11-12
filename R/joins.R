@@ -123,24 +123,26 @@ safe_join_coalesce <- function(x, y, by) {
 }
 
 
-#' @title join_condition
-#'
+#' @title join_cnd
+#' @rdname join_condition
 #' @param left LHS table.
 #' @param right RHS table
 #' @param ... Joining conditions, where \code{.x} refers to RHS table and
 #' \code{.y} referes to LHS table. E.g. \code{.x$hp > .y$mpg}.
 #' Comma-separated conditions are \code{`&`}.
 #' @param .selector If multiple matches, which RHS to select
-#' @param .suffix
-#' @param .enforce_suffix
+#' @param .type Type of the performed join.
+#' @param .suffix Suffixes that are added to the repeating columns.
+#' @param .enforce_suffix If \code{TRUE}, enforces suffixes on all columns.
 #'
-#' @return
-#' @export
-#'
-#' @examples
-join_condition <- function(left, right, ...,
-    .type = "left",
-    .selector = "first",
+#' @importFrom utils tail
+#' @importFrom dplyr group_split
+#' @importFrom purrr map_at
+#' @importFrom vctrs vec_is_empty vec_cbind
+#' @importFrom rlang abort quo_is_call quo_get_expr quo_set_expr
+join_cnd <- function(left, right, ...,
+    .type = "inner",
+    .selector = "all",
     .suffix = c("__l", "__r"),
     .enforce_suffix = FALSE) {
 
@@ -152,11 +154,15 @@ join_condition <- function(left, right, ...,
             selector <- function(x) head(x, 1)
         else if (.selector == "last")
             selector <- function(x) tail(x, 1)
+        else if (.selector == "all")
+            selector <- function(x) x
         else
             abort("Error", "maxi2_invalid_argument")
         }
     else
         selector <- as_function(.selector)
+
+    .type <- match.arg(.type, cc("left", "right", "inner", "full"))
 
     cond <- map(cond, function(cnd) {
         if (!quo_is_call(cnd))
@@ -172,7 +178,7 @@ join_condition <- function(left, right, ...,
         map(eval_tidy, list(.x = left, .y = right)) %>%
         map(which, arr.ind = TRUE) %>%
         map(as_tibble, .name_repair = "minimal") %>%
-        reduce(inner_join) -> indices
+        reduce(inner_join, by = c("row", "col")) -> indices
 
     if (.type %==% "left") {
         indices %>%
@@ -193,6 +199,12 @@ join_condition <- function(left, right, ...,
 
         vec_rbind(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
     }
+    else if (.type %==% "full") {
+        vec_rbind(indices, tibble(row = setdiff(1:len(left), indices$row), col = NA_integer_)) -> indices
+        vec_rbind(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
+    }
+
+    indices %>% arrange(row, col) -> indices
 
     left <- left[indices$row, ]
     right <- right[indices$col, ]
@@ -221,8 +233,47 @@ join_condition <- function(left, right, ...,
     vec_cbind(left, right)
 }
 
-tbl <- tibble(x = cc(10, 12, 15, 17, 20), y = x + 3, c = letters[1:5])
+#' @name inner_join_cnd
+#' @rdname join_condition
+#' @export
+inner_join_cnd <- function(left, right, ...,
+    .selector = "all",
+    .suffix = c("__l", "__r"),
+    .enforce_suffix = FALSE) {
+    join_cnd(left, right, ..., .type = "inner", .selector = .selector, .suffix = .suffix, .enforce_suffix = .enforce_suffix)
+}
 
-join_condition(mtcars[1:10,], tbl, .x$mpg >= .y$x, .x$mpg < .y$y,
-    .type = "left") %>%
-    print
+#' @name left_join_cnd
+#' @rdname join_condition
+#' @export
+left_join_cnd <- function(left, right, ...,
+    .selector = "all",
+    .suffix = c("__l", "__r"),
+    .enforce_suffix = FALSE) {
+    join_cnd(left, right, ..., .type = "left", .selector = .selector, .suffix = .suffix, .enforce_suffix = .enforce_suffix)
+}
+
+#' @name right_join_cnd
+#' @rdname join_condition
+#' @export
+right_join_cnd <- function(left, right, ...,
+    .selector = "all",
+    .suffix = c("__l", "__r"),
+    .enforce_suffix = FALSE) {
+    join_cnd(left, right, ..., .type = "right", .selector = .selector, .suffix = .suffix, .enforce_suffix = .enforce_suffix)
+}
+
+#' @name full_join_cnd
+#' @rdname join_condition
+#' @export
+full_join_cnd <- function(left, right, ...,
+    .selector = "all",
+    .suffix = c("__l", "__r"),
+    .enforce_suffix = FALSE) {
+    join_cnd(left, right, ..., .type = "full", .selector = .selector, .suffix = .suffix, .enforce_suffix = .enforce_suffix)
+}
+
+#tbl <- tibble(x = cc(1, 10, 12, 14, 15, 17, 20), y = x + 3, c = letters[seq_along(x)])
+
+#join_cnd(mtcars[1:15,], tbl, .x$mpg >= .y$x, .x$mpg < .y$y) %>%
+    #print(n = vec_size(.))
