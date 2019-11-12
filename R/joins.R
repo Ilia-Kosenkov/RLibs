@@ -130,7 +130,7 @@ safe_join_coalesce <- function(x, y, by) {
 #' @param ... Joining conditions, where \code{.x} refers to RHS table and
 #' \code{.y} referes to LHS table. E.g. \code{.x$hp > .y$mpg}.
 #' Comma-separated conditions are \code{`&`}.
-#' @param .type If multiple matches, which RHS to select
+#' @param .selector If multiple matches, which RHS to select
 #' @param .suffix
 #' @param .enforce_suffix
 #'
@@ -139,22 +139,24 @@ safe_join_coalesce <- function(x, y, by) {
 #'
 #' @examples
 join_condition <- function(left, right, ...,
-    .type = "first", .suffix = c("__l", "__r"),
+    .type = "left",
+    .selector = "first",
+    .suffix = c("__l", "__r"),
     .enforce_suffix = FALSE) {
 
     cond <- enquos(...)
 
-    if (vec_is(.type, character(), 1L)) {
-        .type <- tolower(.type)
-        if (.type == "first")
+    if (vec_is(.selector, character(), 1L)) {
+        .selector <- tolower(.selector)
+        if (.selector == "first")
             selector <- function(x) head(x, 1)
-        else if (.type == "last")
+        else if (.selector == "last")
             selector <- function(x) tail(x, 1)
         else
             abort("Error", "maxi2_invalid_argument")
         }
     else
-        selector <- as_function(.type)
+        selector <- as_function(.selector)
 
     cond <- map(cond, function(cnd) {
         if (!quo_is_call(cnd))
@@ -172,9 +174,28 @@ join_condition <- function(left, right, ...,
         map(as_tibble, .name_repair = "minimal") %>%
         reduce(inner_join) -> indices
 
+    if (.type %==% "left") {
+        indices %>%
+            arrange(row) %>%
+            group_split(row) %>%
+            map(slice, selector(1:n())) %>%
+            vec_rbind_uq -> indices
 
-    left <- slice(left, indices$row)
-    right <- slice(right, indices$col)
+        vec_rbind(indices, tibble(row = setdiff(1:len(left), indices$row), col = NA_integer_)) -> indices
+
+    }
+    else if (.type %==% "right") {
+        indices %>%
+            arrange(col) %>%
+            group_split(col) %>%
+            map(slice, selector(1:n())) %>%
+            vec_rbind_uq -> indices
+
+        vec_rbind(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
+    }
+
+    left <- left[indices$row, ]
+    right <- right[indices$col, ]
 
     if (.enforce_suffix) {
         left <- set_names(left, paste0(names(left), .suffix[1]))
@@ -197,11 +218,11 @@ join_condition <- function(left, right, ...,
 
     }
 
-    bind_cols(left, right)
+    vec_cbind(left, right)
 }
 
-tbl <- tibble(x = cc(10, 12, 15, 17, 20, 25, 30), y = x + 5, c = letters[1:7])
+tbl <- tibble(x = cc(10, 12, 15, 17, 20), y = x + 3, c = letters[1:5])
 
 join_condition(mtcars[1:10,], tbl, .x$mpg >= .y$x, .x$mpg < .y$y,
-    .type = ~.x[1]) %>%
+    .type = "left") %>%
     print
