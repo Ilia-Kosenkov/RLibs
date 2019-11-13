@@ -51,20 +51,12 @@
 #' Does the same as `%+%`.
 #' @return Result of the aapropriate summation/concatenation.
 #' @importFrom purrr map2_chr
+#' @importFrom vctrs vec_ptype_common vec_recycle_common
 #' @export
 `%&%` <- function(x, y) {
-    if (x %is% character && y %is% character) {
-        if (length(x) == length(y))
-            return(map2_chr(x, y, ~ paste0(.x, .y)))
-        else
-            stop(paste("Unable to concat string collections:",
-                "different collection lengths."))
-        }
-    else
-        stop(sprintf(paste0("Unable to add objects of following types:",
-            "\r\n[%s]\r\n[%s]\r\nNo rule defined.\r\n"),
-            paste(class(x), collapse = ", "),
-            paste(class(y), collapse = ", ")))
+    ptype <- vec_ptype_common(x, y, character(0))
+    cast <- vec_recycle_common(x = vec_cast(x, ptype), y = vec_cast(y, ptype))
+    map2_chr(cast$x, cast$y, paste0)
 }
 
 #' @title Concat/add infix operator.
