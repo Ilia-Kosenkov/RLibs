@@ -154,49 +154,6 @@ write_fixed <- function(frame, path, frmt, append = FALSE) {
         write_lines(path, append = append)
 }
 
-#Tools.DataFrame.Print <- function(frame, file, frmt = "%8.2f",
-                                 #printHeaders = TRUE, append = FALSE) {
-    #temp <- ""
-    #Nc <- ncol(frame)
-    #Nr <- nrow(frame)
-
-    #tryCatch({
-        #sink(file, append = append)
-
-        #if (printHeaders) {
-            #sizes <- as.integer(
-                #sapply(regmatches(frmt, regexec("%([0-9]*)", frmt)),
-                #"[[", 2))
-            #if (any(is.na(sizes)))
-                #stop("Explicit column width is required in [frmt].")
-            #if (length(sizes) != ncol(frame))
-                #sizes <- rep(sizes[1], ncol(frame))
-
-            #hdrFrmt <- sapply(sizes, function(sz) sprintf("%%%ss", sz))
-            #header <- paste(
-                #sapply(seq_len(length(hdrFrmt)),
-                    #function(i) sprintf(hdrFrmt[i], names(frame)[i])),
-                #collapse = "")
-            #writeLines(header)
-        #}
-
-        #if (length(frmt) != ncol(frame))
-            #bodyFrmt <- rep(frmt[1], ncol(frame))
-        #else
-            #bodyFrmt <- frmt
-        #for (j in 1:Nr) {
-
-            #data <- as.list(frame[j, ])
-            #body <- paste(sapply(seq_len(length(bodyFrmt)),
-                            #function(i) sprintf(bodyFrmt[i], data[[i]])),
-                          #collapse = "")
-            #writeLines(body)
-        #}
-    #},
-    #finally = sink()
-  #)
-#}
-
 #' @export
 Tools.DataFrame.DF2Latex2 <- function(frame, file,
                                     frmt = "%6.2f", printHeaders = TRUE,
@@ -359,7 +316,7 @@ Tools.DataFrame.DF2Latex2 <- function(frame, file,
 #' @importFrom assertthat assert_that is.string
 #' @importFrom tibble is_tibble
 #' @importFrom fs path_ext
-#' @importFrom readr write_rds
+#' @importFrom readr write_rds write_csv
 #' @importFrom feather write_feather
 #' @export
 write_smart <- function(data, path, ...) {
@@ -373,6 +330,7 @@ write_smart <- function(data, path, ...) {
            "feath" = ,
            "fth" = write_feather(data, path),
            "rds" = write_rds(data, path, ...),
+           "csv" = write_csv(data, path, ...),
            write_fixed(data, path, ...))
 }
 
@@ -386,7 +344,7 @@ write_smart <- function(data, path, ...) {
 #' @return Nothing
 #' @importFrom assertthat assert_that is.string is.readable
 #' @importFrom fs path_ext
-#' @importFrom readr read_rds read_table2
+#' @importFrom readr read_rds read_table2 read_csv
 #' @importFrom feather read_feather
 #' @export
 read_smart <- function(path, ...) {
@@ -397,8 +355,9 @@ read_smart <- function(path, ...) {
     switch(ext,
         "feather" = ,
         "feath" = ,
-        "fth" = read_feather(path),
-        "rds" = read_rds(path),
+        "fth" = read_feather(path, ...),
+        "rds" = read_rds(path, ...),
+        "csv" = read_csv(path, ...),
         read_table2(path, ...))
 }
 
