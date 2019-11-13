@@ -90,15 +90,22 @@ vec_rbind_uq <- function(x, .ptype = NULL, .names_to = NULL, .name_repair = c("u
 #' @param rhs Vector of size 2.
 #'
 #' @return Logical vector of length of \code{lhs}.
+#' @importFrom vctrs vec_assert
 #' @export
 `%within%` <- function(lhs, rhs) {
-    lhs > rhs[1] & lhs < rhs[2]
+    vec_assert(rhs, size = 2L)
+    result <- vec_cast_common(lhs, rhs)
+
+    result[[1]] > result[[2]][1] & result[[1]] < result[[2]][2]
 }
 
 #' @rdname within
 #' @export
 `%withini%` <- function(lhs, rhs) {
-    lhs >= rhs[1] & lhs <= rhs[2]
+    vec_assert(rhs, size = 2L)
+    result <- vec_cast_common(lhs, rhs)
+
+    result[[1]] >= result[[2]][1] & result[[1]] <= result[[2]][2]
 }
 
 #' @title contours_2d
