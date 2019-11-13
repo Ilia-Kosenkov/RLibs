@@ -95,6 +95,14 @@ are_same_all <- function(x, eps = 1) {
     all(are_equal_f(vctrs::vec_slice(x, 1L), vctrs::vec_slice(x, 2L:vctrs::vec_size(x)), eps = eps))
 }
 
+
+#' @title unique_which_f
+#'
+#' @param x Vector to test.
+#' @param eps Floating-point comparison tolerance
+#'
+#' @return Indices of items that are unique within the source vector.
+#' @export
 unique_which_f <- function(x, eps = 1L) {
     x <- vec_assert_numeric(x)
 
@@ -103,10 +111,25 @@ unique_which_f <- function(x, eps = 1L) {
     which(map_int(seq_along(x), ~ sum(prod[1:.x, .x])) %==% 1L)
 }
 
+#' @title unique_f
+#'
+#' @param x Vector to test.
+#' @param eps Floating-point comparison tolerance
+#'
+#' @return Vector of unique items tkaen from the source vector.
+#' @export
 unique_f <- function(x, eps = 1L) {
     x[unique_which_f(x, eps)]
 }
 
+#' @title distinct_which_f
+#'
+#' @param x First vector.
+#' @param y Second vector.
+#' @param eps Floating-point comparison tolerance
+#'
+#' @return List with two items, \code{x} and \code{y}, which contain indices of values that are not present in another collection
+#' @export
 distinct_which_f <- function(x, y, eps = 1L) {
     x <- vec_assert_numeric(x)
     y <- vec_assert_numeric(y)
@@ -115,6 +138,14 @@ distinct_which_f <- function(x, y, eps = 1L) {
     list(x = which(apply(prod, 1, all)), y = which(apply(prod, 2, all)))
 }
 
+#' @title distinct_f
+#'
+#' @param x First vector.
+#' @param y Second vector.
+#' @param eps Floating-point comparison tolerance
+#'
+#' @return List with two items, \code{x} and \code{y}, which contain values that are not present in another collection
+#' @export
 distinct_f <- function(x, y, eps = 1L) {
     ids <- distinct_which_f(x, y, eps)
     list(x = x[ids$x], y = y[ids$y])
