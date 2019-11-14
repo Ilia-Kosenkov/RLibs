@@ -1,0 +1,77 @@
+---
+output:
+    github_document:
+        html_preview: false
+---
+# `RLibs`
+`RLibs` is a library of various production tools I use in data processing.
+It is under construction, a lot of functions are/will be deprecated, some of them will be moved to other packages (like anything useful and related to plotting with `ggplot2` will got to [`sciplotr`](https://github.com/Ilia-Kosenkov/sciplotr)).
+
+# Features
+## Equality & Comparison
+Default `R` `==` operator performs strict comparison, which does not work very well for floating-point problems. What `R` considers unequal, technically can be equal within machine's precision. The standard example is
+```{r}
+0.1 + 0.2 == 0.3
+```
+
+There is `RLibs::are_equal_f`, which performs more or less correct floating-point comparison (with some given tolerance).
+```{r}
+library(RLibs, quietly = TRUE, warn.conflicts = FALSE)
+are_equal_f(0.1 + 0.2, 0.3)
+```
+Atop of this function there are several more built for comfortable use:
+
+```{r}
+(0.1 + 0.2) %==% 0.3
+(0.1 + 0.2) %!=% 0.3
+```
+
+Operators invoke floating-point method only if type of one operand is floating-point. Type/size stability is enforced by the [`vctrs`](https://github.com/r-lib/vctrs) package.
+
+## Cluster planning
+```{r echo = FALSE}
+library(purrr, quietly = TRUE, warn.conflicts = FALSE)
+suppressMessages(plan_cluster(1))
+```
+A set of tools to create clusters to work with `future` and `furrr` packages.
+```{r}
+# Checks cluster status
+get_topology()
+
+# Create 2 workers, each spawning 2 workers (so 4 + 2 in total, max 4 working simultaneously)
+plan_cluster(2, 2)
+unlist(furrr::future_map(1:2, ~list(Sys.getpid(), furrr::future_map(1:2, ~Sys.getpid()))))
+
+# Switch back to sequential execution
+plan_cluster(1)
+unlist(furrr::future_map(1:2, ~list(Sys.getpid(), furrr::future_map(1:2, ~Sys.getpid()))))
+```
+
+## Tricky joins
+`dplyr` can do various joins, like `inner_join`, `left_join`. Here is a way to do conditional joins (not really optimized):
+
+```{r}
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
+tbl <- data.frame(Type = c("10-20", "20-30"), L = c(10, 20), U = c(20, 30))
+# Subsetting mtcars to reduce output
+left_join_cnd(mtcars[c(1:7, 18:20, 28:32),], tbl, .x$mpg >= .y$L, .x$mpg < .y$U) %>% select(Type, L, mpg, U, everything())
+```
+
+Here `...` accepts comma-separated conditions, similar to `dplyr::filter`, where `.x` refers to lhs table and `.y` refers to rhs table. 
+
+There are also `*_join_safe`, which perform exactly the same as `dplyr::*_join` joins, but beforehand key columns are converted to common types and a meaningful error message is displayed if conversion fails. No more casting factors to strings if the levels are different. `vctrs` to the rescue!
+
+## Utility methods
+
+- `%vec_in%` invokes `vctrs::vec_in()`, 
+- `%within%` is non-inclusive check if vector is in range, `%withini%` include boundaries,
+- `fct_get` gets values of factor (as in `levels(factor)[factor]`),
+- `len` is an `S3` that invokes `vctrs::vec_size` almost always, except for a few cases, where it calls `length`, e.g. for `grid::unit`.
+- `cc` is short for `vctrs::vec_c`,
+- `vec_rbind_uq` is an unquoted pipe-friendly version of `vec_rbind`, which accepts list as parameter, not `...`. It can be used to bind list of data frames / tibbles, like `tbl_list %>% map(mutate, A = 2 * B) %>% vec_rbind_uq`. It is currently preferred over `dplyr::bind_rows`, which does horrible things to the types.
+- `lin` does linear inter/extrapolation. It ensures type/size stability
+
+## IO
+
+- `write_fixed` accepts a table, a path and format specifier (e.g. a vector of sprintf-like specifiers, one per each column), and outputs table in the plain text format. It is a great way to produce human-readable tables that can be read back by e.g. `read.table` or `readr::read_table / read_table2`.
+- `read/write_smart` accepts a table, a path, and other arguments. It calls different methods based on the extension of the path provided. Currently supported types are `feather`, `fth` for `feather` type of data, `rds` for `R`'s `rds`, `csv` for comma-separated file and everything else is processed by `write_fixed/read_table` as plain text.

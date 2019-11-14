@@ -51,7 +51,7 @@ get_topology <- function() {
 #' @return Nothing
 #' @importFrom vctrs vec_size
 #' @export
-report_cluster_starus <- function() {
+report_cluster_status <- function() {
     topology <- get_topology()
     if (vec_size(topology) == 1L && topology[1] == 1L)
         message(glue_fmt("Cluster: single process"))
@@ -106,5 +106,5 @@ plan_cluster <- function(...,
 
     topology <- get_topology()
 
-    report_cluster_starus()
+    report_cluster_status()
 }
