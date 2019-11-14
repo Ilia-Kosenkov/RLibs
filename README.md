@@ -4,7 +4,7 @@
 `RLibs` is a library of various production tools I use in data
 processing. It is under construction, a lot of functions are/will be
 deprecated, some of them will be moved to other packages (like anything
-useful and related to plotting with `ggplot2` will got to
+useful and related to plotting with `ggplot2` will go to
 [`sciplotr`](https://github.com/Ilia-Kosenkov/sciplotr)).
 
 # Features
@@ -73,7 +73,7 @@ plan_cluster(2, 2)
 unlist(furrr::future_map(1:2, ~list(Sys.getpid(), furrr::future_map(1:2, ~Sys.getpid()))))
 ```
 
-    ## [1] 26272 15908 19512 24232 25120 26904
+    ## [1] 22324 16552 13264 20988 26340 21840
 
 ``` r
 # Switch back to sequential execution
@@ -86,7 +86,7 @@ plan_cluster(1)
 unlist(furrr::future_map(1:2, ~list(Sys.getpid(), furrr::future_map(1:2, ~Sys.getpid()))))
 ```
 
-    ## [1] 20028 20028 20028 20028 20028 20028
+    ## [1] 10160 10160 10160 10160 10160 10160
 
 ## Tricky joins
 

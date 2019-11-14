@@ -5,7 +5,7 @@ output:
 ---
 # `RLibs`
 `RLibs` is a library of various production tools I use in data processing.
-It is under construction, a lot of functions are/will be deprecated, some of them will be moved to other packages (like anything useful and related to plotting with `ggplot2` will got to [`sciplotr`](https://github.com/Ilia-Kosenkov/sciplotr)).
+It is under construction, a lot of functions are/will be deprecated, some of them will be moved to other packages (like anything useful and related to plotting with `ggplot2` will go to [`sciplotr`](https://github.com/Ilia-Kosenkov/sciplotr)).
 
 # Features
 ## Equality & Comparison

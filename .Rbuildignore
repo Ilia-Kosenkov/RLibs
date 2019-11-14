@@ -10,3 +10,4 @@ UnitTests
 .*tex$
 Compile.R
 .*user$
+.*ionide
