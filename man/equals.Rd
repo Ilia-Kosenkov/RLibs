@@ -3,11 +3,17 @@
 \name{\%==\%}
 \alias{\%==\%}
 \alias{\%!=\%}
+\alias{\%===\%}
+\alias{\%!==\%}
 \title{Floating-point equality}
 \usage{
 e1 \%==\% e2
 
 e1 \%!=\% e2
+
+e1 \%===\% e2
+
+e1 \%!==\% e2
 }
 \arguments{
 \item{e1}{LHS}
@@ -20,7 +26,7 @@ Logical vector
 Logical vector
 }
 \description{
-Floating-point equality
+Returns \code{logical} of size 1, \code{TRUE} if all elements are equal, otherwise \code{FALSE},
 
-Floating-point inequality
+Returns \code{logical} of size 1, \code{TRUE} if any elements are unequal, otherwise \code{FALSE},
 }

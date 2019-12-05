@@ -76,6 +76,22 @@ are_equal_f <- function(x, y, eps = 1) {
     !(e1 %==% e2)
 }
 
+#' @rdname equals
+#' @title Full equality
+#' @description Returns \code{logical} of size 1, \code{TRUE} if all elements are equal, otherwise \code{FALSE},
+#' @export
+
+`%===%` <- function(e1, e2) {
+    all(`%==%`(e1, e2))
+}
+
+#' @rdname equals
+#'@title Full inequality
+#' @description Returns \code{logical} of size 1, \code{TRUE} if any elements are unequal, otherwise \code{FALSE},
+#' @export
+`%!==%` <- function(e1, e2) {
+    any(`%!=%`(e1, e2))
+}
 
 #' @title are_same_all
 #' @param x Vector to test
