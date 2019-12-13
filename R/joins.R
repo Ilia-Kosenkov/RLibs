@@ -183,9 +183,9 @@ join_cnd <- function(left, right, ...,
             arrange(row) %>%
             group_split(row) %>%
             map(slice, selector(1:n())) %>%
-            vec_rbind_uq -> indices
+            bind_rows -> indices
 
-        vec_rbind(indices, tibble(row = setdiff(1:len(left), indices$row), col = NA_integer_)) -> indices
+        bind_rows(indices, tibble(row = setdiff(1:len(left), indices$row), col = NA_integer_)) -> indices
 
     }
     else if (.type %==% "right") {
@@ -193,13 +193,13 @@ join_cnd <- function(left, right, ...,
             arrange(col) %>%
             group_split(col) %>%
             map(slice, selector(1:n())) %>%
-            vec_rbind_uq -> indices
+            bind_rows -> indices
 
-        vec_rbind(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
+        bind_rows(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
     }
     else if (.type %==% "full") {
-        vec_rbind(indices, tibble(row = setdiff(1:len(left), indices$row), col = NA_integer_)) -> indices
-        vec_rbind(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
+        bind_rows(indices, tibble(row = setdiff(1:len(left), indices$row), col = NA_integer_)) -> indices
+        bind_rows(indices, tibble(col = setdiff(1:len(right), indices$col), row = NA_integer_)) -> indices
     }
 
     indices %>% arrange(row, col) -> indices
@@ -228,7 +228,7 @@ join_cnd <- function(left, right, ...,
 
     }
 
-    vec_cbind(left, right)
+    bind_cols(left, right)
 }
 
 #' @name inner_join_cnd

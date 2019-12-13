@@ -24,6 +24,7 @@
 if (!interactive()) {
     library(testthat)
     library(RLibs)
+    library(dplyr)
     test_check("RLibs")
 } else {
 
