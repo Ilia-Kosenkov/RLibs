@@ -28,5 +28,5 @@ if (!interactive()) {
 } else {
 
     testthat::test_dir(
-        file.path("package", "tests", "testthat"))
+        fs::path("tests", "testthat"))
 }
