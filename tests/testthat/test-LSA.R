@@ -33,7 +33,6 @@ test_that("`LSAPeriodogramEx` works as `LSAPeriodogram`", {
     p1 <- lsa_periodogram(w, t, x - mean(x))
 
     p2 <- lsa_periodogram_ex(tibble(T = t, X = x), T, X, w)
-
     expect_equal(p1, p2$PSD, tolerance = 1e-16)
 
 })

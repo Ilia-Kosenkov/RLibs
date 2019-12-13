@@ -61,7 +61,7 @@ lsa_periodogram_ex <- function(.data, t, x, w, tau = NA) {
             sn_term <- sum(x * sn) ^ 2 / sum(sn ^ 2)
         }
 
-        return(list(W = loc_w, Tau = loc_t, CS = cs_term, SN = sn_term))
+        return(cc(W = loc_w, Tau = loc_t, CS = cs_term, SN = sn_term))
     }) %>%
     bind_rows %>%
     mutate(
