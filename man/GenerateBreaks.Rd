@@ -4,8 +4,14 @@
 \alias{GenerateBreaks}
 \title{GenerateBreaks}
 \usage{
-GenerateBreaks(range, largeStep, smallStep, ticks, op = `*`,
-  shrinkFactor = -0.05)
+GenerateBreaks(
+  range,
+  largeStep,
+  smallStep,
+  ticks,
+  op = `*`,
+  shrinkFactor = -0.05
+)
 }
 \arguments{
 \item{range}{Range of breaks (typically a scale of an axis).}

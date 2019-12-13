@@ -4,8 +4,11 @@
 \alias{plan_cluster}
 \title{plan_cluster}
 \usage{
-plan_cluster(..., .default_seq = ~tweak(sequential),
-  .default_multi = ~tweak(cluster, workers = .))
+plan_cluster(
+  ...,
+  .default_seq = ~tweak(sequential),
+  .default_multi = ~tweak(cluster, workers = .)
+)
 }
 \arguments{
 \item{...}{Number of workers per each dimension}

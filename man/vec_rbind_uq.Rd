@@ -4,8 +4,12 @@
 \alias{vec_rbind_uq}
 \title{vec_rbind_uq}
 \usage{
-vec_rbind_uq(x, .ptype = NULL, .names_to = NULL,
-  .name_repair = c("unique", "universal", "check_unique"))
+vec_rbind_uq(
+  x,
+  .ptype = NULL,
+  .names_to = NULL,
+  .name_repair = c("unique", "universal", "check_unique")
+)
 }
 \arguments{
 \item{x}{Input list, which is unquoted (!!!).}

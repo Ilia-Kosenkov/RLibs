@@ -4,13 +4,29 @@
 \alias{GrobsArrange}
 \title{GrobsArrange}
 \usage{
-GrobsArrange(grobs, ncol, nrow = length(grobs)\%/\%ncol,
-  tLab = unit(0.6, "cm"), rLab = unit(0.6, "cm"), bLab = unit(0.6,
-  "cm"), lLab = unit(0.6, "cm"), tAxis = unit(0.6, "cm"),
-  rAxis = unit(0.6, "cm"), bAxis = unit(0.6, "cm"), lAxis = unit(0.6,
-  "cm"), vGap = unit(0.1, "cm"), hGap = unit(0.1, "cm"),
-  labsList = NULL, axisList = NULL, labsMar = NULL, axisMar = NULL,
-  topLab = NULL, bottomLab = NULL, leftLab = NULL, rightLab = NULL)
+GrobsArrange(
+  grobs,
+  ncol,
+  nrow = length(grobs)\%/\%ncol,
+  tLab = unit(0.6, "cm"),
+  rLab = unit(0.6, "cm"),
+  bLab = unit(0.6, "cm"),
+  lLab = unit(0.6, "cm"),
+  tAxis = unit(0.6, "cm"),
+  rAxis = unit(0.6, "cm"),
+  bAxis = unit(0.6, "cm"),
+  lAxis = unit(0.6, "cm"),
+  vGap = unit(0.1, "cm"),
+  hGap = unit(0.1, "cm"),
+  labsList = NULL,
+  axisList = NULL,
+  labsMar = NULL,
+  axisMar = NULL,
+  topLab = NULL,
+  bottomLab = NULL,
+  leftLab = NULL,
+  rightLab = NULL
+)
 }
 \arguments{
 \item{grobs}{Input grobs.}

@@ -4,8 +4,19 @@
 \alias{GGPlotCustomTicks}
 \title{GGPlotCustomTicks}
 \usage{
-GGPlotCustomTicks(plt, side, breaks, labels, tckSz, trnsf = identity,
-  gp = gpar(), rot = 0, deltaH = 0, deltaV = 0, tickGp = gpar())
+GGPlotCustomTicks(
+  plt,
+  side,
+  breaks,
+  labels,
+  tckSz,
+  trnsf = identity,
+  gp = gpar(),
+  rot = 0,
+  deltaH = 0,
+  deltaV = 0,
+  tickGp = gpar()
+)
 }
 \arguments{
 \item{plt}{Target plot.}

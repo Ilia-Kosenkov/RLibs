@@ -4,8 +4,15 @@
 \alias{GrobSetGaps}
 \title{GrobSetGaps}
 \usage{
-GrobSetGaps(grob, top = NULL, right = NULL, bottom = NULL,
-  left = NULL, asList = NULL, asMargin = NULL)
+GrobSetGaps(
+  grob,
+  top = NULL,
+  right = NULL,
+  bottom = NULL,
+  left = NULL,
+  asList = NULL,
+  asMargin = NULL
+)
 }
 \arguments{
 \item{grob}{Inout grob.}

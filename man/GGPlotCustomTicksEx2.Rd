@@ -4,9 +4,19 @@
 \alias{GGPlotCustomTicksEx2}
 \title{GGPlotCustomTicksEx}
 \usage{
-GGPlotCustomTicksEx2(plt, side, breaks, labels, trnsf = identity,
-  tckSz = unit(7.5, "pt"), gp = gpar(), rot = 0,
-  offset = unit(0.15, "cm"), just = NULL, tickGp = gpar())
+GGPlotCustomTicksEx2(
+  plt,
+  side,
+  breaks,
+  labels,
+  trnsf = identity,
+  tckSz = unit(7.5, "pt"),
+  gp = gpar(),
+  rot = 0,
+  offset = unit(0.15, "cm"),
+  just = NULL,
+  tickGp = gpar()
+)
 }
 \arguments{
 \item{plt}{Target plot.}

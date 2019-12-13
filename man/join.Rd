@@ -10,20 +10,15 @@
 \alias{anti_join_safe}
 \title{join}
 \usage{
-left_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"),
-  ...)
+left_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-inner_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x",
-  ".y"), ...)
+inner_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-right_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x",
-  ".y"), ...)
+right_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-full_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"),
-  ...)
+full_join_safe(x, y, by = NULL, copy = FALSE, suffix = c(".x", ".y"), ...)
 
-nest_join_safe(x, y, by = NULL, copy = FALSE, keep = FALSE,
-  name = NULL, ...)
+nest_join_safe(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, ...)
 
 semi_join_safe(x, y, by = NULL, copy = FALSE, ...)
 

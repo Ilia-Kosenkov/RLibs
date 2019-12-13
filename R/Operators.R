@@ -91,3 +91,16 @@
     else
         x
 }
+
+#' @title Dot-product
+#' @description A \code{vctrs}-typed replacement to \code{base::`\%*\%`}.
+#' @param x LHS.
+#' @param y RHS.
+#'
+#' @return A dot product of two vectors.
+#' @export
+`%.%` <- function(x, y) {
+    r <- vec_recycle_common(!!!vec_cast_common(x = x, y = y))
+
+    sum(r$x * r$y)
+}

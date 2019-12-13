@@ -5,9 +5,15 @@
 \alias{LabelsRep}
 \title{labels_rep}
 \usage{
-labels_rep(labels, norm_range = c(-2, 2), is_tex = FALSE,
-  exp_dig_plc = 0, omit_ones = TRUE, every = 1,
-  same_digit_count = FALSE)
+labels_rep(
+  labels,
+  norm_range = c(-2, 2),
+  is_tex = FALSE,
+  exp_dig_plc = 0,
+  omit_ones = TRUE,
+  every = 1,
+  same_digit_count = FALSE
+)
 
 LabelsRep(...)
 }

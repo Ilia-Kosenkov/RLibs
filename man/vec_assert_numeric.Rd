@@ -4,8 +4,7 @@
 \alias{vec_assert_numeric}
 \title{vec_assert_numeric}
 \usage{
-vec_assert_numeric(x, size = NULL,
-  arg = rlang::as_label(substitute(x)))
+vec_assert_numeric(x, size = NULL, arg = rlang::as_label(substitute(x)))
 }
 \arguments{
 \item{x}{Vector to test}

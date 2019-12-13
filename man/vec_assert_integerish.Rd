@@ -4,8 +4,7 @@
 \alias{vec_assert_integerish}
 \title{vec_assert_integerish}
 \usage{
-vec_assert_integerish(x, size = NULL,
-  arg = rlang::as_label(substitute(x)))
+vec_assert_integerish(x, size = NULL, arg = rlang::as_label(substitute(x)))
 }
 \arguments{
 \item{x}{Vector to test}

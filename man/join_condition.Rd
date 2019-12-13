@@ -8,20 +8,51 @@
 \alias{full_join_cnd}
 \title{join_cnd}
 \usage{
-join_cnd(left, right, ..., .type = "inner", .selector = "all",
-  .suffix = c("__l", "__r"), .enforce_suffix = FALSE)
+join_cnd(
+  left,
+  right,
+  ...,
+  .type = "inner",
+  .selector = "all",
+  .suffix = c("__l", "__r"),
+  .enforce_suffix = FALSE
+)
 
-inner_join_cnd(left, right, ..., .selector = "all", .suffix = c("__l",
-  "__r"), .enforce_suffix = FALSE)
+inner_join_cnd(
+  left,
+  right,
+  ...,
+  .selector = "all",
+  .suffix = c("__l", "__r"),
+  .enforce_suffix = FALSE
+)
 
-left_join_cnd(left, right, ..., .selector = "all", .suffix = c("__l",
-  "__r"), .enforce_suffix = FALSE)
+left_join_cnd(
+  left,
+  right,
+  ...,
+  .selector = "all",
+  .suffix = c("__l", "__r"),
+  .enforce_suffix = FALSE
+)
 
-right_join_cnd(left, right, ..., .selector = "all", .suffix = c("__l",
-  "__r"), .enforce_suffix = FALSE)
+right_join_cnd(
+  left,
+  right,
+  ...,
+  .selector = "all",
+  .suffix = c("__l", "__r"),
+  .enforce_suffix = FALSE
+)
 
-full_join_cnd(left, right, ..., .selector = "all", .suffix = c("__l",
-  "__r"), .enforce_suffix = FALSE)
+full_join_cnd(
+  left,
+  right,
+  ...,
+  .selector = "all",
+  .suffix = c("__l", "__r"),
+  .enforce_suffix = FALSE
+)
 }
 \arguments{
 \item{left}{LHS table.}

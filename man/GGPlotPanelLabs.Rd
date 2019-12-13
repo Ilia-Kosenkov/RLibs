@@ -4,8 +4,15 @@
 \alias{GGPlotPanelLabs}
 \title{GGPlotPanelLabs}
 \usage{
-GGPlotPanelLabs(p, labels = "X", x = Inf, y = Inf, hjust = 1,
-  vjust = 1, gp = gpar())
+GGPlotPanelLabs(
+  p,
+  labels = "X",
+  x = Inf,
+  y = Inf,
+  hjust = 1,
+  vjust = 1,
+  gp = gpar()
+)
 }
 \arguments{
 \item{p}{Input plots.}

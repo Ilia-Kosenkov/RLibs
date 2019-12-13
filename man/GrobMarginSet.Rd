@@ -4,10 +4,22 @@
 \alias{GrobMarginSet}
 \title{GrobMarginSet}
 \usage{
-GrobMarginSet(grob, tLab = NULL, rLab = NULL, bLab = NULL,
-  lLab = NULL, tAxis = NULL, rAxis = NULL, bAxis = NULL,
-  lAxis = NULL, labsList = NULL, axisList = NULL, labsMar = NULL,
-  axisMar = NULL, nullOutBorder = TRUE)
+GrobMarginSet(
+  grob,
+  tLab = NULL,
+  rLab = NULL,
+  bLab = NULL,
+  lLab = NULL,
+  tAxis = NULL,
+  rAxis = NULL,
+  bAxis = NULL,
+  lAxis = NULL,
+  labsList = NULL,
+  axisList = NULL,
+  labsMar = NULL,
+  axisMar = NULL,
+  nullOutBorder = TRUE
+)
 }
 \arguments{
 \item{grob}{Input grob.}
