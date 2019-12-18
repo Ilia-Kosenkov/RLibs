@@ -43,7 +43,8 @@ filter_range <- function(.data, .var, .range, .strict = FALSE) {
 #' @rdname filter_range
 #' @export
 FilterRange <- function(.data, .var, .range, .strict = FALSE) {
-    lifecycle::deprecate_warn("0.6.0", "RLibs::FilterRange", "RLibs::filter_range")
+    lifecycle::deprecate_warn("0.6.0", "RLibs::FilterRange()", "RLibs::filter_range()")
+    filter_range(.data = .data, .var = {{ .var }}, .range = .range, .strict = .strict)
 }
 
 #' @rdname clamp
@@ -51,7 +52,7 @@ FilterRange <- function(.data, .var, .range, .strict = FALSE) {
 clamp.data.frame <- function(...) {
 
     args <- rlang::enquos(...)
-    assertthat::assert_that(len(args) == 3L)
+    assertthat::assert_that(len(args) %===% 3L)
     names <- names(args)
     data_id <- which(names %==% ".data") %0% 1L
     col_id <- which(names %==% ".col") %0% 2L
