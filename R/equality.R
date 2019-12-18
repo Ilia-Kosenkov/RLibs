@@ -59,6 +59,9 @@ are_equal_f <- function(x, y, eps = 1) {
 #' @return Logical vector
 #' @export
 `%==%` <- function(e1, e2) {
+    if (vec_is_empty(e1) || vec_is_empty(e2))
+        return (vec_is_empty(e1) && vec_is_empty(e2))
+
     if (vctrs::vec_is(e1, complex())) {
         vctrs::vec_recycle_common(!!!vctrs::vec_cast_common(e1, e2)) %->% c(x, y)
         return(are_equal_f(Re(x), Re(y)) & are_equal_f(Im(x), Im(y)))

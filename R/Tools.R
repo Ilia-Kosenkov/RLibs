@@ -239,7 +239,7 @@ Clamp <- function(...) {
 #' @export
 clamp.numeric <- function(...) {
     args <- rlang::list2(...)
-    assertthat::assert_that(len(args) == 2L)
+    vec_assert(args, size = 2L)
     names <- names(args)
     data_id <- which(names %==% ".data") %0% 1L
     range_id <- which(names %==% ".range") %0% 2L
