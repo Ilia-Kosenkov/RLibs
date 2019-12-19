@@ -56,8 +56,8 @@ IsGrobNull <- function(...) {
 #' @import grid
 GetMargins <- function(grob, type = c("inner", "outer")) {
 
-    if (is.null(grob) || !("gDesc" %in% class(grob)))
-        stop("`grob` is invalid.")
+    if (is_null(grob) || !inherits_any(grob, "dGdesc"))
+        rlang::abort("`grob` is invalid.", "RLibs_invalid_arg")
     worker <- function(txtX, txtY) {
         ax.lr <- Lookup(grob, paste(txtX, c("l", "r"), sep = "-"))
         ax.tb <- Lookup(grob, paste(txtY, c("t", "b"), sep = "-"))
@@ -67,13 +67,13 @@ GetMargins <- function(grob, type = c("inner", "outer")) {
             b = grob$heights[inds.tb[2]], l = grob$widths[inds.lr[1]]))
     }
 
-    if (!all(type %in% c("inner", "outer")))
+    if (!all(type %vec_in% c("inner", "outer")))
         stop("Wrong `type`.")
-    if (all(type == "inner"))
+    if (type %===% "inner")
         return(worker("axis", "axis"))
-    if (all(type == "outer"))
+    if (type %===% "outer")
         return(worker("ylab", "xlab"))
-    if (all(type %in% c("inner", "outer")))
+    if (all(type %vec_in% c("inner", "outer")))
         return(list(Inner = worker("axis", "axis"),
             Outer = worker("ylab", "xlab")))
 
@@ -86,11 +86,8 @@ GetMargins <- function(grob, type = c("inner", "outer")) {
 #' @param margins Values of margins.
 #' @return Modified grob. Can be piped e.g. with \code{dplyr::`\%>\%`}.
 #' @export
-#' @import grid
-#' @importFrom purrr map
-#' @importFrom dplyr %>%
 SetMargins <- function(grob, type, margins) {
-    warning("This function is obsolete. Use [GrobMarginSet].")
+    lifecycle::deprecate_warn("0.7.13", "RLibs::SetMargins()", "RLibs::GrobMarginSet()")
     worker <- function(g, txtX, txtY) {
         ax.lr <- Lookup(g, paste(txtX, c("l", "r"), sep = "-"))
         ax.tb <- Lookup(g, paste(txtY, c("t", "b"), sep = "-"))
@@ -101,15 +98,14 @@ SetMargins <- function(grob, type, margins) {
 
     }
 
-    isUnit <- (margins %is% unit) ||
-        ((margins %is% list) &&
-            (margins %>% every(~.x %is% unit)))
+    isUnit <- is.unit(margins) ||
+        (vec_is(margins, list()) && every(margins, is.unit))
 
 
     if (!isUnit)
-        stop("`margins` should be at least of class `unit`.")
+        rlang::abort("`margins` should be at least of class `unit`.", "RLibs_invalid_arg")
 
-    if (margins %is% margin)
+    if (inherits_any(margins, "margin"))
         rawMargins <- list(
             t = margins[1],
             r = margins[2],
@@ -119,21 +115,21 @@ SetMargins <- function(grob, type, margins) {
         rawMargins <- margins
 
 
-    if (all(type == "inner"))
+    if (type %===% "inner")
         inds <- worker(grob, "axis", "axis")
-    else if (all(type == "outer"))
+    else if (type %===% "outer")
         inds <- worker(grob, "ylab", "xlab")
     else
-        stop("Wrong `type`.")
+        rlang::abort("Wrong `type`.", "RLibs_invalid_arg")
 
 
-    if (!is.null(rawMargins$t))
+    if (!is_null(rawMargins$t))
         grob$heights[inds$t] <- rawMargins$t
-    if (!is.null(rawMargins$b))
+    if (!is_null(rawMargins$b))
         grob$heights[inds$b] <- rawMargins$b
-    if (!is.null(rawMargins$l))
+    if (!is_null(rawMargins$l))
         grob$widths[inds$l] <- rawMargins$l
-    if (!is.null(rawMargins$r))
+    if (!is_null(rawMargins$r))
         grob$widths[inds$r] <- rawMargins$r
 
     return(grob)
@@ -209,10 +205,8 @@ scale_y_custom <- function(...) {
 #' @return A \code{list()} of ranges with names \code{"x", "y", "x2", "y2"}.
 #' Some values (like *2) can be \code{NULL} if no respective axis is present.
 #' @export
-#' @import ggplot2
-#' @importFrom stats setNames
 GGPlotGetRange <- function(plt) {
-    result <- setNames(
+    result <- set_names(
                 ggplot_build(plt)$layout$panel_params[[1]][
                     c("x.range", "y.range", "x.sec.range", "y.sec.range")],
                 c("x", "y", "x2", "y2"))
@@ -262,7 +256,7 @@ GGPlot2Grob <- function(plots, innerMar, outerMar, clip = FALSE) {
     setInner <- !missing(innerMar)
     setOuter <- !missing(outerMar)
 
-    if (plots %is% list)
+    if (vec_is(plots, list()))
         return(plots %>%
             map(~worker(.x, setInner, setOuter)))
     else
@@ -286,8 +280,7 @@ GrobPlot <- function(grobs, noNewPageDevList = c("pdf")) {
     grobClassIds <- c("gtable", "gTree", "grob", "gDesc")
     # If there is a match, then received one grob (not list of grobs)
 
-    isStandAloneGrob <- grobClassIds %>%
-        every(~grobs %is% !!.x)
+    isStandAloneGrob <- inherits_all(grobs, grobClassIds)
 
     # If current device is part of the list, than
     # no first page should be drawn.
@@ -570,9 +563,8 @@ GGPlot2GrobEx <- function(plots, clip = FALSE) {
     }
 
 
-    if (plots %is% list)
-        return(plots %>%
-            map(~worker(.x)))
+    if (vec_is(plots, list()))
+        return(map(plots, worker))
     else
         worker(plots)
     }
@@ -588,16 +580,12 @@ GGPlot2GrobEx <- function(plots, clip = FALSE) {
 #' @param gp Text parameters
 #'
 #' @return Modifed plots.
-#' @importFrom grid gpar
-#' @importFrom foreach %do%
-#' @importFrom dplyr %>%
-#' @importFrom magrittr %<>%
 #' @export
 GGPlotPanelLabs <- function(p, labels = "X",
                             x = Inf, y = Inf,
                             hjust = 1, vjust = 1, gp = gpar()) {
-    if (p %is% list)
-        n <- length(p)
+    if (vec_is(p, list()))
+        n <- len(p)
     else {
         p <- p + GGCustomTextAnnotation(labels[1],
             x[1], y[1], vjust = vjust[1], hjust = hjust[1], gp = gp[1])
@@ -618,7 +606,7 @@ GGPlotPanelLabs <- function(p, labels = "X",
     y %<>% FillIfSmaller
     hjust %<>% FillIfSmaller
     vjust %<>% FillIfSmaller
-    if (gp %is% gpar)
+    if (inherits_any(gp, "gpar"))
         gp <- rep(list(gp), n)
 
     # Initializing `foreach`-local variables to suppress package check warnings
