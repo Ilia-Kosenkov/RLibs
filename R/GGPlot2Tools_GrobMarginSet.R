@@ -54,8 +54,7 @@ GrobMarginSet <- function(grob,
     axisMar = NULL,
     nullOutBorder = TRUE) {
 
-    if (grob %is% gtable &&
-        grob %is% gTree)
+    if (inherits_all(grob, cc("gtable", "gTree")))
         worker <- function(...)
             invoke(GrobSizeSet, append(list("grob" = grob), list(...)),
             .bury = NULL)
@@ -116,7 +115,7 @@ GrobMarginSet <- function(grob,
         grob <- worker(name = "axis-l", width = axisList$left)
 
     if (nullOutBorder) {
-        if ((grob %is% gtable) && (grob %is% gTree))
+        if (inherits_all(grob, cc("gtable", "gTree")))
             grob <- GrobSetGaps(grob, asMargin = margin())
         else
             grob <- map(grob, GrobSetGaps, asMargin = margin())
