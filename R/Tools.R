@@ -28,7 +28,6 @@ utils::globalVariables(vctrs::vec_c(".", ".x", ".y"))
 #' @param x A factor to convert
 #'
 #' @return Factor values
-#' @importFrom assertthat assert_that
 #' @export
 fct_get <- function(x) {
     assert_that(passes(is.factor(x)))
@@ -40,14 +39,12 @@ fct_get <- function(x) {
 #' @param haystack Haystack (where to match).
 #' @return Logical vector of matches.
 #' @export
-#' @importFrom vctrs vec_in
 `%vec_in%` <- vctrs::vec_in
 
 #' @title cc
 #' @param ... Input similar to \code{c}.
 #' @return Type-sefe concatenation of the input.
 #' @export
-#' @importFrom vctrs vec_c
 cc <- function(...) vctrs::vec_c(...)
 
 #' @title len
@@ -56,7 +53,6 @@ cc <- function(...) vctrs::vec_c(...)
 #'
 #' @return Length of the object.
 #' @export
-#' @importFrom vctrs vec_size
 len <- function(x) UseMethod("len")
 #' @rdname len
 #' @export
@@ -77,8 +73,6 @@ len.quosures <- function(x) length(x)
 #'
 #' @return Bind data object
 #' @export
-#' @importFrom vctrs vec_rbind
-#' @importFrom rlang list2 !!!
 vec_rbind_uq <- function(x, .ptype = NULL, .names_to = NULL, .name_repair = c("unique", "universal", "check_unique")) {
     vctrs::vec_rbind(!!!x, .ptype = .ptype, .names_to = .names_to, .name_repair = .name_repair)
 }
@@ -90,7 +84,6 @@ vec_rbind_uq <- function(x, .ptype = NULL, .names_to = NULL, .name_repair = c("u
 #' @param rhs Vector of size 2.
 #'
 #' @return Logical vector of length of \code{lhs}.
-#' @importFrom vctrs vec_assert
 #' @export
 `%within%` <- function(lhs, rhs) {
     vec_assert(rhs, size = 2L)
@@ -116,21 +109,18 @@ vec_rbind_uq <- function(x, .ptype = NULL, .names_to = NULL, .name_repair = c("u
 #' @param lims Explicit lims passed to \code{kde2d}.
 #' @param ... For compatibility
 #' @return List of contours, one per each probability.
-#' @importFrom grDevices contourLines
-#' @importFrom purrr map map_dbl map2
-#' @importFrom MASS kde2d
-#' @importFrom dplyr tibble %>% bind_rows
-#' @importFrom rlang is_integerish
 #' @export
 contours_2d <- function(x, y, prob,
     n = 30, lims = c(range(x), range(y))) {
-    
-    assert_that(passes(is_numeric(x)))
-    assert_that(passes(is_numeric(y)))
-    assert_that(passes(is_numeric(prob)), all(prob >= 0), all(prob <= 1))
-    assert_that(passes(is_integerish(n)), passes(is_positive(n)))
-    assert_that(passes(is_numeric(lims)))
-    assert_that(vec_size(x) == vec_size(y), msg = "x and y should be of the same length")
+    vec_assert_numeric(x)
+    vec_assert_numeric(y)
+    vec_assert_numeric(prob)
+    vec_assert_numeric(lims)
+    n <- vec_assert_integerish(n, 1L)
+
+    assert_that(all(prob >= 0), all(prob <= 1))
+    assert_that(passes(is_positive(n)))
+    assert_that(len(x) %===% len(y), msg = "x and y should be of the same length")
 
     # Depends on MASS package
     #require(MASS)
@@ -182,8 +172,6 @@ JointDistributionContours <- function(...) {
 #' @param n Approximate number of desired ticks.
 #' @param modifier Preferred tick placements/
 #' @return Returns the size of the step.
-#' @importFrom dplyr %>%
-#' @importFrom magrittr multiply_by raise_to_power subtract equals
 #' @export
 fancy_step <- function(range,
     n = 6, modifier = c(1, 2.5, 5)) {
@@ -222,7 +210,6 @@ FancyStep <- function(range,
 #' @title clamp
 #' @param ... Parameter.
 #' @return Clamped numerics.
-#' @importFrom vctrs %0%
 #' @export
 clamp <- function(...) {
     UseMethod("clamp")
@@ -289,7 +276,6 @@ Expand <- function(x, factor = 1, direction = c(1, 1)) {
 #' @param x0 Arguments (size 2).
 #' @param y0 Values (size 2).
 #' @return Interpolated value between two provided.
-#' @importFrom zeallot %->%
 #' @export
 lin <- function(x, x0, y0) {
 
@@ -310,6 +296,7 @@ lin <- function(x, x0, y0) {
 }
 
 #' @rdname lin
+#' @export
 Lin <- function(x, x0, y0) {
     lifecycle::deprecate_soft("0.6.0", "RLibs::Lin()", "RLibs::lin()")
     lin(x, x0, y0)
@@ -321,7 +308,6 @@ Lin <- function(x, x0, y0) {
 #' @param ... Additional parameters passed to \code{foreach} as is.
 #' @return Output of \code{foreach} function that can be piped using
 #' operators like \code{\%do\%} and \code{\%dopar\%}.
-#' @importFrom foreach foreach
 #' @export
 pforeach <- function(.data, ...) {
    lifecycle::deprecate_stop("0.6.1", "RLibs::pforeach()")
@@ -346,13 +332,9 @@ EvalTrans <- function(trans, data) {
 #' @param condition Condition to test
 #' @param true Returned if \code{condition} is \code{TRUE}
 #' @param false Returned otherwise
-#' @importFrom assertthat assert_that
-#' @importFrom vctrs vec_size vec_recycle
-#' @importFrom rlang is_missing is_logical
-#' @importFrom magrittr not
 #' @export
 if_else_weak <- function(condition, true, false) {
-    assert_that(passes(is_logical(condition)))
+    vec_assert(condition, logical())
     if (vec_size(condition) == 1L) {
         if (condition) {
             assert_that(not(is_missing(true)))
@@ -383,17 +365,14 @@ utils::globalVariables(vctrs::vec_c("lnId", "prId"))
 #' @param n Size of the \code{MASS::kde2d} estimator's grid.
 #' @param lims Explicit lims passed to \code{kde2d}.
 #' @return List of contours, one per each probability.
-#' @importFrom grDevices contourLines
-#' @importFrom purrr map map_dbl map2
-#' @importFrom MASS kde2d
-#' @importFrom dplyr tibble %>% bind_rows
-#' @importFrom forcats as_factor fct_cross
 #' @export
 contours_2d_df <- function(df, x, y, prob,
     n = 30L, lims = NULL) {
+    vec_assert_numeric(prob)
+    n <- vec_assert_integerish(n, size = 1L)
 
-    assert_that(passes(is_numeric(prob)), all(prob >= 0), all(prob <= 1))
-    assert_that(passes(is_integerish(n)), passes(is_positive(n)), has_size(n, 1L))
+    assert_that(all(prob >= 0), all(prob <= 1))
+    assert_that(passes(is_positive(n)))
     assert_that(either(is_numeric(lims), is_null(lims)))
 
     if (rlang::is_null(lims))
