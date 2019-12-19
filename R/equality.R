@@ -186,7 +186,7 @@ name_of <- function(x) {
 
 
 #' vec_assert_numeric
-#'
+#' @rdname vec_ext
 #' @param x Vector to test
 #' @param size Desired size. Can be \code{NULL}.
 #' @param arg Arg names, defaults to the name of \code{X}.
@@ -201,7 +201,7 @@ vec_assert_numeric <- function(x, size = NULL, arg = rlang::as_label(substitute(
 }
 
 #' vec_cast_integerish
-#'
+#' @rdname vec_ext
 #' @param x Vector to test.
 #' @param arg Arg name for error message.
 #'
@@ -223,10 +223,8 @@ vec_cast_integerish <- function(x, arg = rlang::as_label(x)) {
 }
 
 #' vec_assert_integerish
-#'
-#' @param x Vector to test
+#' @rdname vec_ext
 #' @param size Desired size. Can be \code{NULL}.
-#' @param arg Arg names, defaults to the name of \code{X}.
 #'
 #' @return Invisibly returns \code{x} cast to \code{integer()}.
 #' @export
@@ -250,7 +248,6 @@ vec_assert_integerish <- function(x, size = NULL, arg = rlang::as_label(substitu
 }
 
 #' vec_cast_common_flatten
-#'
 #' @param x Frist argument.
 #' @param y Second argument.
 #' @param .to Optional target type. If \code{NULL}, common type is inferred.
@@ -264,4 +261,24 @@ vec_cast_common_flatten <- function(x, y, .to = NULL) {
     list(
          x = vctrs::vec_cast(x, .to),
          y = vctrs::vec_cast(y, .to))
+}
+
+#' vec_is_integerish
+#' @rdname vec_ext
+#' @return Returns \code{TRUE} if the input can be losslessly coerced to \code{integer()}.
+#' @export
+vec_is_integerish <- function(x, size = NULL, arg = rlang::as_label(substitute(x))) {
+    if (vctrs::vec_is(x, integer(), size))
+        return(TRUE)
+
+    if (vctrs::vec_is(x, double(), size)) {
+        diffs <- (abs(x) - floor(abs(x))) %==% 0
+        inds <- which(!diffs)
+        if (vctrs::vec_is_empty(inds))
+            return(TRUE)
+        else
+            return(FALSE)
+    }
+
+    return(FALSE)
 }

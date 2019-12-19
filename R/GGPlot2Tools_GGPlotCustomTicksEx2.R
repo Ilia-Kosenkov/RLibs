@@ -44,7 +44,7 @@ utils::globalVariables(c("b", "lbl", "Trans"))
 #' @importFrom ggplot2 annotation_custom
 #' @importFrom grid textGrob segmentsGrob
 #' @importFrom stringr str_detect regex
-#' @importFrom rlang eval_tidy quo is_empty is_integer is_character
+#' @importFrom rlang eval_tidy quo abort
 #' @export
 GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
                                 trnsf = identity,
@@ -55,47 +55,49 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
                                 just = NULL,
                                 tickGp = gpar()) {
     lifecycle::deprecate_warn("0.6.3", "RLibs::GGPlotCustomTicksEx2()")
-    if (is_integer(side))
+    if (vec_is_integerish(side))
         sideId <- side[1]
-    else if (is_character(side))
+    else if (vec_is(side, character()))
         sideId <- which(
             str_detect(c("top", "right", "bottom", "left"),
                 regex("\\b" %&% side[1], ignore_case = TRUE)))
-    else stop(paste0("`side` should be either integer ",
-        "or string name of one of the sides."))
+    else
+        rlang::abort(paste0("`side` should be either integer ",
+        "or string name of one of the sides."), "RLibs_invalid_arg")
 
-    if (is_empty(sideId))
-        stop("Invalid `side` value provided")
+    if (vec_is_empty(sideId))
+        rlang::abort("Invalid `side` value provided", "RLibs_invalid_arg")
 
-    if (!(tckSz %is% unit))
+    if (!(is.unit(tckSz)))
         tckSz <- unit(tckSz, "npc")
 
     GetScale <- function(side) {
         trnsf <- plt$scales$scales %>%
-            keep(~.x$position == side &&
+            keep(~.x$position %==% side &&
                 str_detect(.x$scale_name, "position")) %??% NULL %>%
             extract2(1)
     }
 
     if (!missing(breaks) && missing(labels))
-        labels <- rep("", length(breaks))
+        labels <- vec_recycle("", len(breaks))
 
-    if (length(breaks) != length(labels) && length(labels) > 1)
-        stop("Length of [breaks] and [labels] should be equal.")
-    if (length(labels) == 1)
-        labels <- rep(labels[1], length(breaks))
+    if (len(breaks) %!==% len(labels) && len(labels) > 1)
+        rlang::abort("Length of [breaks] and [labels] should be equal.", "RLibs_invalid_arg")
 
-    if (is_empty(labels))
-        labels <- rep("", length(breaks))
+    if (len(labels) %==% 1L)
+        labels <- vec_recycle(labels[1], len(breaks))
+
+    if (vec_is_empty(labels))
+        labels <- vec_recycle("", len(breaks))
 
     template <- tibble(
-        Side = c("t", "r", "b", "l"),
-        Full = c("top", "right", "bottom", "left"),
+        Side = cc("t", "r", "b", "l"),
+        Full = cc("top", "right", "bottom", "left"),
         x = list(unit(0.5, "npc"), unit(1, "npc") + offset,
                  unit(0.5, "npc"), unit(0, "npc") - offset),
         y = list(unit(1, "npc") + offset, unit(0.5, "npc"),
                  unit(0, "npc") - offset, unit(0.5, "npc")),
-        Just = if (is_null(just)) c("bottom", "left", "top", "right")
+        Just = if (is_null(just)) cc("bottom", "left", "top", "right")
             else rep(just, 4),
         xmin = list(quo(b), - Inf, quo(b), Inf),
         xmax = list(quo(b), Inf, quo(b), -Inf),
@@ -110,7 +112,7 @@ GGPlotCustomTicksEx2 <- function(plt, side, breaks, labels,
         y1 = list(unit(1, "npc") - tckSz, unit(1, "npc"),
                   tckSz, unit(1, "npc")),
         Trans = list(GetScale("bottom")$trans,
-            GetScale("left")$trans)[c(1, 2, 1, 2)],
+            GetScale("left")$trans)[cc(1, 2, 1, 2)],
         BreaksTrans = list(
             function(x) EvalTrans(Trans[[1]], EvalTrans(trnsf, x)),
             function(x) EvalTrans(Trans[[2]], EvalTrans(trnsf, x)),
