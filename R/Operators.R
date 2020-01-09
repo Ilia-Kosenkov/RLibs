@@ -104,3 +104,33 @@
 
     sum(r$x * r$y)
 }
+
+#' @title Deconstruction operators
+#' @rdname deconst
+#' @description Mimicks \code{zeallot}'s beahviour
+#' @param lhs,rhs Left- and right-hand side of the operator
+#'
+#' @return Data (invisibly)
+#' @export
+`%->%` <- function(lhs, rhs) {
+    deconstructor(lhs, {{ rhs }})
+}
+
+#' @rdname deconst
+#' @export
+`%<-%` <- function(lhs, rhs) {
+    deconstructor(rhs, {{ lhs }})
+}
+
+deconstructor <- function(what, into) {
+    q <- enquo(into)
+    env <- quo_get_env(q)
+    expr <- as.list(quo_get_expr(q))
+
+    assert_that(expr[[1]] == sym("c"), msg = "Only `c` can be used to combine names")
+    names <- expr[-1]
+
+    assert_that(vec_size(what) == vec_size(names), msg = "LHS and RHS should have equal length")
+
+    invisible(walk2(what, names, ~ assign(as.character(.y), .x, envir = env)))
+}
