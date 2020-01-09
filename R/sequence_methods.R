@@ -21,9 +21,19 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-list_collapse_dfr <- function(data, to = Name, ptype = factor()) {
-    imap_dfr(data, ~ mutate(.x, {{ to }} := vec_cast(.y, ptype)))
+#' @title List collapse
+#' @description Collapses named list of \code{data.frame} rowwise, assigning
+#' list names to the column named \code{to}.
+#' @param data List of \code{data.frame}s.
+#' @param to Name of the column to where list names will go.
+#' @param ptype Casts names to the target type. By default, \code{factor()};
+#' when \code{NULL}, perofrms no cast.
+#' @param modifier An \code{rlang}-style function/lambda that converts names.
+#' Can e.g. be used to parse names into numbers and than cast column to \code{ptype} type.
+#' @return A single \code{data.frame}.
+#' @export
+list_collapse_dfr <- function(data, to = Name, ptype = factor(), modifier = identity) {
+    imap_dfr(data, ~ mutate(.x, {{ to }} := vec_cast(!!!map(.y, modifier), ptype)))
 }
 
 
