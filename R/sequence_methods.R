@@ -21,6 +21,34 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#' @title List_of mappers
+#' @rdname map_lo
+#' @param .x,.y,.f,.l Parameters passed to respective \code{purrr} method
+#' @param ... Additional parameters
+#' @return A \code{vctrs::list_of} instead of a regular list.
+#' @export
+map_lo <- function(.x, .f, ...) {
+    as_list_of(map(.x, .f, ...))
+}
+
+#' @rdname map_lo
+#' @export
+imap_lo <- function(.x, .f, ...) {
+    as_list_of(imap(.x, .f, ...))
+}
+
+#' @rdname map_lo
+#' @export
+map2_lo <- function(.x, .y, .f, ...) {
+    as_list_of(map2(.x, .y, .f, ...))
+}
+
+#' @rdname map_lo
+#' @export
+pmap_lo <- function(.l, .f, ...) {
+    as_list_of(pmap(.l, .f, ...))
+}
+
 
 #' @title seq_int_len
 #' @param length.out Size of the sequence.
