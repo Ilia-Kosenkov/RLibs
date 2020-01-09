@@ -109,7 +109,6 @@ either <- function(...) {
 #' @param include_lower Wether to include lower limit
 #' @param include_upper Wether to include upper limit
 #' @importFrom vctrs vec_is vec_cast_common
-#' @importFrom zeallot %->%
 #' @return \code{logical} \code{TRUE} if all elements are within the boundaries.
 #' @export
 vec_within <- function(x, lower, upper, include_lower = TRUE, include_upper = TRUE) {

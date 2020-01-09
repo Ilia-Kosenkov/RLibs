@@ -21,6 +21,12 @@
 #   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 #   THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+list_collapse_dfr <- function(data, to = Name, ptype = factor()) {
+    imap_dfr(data, ~ mutate(.x, {{ to }} := vec_cast(.y, ptype)))
+}
+
+
 #' @title List_of mappers
 #' @rdname map_lo
 #' @param .x,.y,.f,.l Parameters passed to respective \code{purrr} method

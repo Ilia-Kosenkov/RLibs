@@ -5,7 +5,6 @@
 #'
 #' @return Logical vector
 #' @export
-#' @importFrom zeallot %->%
 are_equal_f <- function(x, y, eps = 1) {
     eps <- vec_assert_numeric(eps, size = 1L)
     assertthat::assert_that(eps >= 0)

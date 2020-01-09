@@ -37,7 +37,6 @@ if (interactive()) {
     library(fs)
     library(assertthat)
     library(vctrs)
-    library(zeallot)
 
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
 } else {
