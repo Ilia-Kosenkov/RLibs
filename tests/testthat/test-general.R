@@ -23,11 +23,28 @@
 
 context("General tests")
 
-test_that("`glue_fmt` vectorization", {
+test_that("`glue_fmt` vectorizes corerctly", {
 
     x <- 123L
     comp <- paste(letters, LETTERS, x, sep = ">-<")
     glue_result <- glue_fmt_chr("{letters:%1s}>-<{LETTERS:%1s}>-<{x:%3d}")
 
     expect_equal(glue_result, comp)
+})
+
+
+test_that("`%>>%` `%<<%` compose correctly", {
+    x <- rnorm(100L)
+    comp <- map_dbl(x, ~ .x ^ 2 + 5)
+
+    fwd <- (~.x ^ 2) %>>% (~.x + 5)
+    bwd <- (~.x + 5) %<<% (~.x ^ 2)
+
+    fwd_result <- map_dbl(x, fwd)
+    bwd_result <- map_dbl(x, bwd)
+
+    expect_equal(fwd_result, comp)
+    expect_equal(bwd_result, comp)
+    expect_equal(fwd_result, bwd_result)
+
 })
