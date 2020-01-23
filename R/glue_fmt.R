@@ -26,7 +26,7 @@
 sprintf_transformer <- function(text, envir) {
     str_match(text, "^(.*?)(?::(\\ *%-?.+))?$")[2:3] -> expr
 
-    vals <- eval(parse(text = expr[1], keep.source = FALSE), envir)
+    vals <- eval_tidy(parse_expr(expr[1]), env = envir)
 
     if (!is.na(expr[2]))
         return(sprintf(expr[2], vals))
