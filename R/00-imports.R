@@ -1,5 +1,5 @@
-#' @importFrom rlang      is_character list2 !! !!! is_missing inherits_any inherits_all
-#' @importFrom rlang      set_names enquo quo_get_env quo_get_expr sym abort warn is_null
+#' @importFrom rlang      is_character list2 !! !!! is_missing inherits_any inherits_all parse_expr
+#' @importFrom rlang      set_names enquo quo_get_env quo_get_expr sym abort warn is_null eval_tidy
 
 #' @importFrom assertthat assert_that
 
