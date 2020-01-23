@@ -24,15 +24,14 @@
 # ADOPTED FROM [glue] package; vignettes
 
 sprintf_transformer <- function(text, envir) {
-    m <- regexpr(":\\ ?%.+$", text)
-    if (m != -1) {
-        format <- substring(regmatches(text, m), 2)
-        regmatches(text, m) <- ""
-        res <- eval(parse(text = text, keep.source = FALSE), envir)
-        do.call(sprintf, list(glue("{format}"), res))
-    } else {
-        eval(parse(text = text, keep.source = FALSE), envir)
-    }
+    str_match(text, "^(.*?)(?::(\\ *%-?.+))?$")[2:3] -> expr
+
+    vals <- eval(parse(text = expr[1], keep.source = FALSE), envir)
+
+    if (!is.na(expr[2]))
+        return(sprintf(expr[2], vals))
+
+    return(vals)
 }
 
 #' @title glue_fmt

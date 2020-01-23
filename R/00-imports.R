@@ -12,7 +12,7 @@
 
 #' @importFrom tibble     tibble
 
-#' @importFrom purrr      map map_dbl map2 imap pmap walk2 imap_dfr
+#' @importFrom purrr      map map_dbl map2 imap pmap walk2 imap_dfr compose
 
 #' @importFrom forcats    as_factor fct_cross
 

@@ -1,6 +1,6 @@
 Package: RLibs
 Title: RLibs
-Version: 0.7.16
+Version: 0.7.17
 Authors@R: person("Ilia", "Kosenkov", email = "ilia.kosenkov.at.gm@gmail.com", role = c("aut", "cre"))
 Description: Auxilary functions for data analysis & plotting.
 URL: https://github.com/Ilia-Kosenkov/RLibs
