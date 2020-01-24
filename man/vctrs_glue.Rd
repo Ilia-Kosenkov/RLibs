@@ -19,25 +19,25 @@ vec_ptype_abbr.glue(x, ...)
 
 vec_ptype2.glue(x, y, ...)
 
-\method{vec_ptype2}{glue.default}(x, y, ..., x_arg = "x", y_arg = "y")
+\method{vec_ptype2.glue}{default}(x, y, ..., x_arg = "x", y_arg = "y")
 
-\method{vec_ptype2}{glue.fs_path}(x, y, ..., x_arg = "x", y_arg = "y")
+\method{vec_ptype2.glue}{fs_path}(x, y, ..., x_arg = "x", y_arg = "y")
 
-\method{vec_ptype2}{glue.character}(x, y, ...)
+\method{vec_ptype2.glue}{character}(x, y, ...)
 
-\method{vec_ptype2}{character.glue}(x, y, ...)
+\method{vec_ptype2.character}{glue}(x, y, ...)
 
-\method{vec_ptype2}{glue.glue}(x, y, ...)
+\method{vec_ptype2.glue}{glue}(x, y, ...)
 
 vec_cast.glue(x, to, ...)
 
-\method{vec_cast}{glue.default}(x, to, ...)
+\method{vec_cast.glue}{default}(x, to, ...)
 
-\method{vec_cast}{glue.fs_path}(x, to, ...)
+\method{vec_cast.glue}{fs_path}(x, to, ...)
 
-\method{vec_cast}{glue.character}(x, to, ...)
+\method{vec_cast.glue}{character}(x, to, ...)
 
-\method{vec_cast}{character.glue}(x, to, ...)
+\method{vec_cast.character}{glue}(x, to, ...)
 }
 \arguments{
 \item{x, y}{Vectors to check/cast.}

@@ -19,25 +19,25 @@ vec_ptype_abbr.fs_path(x, ...)
 
 vec_ptype2.fs_path(x, y, ...)
 
-\method{vec_ptype2}{fs_path.glue}(x, y, ...)
+\method{vec_ptype2.fs_path}{glue}(x, y, ...)
 
-\method{vec_ptype2}{fs_path.default}(x, y, ...)
+\method{vec_ptype2.fs_path}{default}(x, y, ...)
 
-\method{vec_ptype2}{fs_path.character}(x, y, ...)
+\method{vec_ptype2.fs_path}{character}(x, y, ...)
 
-\method{vec_ptype2}{character.fs_path}(x, y, ...)
+\method{vec_ptype2.character}{fs_path}(x, y, ...)
 
-\method{vec_ptype2}{fs_path.fs_path}(x, y, ...)
+\method{vec_ptype2.fs_path}{fs_path}(x, y, ...)
 
 vec_cast.fs_path(x, to, ...)
 
-\method{vec_cast}{fs_path.default}(x, to, ...)
+\method{vec_cast.fs_path}{default}(x, to, ...)
 
-\method{vec_cast}{fs_path.glue}(x, to, ...)
+\method{vec_cast.fs_path}{glue}(x, to, ...)
 
-\method{vec_cast}{fs_path.character}(x, to, ...)
+\method{vec_cast.fs_path}{character}(x, to, ...)
 
-\method{vec_cast}{character.fs_path}(x, to, ...)
+\method{vec_cast.character}{fs_path}(x, to, ...)
 }
 \arguments{
 \item{x, y}{Vectors to check/cast.}

@@ -5,6 +5,7 @@
 #'
 #' @importFrom vctrs        vec_in vec_c vec_size vec_rbind vec_assert %0% vec_recycle vec_is as_list_of
 #' @importFrom vctrs        vec_cast stop_incompatible_type stop_incompatible_cast maybe_lossy_cast
+#' @importFrom vctrs        vec_cast.character vec_ptype2.character
 #'
 #' @importFrom dplyr        %>% bind_rows mutate arrange desc
 #'
