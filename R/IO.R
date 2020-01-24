@@ -136,10 +136,10 @@ write_fixed <- function(frame, path, frmt, append = FALSE) {
 
     fctr <- colTypes %>% filter(IsFactor) %>% pull(Col)
 
+
     colTypes %<>% mutate(
             Header = str_extract(Format, "(?<=%)[0-9]+(?=\\.?[[:alnum:]]+)"),
-            Header = glue("%{Header}s"))
-
+            Header = glue_fmt_chr("%{Header}s"))
 
     headFrmt <- colTypes %>%
         mutate(Str = map2_chr(Col, Header, ~ sprintf(.y, .x))) %>%
