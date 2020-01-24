@@ -39,9 +39,7 @@ source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
     srcs <- fs::dir_ls(
            path = path,
            regexp = "\\.R$",
-           recurse = recursive) %>%
-        # Regression due to {vctrs}
-        as.character
+           recurse = recursive)
 
     if (missing(except) || !nzchar(except))
         except <- "^$"
