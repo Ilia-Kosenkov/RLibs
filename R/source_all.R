@@ -33,19 +33,16 @@ utils::globalVariables(c("Path", "Length", "Temp"))
 #' @param recursive If \code{TRUE}, goes recurisvely into sub directories.
 #'
 #' @return Nothing
-#' @importFrom fs dir_ls
-#' @importFrom purrr %>% discard pwalk map_int
-#' @importFrom stringr str_detect str_split str_extract
-#' @importFrom glue glue
-#' @importFrom tibble enframe
-#' @importFrom dplyr mutate arrange desc
 #' @export
 #' @aliases SourceAll
 source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
-    srcs <- dir_ls(
+    srcs <- fs::dir_ls(
            path = path,
            regexp = "\\.R$",
-           recurse = recursive)
+           recurse = recursive) %>%
+        # Regression due to {vctrs}
+        as.character
+
     if (missing(except) || !nzchar(except))
         except <- "^$"
 
@@ -54,8 +51,8 @@ source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
         enframe("Temp", "Path") %>%
         select(-Temp) %>%
         mutate(
-            Length = map_int(str_split(Path, "[\\\\/]"), length))  %>%
-        arrange(desc(Length), Path)  %>%
+            Length = map_int(str_split(Path, "[\\\\/]"), length)) %>%
+        arrange(desc(Length), Path) %>%
         mutate(Prints = fs::path_ext_remove(Path)) %>%
         pwalk(function(Path, Length, Prints) {
             if (!quiet)
