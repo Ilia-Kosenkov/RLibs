@@ -32,11 +32,11 @@ if (interactive()) {
     library(magrittr)
     library(rlang)
     library(glue)
-    library(foreach)
     library(feather)
     library(fs)
     library(assertthat)
     library(vctrs)
+    library(primitiveR)
 
     purrr::walk(fs::dir_ls("R", glob = "*R"), source)
 } else {

@@ -215,11 +215,6 @@ GGPlotGetRange <- function(plt) {
 
 
 
-#' @export
-#' @import ggplot2 foreach
-GGCustomLargeTicks <- function(...)
-    stop("GGCustomLargeTicks is deprecated. Use GGPlotCustomTicks")
-
 
 #' @title GGPlot2Grob
 #' @description
@@ -370,7 +365,6 @@ AsSegments <- function(.data, ..., suffix = "_end") {
 #' @param rot Rotation angle.
 #' @param gp Additional graphical parameters.
 #' @return List of \code{annotation_custom} objects.
-#' @importFrom foreach foreach %do%
 #' @importFrom ggplot2 annotation_custom
 #' @importFrom grid textGrob gpar
 #' @export
@@ -401,20 +395,21 @@ GGCustomTextAnnotation <- function(labels, x, y,
     else if (length(gp) == 1L && n != 1L)
         gp <- rep(gp[1], n)
 
-    foreach(lbl = labels,
+    pmap(list(lbl = labels,
             xmn = xmin, xmx = xmax,
             ymn = ymin, ymx = ymax,
             vjst = vjust,
             hjst = hjust,
             rt = rot,
-            g = gp) %do% {
+            g = gp),
+        function(lbl, xmn, xmx, ymn, ymx, vjst, hjst, rt, g) {
                 annotation_custom(textGrob(lbl,
                         hjust = hjst,
                         vjust = vjst,
                         rot = rt,
                         gp = g),
                     xmn, xmx, ymn, ymx)
-            }
+            })
 }
 
 
@@ -609,18 +604,17 @@ GGPlotPanelLabs <- function(p, labels = "X",
     if (inherits_any(gp, "gpar"))
         gp <- rep(list(gp), n)
 
-    # Initializing `foreach`-local variables to suppress package check warnings
     lLabs <- NULL
     lX <- NULL
     lY <- NULL
     lHjust <- NULL
     lVjust <- NULL
     lGp <- NULL
-    p %>% pforeach(lLabs = labels, lX = x, lY = y,
+    pmap(list(x = p, lLabs = labels, lX = x, lY = y,
                    lHjust = hjust, lVjust = vjust,
-                   lGp = gp) %do% {
+                   lGp = gp), function(x, lLabs, lX, lY, lHjust, lVjust, lGp) {
                        x + GGCustomTextAnnotation(lLabs,
                         lX, lY, vjust = lVjust, hjust = lHjust, gp = lGp)
-                   }
+                   })
 
 }

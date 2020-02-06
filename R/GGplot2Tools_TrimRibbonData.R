@@ -35,11 +35,6 @@
 #' @param ... Additional columns to preserve.
 #' @param .exclude_outliers If \code{TRUE}, \code{y}-outliers are assigned NA values.
 #' @return Table ready to be plotted.
-#' @importFrom rlang ensyms quo_text := !! is_empty
-#' @importFrom purrr map_dfr reduce
-#' @importFrom magrittr extract is_less_than is_greater_than %<>%
-#' @importFrom dplyr %>% arrange mutate pull slice row_number
-#' @importFrom tibble tibble
 #' @export
 trim_ribbon_data <- function(.data, x, y, xlim, ylim, lwr, upp, ..., .exclude_outliers = FALSE) {
 
@@ -95,9 +90,9 @@ trim_ribbon_data <- function(.data, x, y, xlim, ylim, lwr, upp, ..., .exclude_ou
         lVal <- pull(plt_data, {{ lwr }})[m - 1:0]
         uVal <- pull(plt_data, {{ upp }})[m - 1:0]
 
-        y0 <- Lin(xlim[2], arg, val)
-        l0 <- Lin(xlim[2], arg, lVal)
-        u0 <- Lin(xlim[2], arg, uVal)
+        y0 <- lin(xlim[2], arg, val)
+        l0 <- lin(xlim[2], arg, lVal)
+        u0 <- lin(xlim[2], arg, uVal)
 
         plt_data %<>%
             mutate({{ x }} := replace({{ x }}, row_number() %==% m, xlim[2])) %>%

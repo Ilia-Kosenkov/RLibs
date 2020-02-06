@@ -2,11 +2,17 @@
 % Please edit documentation in R/source_all.R
 \name{source_all}
 \alias{source_all}
-\alias{SourceAll}
 \title{Sources files in the directory.
 Useful for the initial project setup.}
 \usage{
-source_all(path, except, quiet = FALSE, recursive = TRUE)
+source_all(
+  path,
+  except,
+  quiet = FALSE,
+  recursive = TRUE,
+  encoding = "UTF-8",
+  ...
+)
 }
 \arguments{
 \item{path}{Path where to look for .R files.}
@@ -16,9 +22,10 @@ source_all(path, except, quiet = FALSE, recursive = TRUE)
 \item{quiet}{If \code{FALSE}, prints message per each file.}
 
 \item{recursive}{If \code{TRUE}, goes recurisvely into sub directories.}
-}
-\value{
-Nothing
+
+\item{encoding}{Encoding of the files.}
+
+\item{...}{Additional parameters passed to \code{source}.}
 }
 \description{
 Sources files in the directory.

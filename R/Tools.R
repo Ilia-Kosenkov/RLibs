@@ -41,28 +41,6 @@ fct_get <- function(x) {
 #' @export
 `%vec_in%` <- vctrs::vec_in
 
-#' @title cc
-#' @param ... Input similar to \code{c}.
-#' @return Type-sefe concatenation of the input.
-#' @export
-cc <- function(...) vctrs::vec_c(...)
-
-#' @title len
-#' @rdname len
-#' @param x Object to measure.
-#'
-#' @return Length of the object.
-#' @export
-len <- function(x) UseMethod("len")
-#' @rdname len
-#' @export
-len.default <- function(x) vctrs::vec_size(x)
-#' @rdname len
-#' @export
-len.unit <- function(x) length(x)
-#' @rdname len
-#' @export
-len.quosures <- function(x) length(x)
 
 #' vec_rbind_uq
 #'
@@ -271,47 +249,6 @@ Expand <- function(x, factor = 1, direction = c(1, 1)) {
     expand_interval(x, factor, direction)
 }
 
-#' @title lin
-#' @param x Where to interpolate.
-#' @param x0 Arguments (size 2).
-#' @param y0 Values (size 2).
-#' @return Interpolated value between two provided.
-#' @export
-lin <- function(x, x0, y0) {
-
-    data <- vec_cast_common_flatten(x0, y0)
-    vctrs::vec_recycle_common(!!!data, .size = 2L) %->% c(x0, y0)
-
-    dx <- diff(x0)
-    dy <- diff(y0)
-    sz <- len(x)
-    if (sz %==% 0L)
-        return(x)
-    else if (sz %==% 1L)
-        (x - x0[1]) * dy / dx + y0[1]
-    else {
-        purrr::map(x, ~ (.x - x0[1]) * dy / dx + y0[1]) -> result
-        vctrs::vec_cast(result, vctrs::vec_ptype_common(!!!result))
-    }
-}
-
-#' @rdname lin
-#' @export
-Lin <- function(x, x0, y0) {
-    lifecycle::deprecate_soft("0.6.0", "RLibs::Lin()", "RLibs::lin()")
-    lin(x, x0, y0)
-}
-
-
-#' @title pforeach
-#' @param .data An implicit argument passed by a pipe operatpr \code{\%>\%}.
-#' @param ... Additional parameters passed to \code{foreach} as is.
-#' @return Output of \code{foreach} function that can be piped using
-#' operators like \code{\%do\%} and \code{\%dopar\%}.
-#' @export
-pforeach <- function(.data, ...) {
-   lifecycle::deprecate_stop("0.6.1", "RLibs::pforeach()")
-}
 
 utils::globalVariables("formula")
 

@@ -92,16 +92,16 @@ table_2_tex <- function(
 
         if (is_character(input)
             && length(input) == nrow(format_tbl))
-                return(GlueFmt(header_format, .envir = set_names(as_list(input), format_tbl$Name)))
+                return(glue_fmt_chr(header_format, .envir = set_names(as_list(input), format_tbl$Name)))
 
         if (is_list(input)
             && length(input) == nrow(format_tbl)
             && every(input, is_scalar_character)) {
 
             if (is_named(input) && all(names(input) %in% format_tbl$Name))
-                return(GlueFmt(header_format, .envir = input))
+                return(glue_fmt_chr(header_format, .envir = input))
             else
-                return(GlueFmt(header_format, .envir = set_names(input, format_tbl$Name)))
+                return(glue_fmt_chr(header_format, .envir = set_names(input, format_tbl$Name)))
             }
 
         return(NULL)
@@ -169,7 +169,7 @@ table_2_tex <- function(
         glue_collapse(sep = " & ") %>%
         paste0(" \\\\")
 
-    header_string <- GlueFmt(header_format, .envir = custom_header)
+    header_string <- glue_fmt_chr(header_format, .envir = custom_header)
 
     append_next <- append
 
@@ -209,7 +209,7 @@ table_2_tex <- function(
         output %<>% c(indent("", offset))
 
     output %<>% c(data %>% pmap_chr(function(...) {
-        GlueFmt(indent(line_format, offset), .envir = list(...))
+        glue_fmt_chr(indent(line_format, offset), .envir = list(...))
     }))
 
 

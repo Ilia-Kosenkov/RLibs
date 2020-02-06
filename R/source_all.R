@@ -31,11 +31,10 @@ utils::globalVariables(c("Path", "Length", "Temp"))
 #' @param except Regex pattern to ignore files.
 #' @param quiet If \code{FALSE}, prints message per each file.
 #' @param recursive If \code{TRUE}, goes recurisvely into sub directories.
-#'
-#' @return Nothing
+#' @param encoding Encoding of the files.
+#' @param ... Additional parameters passed to \code{source}.
 #' @export
-#' @aliases SourceAll
-source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
+source_all <- function(path, except, quiet = FALSE, recursive = TRUE, encoding = "UTF-8", ...) {
     srcs <- fs::dir_ls(
            path = path,
            regexp = "\\.R$",
@@ -55,13 +54,7 @@ source_all <- function(path, except, quiet = FALSE, recursive = TRUE) {
         pwalk(function(Path, Length, Prints) {
             if (!quiet)
                 message(glue("Sourcing {Prints}..."))
-            source(Path)
+            source(Path, encoding = encoding, ...)
         })
     invisible(NULL)
-}
-
-#' @export
-SourceAll <- function(path, except, quiet = FALSE, recursive = TRUE) {
-    lifecycle::deprecate_warn("0.6.1", "RLibs::SourceAll()", "RLibs::source_all()")
-    source_all(path = path, except = except, quiet = quiet, recursive = recursive)
 }
