@@ -205,7 +205,7 @@ Clamp <- function(...) {
 clamp.numeric <- function(...) {
     args <- rlang::list2(...)
     vec_assert(args, size = 2L)
-    names <- names(args)
+    names <- names(args) %||% ""
     data_id <- which(names %==% ".data") %0% 1L
     range_id <- which(names %==% ".range") %0% 2L
 

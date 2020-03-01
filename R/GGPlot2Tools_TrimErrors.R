@@ -26,8 +26,8 @@
 TrimErrors <- function(.data, x, xlim, lwrPref = "l", uppPref = "u") {
     X <- sym(quo_squash(enquo(x)))
 
-    lX <- lwrPref %+% as.character(X)
-    uX <- uppPref %+% as.character(X)
+    lX <- lwrPref %&% as.character(X)
+    uX <- uppPref %&% as.character(X)
 
     x1 <- lX %in% names(.data)
     x2 <- uX %in%  names(.data)
